@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오목</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --panel: #fffdf8;
+    --text: #2b2620;
+    --muted: #7a7064;
+    --border: #e2dacb;
+    --wood: #dcb35c;
+    --wood-line: #5a4220;
+    --accent: #8b5e34;
+    --accent-text: #fff;
+    --btn: #f0e9dc;
+    --btn-hover: #e6dcc9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1a17; --panel: #26231f; --text: #ece6dc; --muted: #a59c90; --border: #3a352e;
+      --wood: #c99d4a; --wood-line: #4a3518; --accent: #c48a52; --accent-text: #1c1a17;
+      --btn: #332f29; --btn-hover: #3e3932;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1a17; --panel: #26231f; --text: #ece6dc; --muted: #a59c90; --border: #3a352e;
+    --wood: #c99d4a; --wood-line: #4a3518; --accent: #c48a52; --accent-text: #1c1a17;
+    --btn: #332f29; --btn-hover: #3e3932;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    min-height: 100vh;
+    touch-action: manipulation;
+  }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0; }
+
+  .app {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+    display: grid;
+    grid-template-columns: auto minmax(280px, 360px);
+    grid-template-areas: "board head" "board side";
+    grid-template-rows: auto 1fr;
+    gap: 14px 24px;
+    justify-content: center;
+    align-items: start;
+  }
+  .head { grid-area: head; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .title-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .back { color: var(--muted); font-size: 14px; text-decoration: none; align-self: flex-start; padding: 4px 0; }
+  .back:hover { color: var(--text); }
+  .board-wrap {
+    grid-area: board;
+    --bw: min(calc(100vw - 32px), 80vh, 600px);
+    width: var(--bw);
+    position: relative;
+  }
+  svg.board {
+    display: block;
+    width: var(--bw);
+    height: var(--bw);
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .side { grid-area: side; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .status { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .turn-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
+  .turn-dot.w { background: #fffaf0; }
+  .turn-dot.b { background: #1d1a17; }
+  .status-sub { color: var(--muted); font-size: 13px; margin-top: 4px; min-height: 1em; }
+  .field-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .seg {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    background: var(--btn); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px;
+  }
+  .seg button {
+    font: inherit; font-size: 14px; border: 0; border-radius: 7px; background: transparent; color: var(--text);
+    padding: 9px 4px; min-height: 40px; cursor: pointer; white-space: normal; line-height: 1.2;
+  }
+  .seg button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+  .seg button:disabled { opacity: .45; cursor: default; }
+  .seg.disabled button.on { background: var(--btn-hover); color: var(--muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.btn {
+    font: inherit; font-size: 14px; flex: 1; padding: 9px 10px; min-height: 44px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--btn); color: var(--text); cursor: pointer;
+  }
+  button.btn:hover { background: var(--btn-hover); }
+  button.btn.primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
+  button.btn.primary:hover { filter: brightness(1.08); }
+  button.btn:disabled { opacity: .5; cursor: default; }
+  select.lang {
+    font: inherit; font-size: 13px; color: var(--text); background: var(--btn);
+    border: 1px solid var(--border); border-radius: 8px; padding: 5px 6px; min-height: 34px; margin-left: auto;
+  }
+  .stats { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+  .stats b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* 화면에는 안 보이고 스크린리더만 읽는 안내 영역 */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
+  }
+
+  .overlay {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, .4); border-radius: 6px; z-index: 5;
+  }
+  .overlay.show { display: flex; }
+  .dialog {
+    background: var(--panel); color: var(--text); border-radius: 12px; padding: 20px 22px;
+    text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.3); max-width: 90%;
+  }
+  .dialog h2 { margin: 0 0 6px; font-size: 20px; }
+  .dialog p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 820px) {
+    .app {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "head" "board" "side";
+      grid-template-rows: auto;
+      padding: 12px 8px 28px;
+      gap: 10px;
+    }
+    .board-wrap { --bw: min(calc(100vw - 16px), 70vh, 600px); justify-self: center; }
+    .head { gap: 8px; }
+    h1 { font-size: 19px; }
+    .card { padding: 12px; }
+    .status { font-size: 16px; }
+    .seg button, button.btn { font-size: 13px; }
+    svg.board { border-radius: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <a class="back" href="index.html" data-i18n="back">← 게임 목록</a>
+    <div class="title-row">
+      <h1 data-i18n="title">오목</h1>
+      <p class="sub" data-i18n="hint">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리</p>
+      <select class="lang" id="lang" aria-label="언어"></select>
+    </div>
+    <div class="card">
+      <div class="status"><span class="turn-dot b" id="turnDot"></span><span id="status" aria-live="polite">흑 차례</span></div>
+      <div class="status-sub" id="statusSub"></div>
+    </div>
+  </header>
+
+  <div class="board-wrap">
+    <svg class="board" id="board" role="application" tabindex="0" aria-label="오목판"></svg>
+    <div class="sr-only" id="sr" aria-live="polite"></div>
+    <div class="overlay" id="endOverlay">
+      <div class="dialog">
+        <h2 id="endTitle"></h2>
+        <p id="endText"></p>
+        <div class="row">
+          <button class="btn" id="endClose" data-i18n="viewBoard">판 보기</button>
+          <button class="btn primary" id="endNew" data-i18n="newGame">새 게임</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div class="field-label" data-i18n="level">AI 난이도</div>
+        <div class="seg" id="levelSeg">
+          <button data-v="0" data-i18n="lv0">입문</button>
+          <button data-v="1" data-i18n="lv1">쉬움</button>
+          <button data-v="2" data-i18n="lv2">보통</button>
+          <button data-v="3" data-i18n="lv3">어려움</button>
+        </div>
+      </div>
+      <div>
+        <div class="field-label" data-i18n="mode">대전 방식</div>
+        <div class="seg" id="modeSeg">
+          <button data-v="me-b" data-i18n="modeB">나: 흑 (먼저)</button>
+          <button data-v="me-w" data-i18n="modeW">나: 백</button>
+          <button data-v="pvp" data-i18n="modePvp">2인 대전</button>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="newBtn" data-i18n="newGame">새 게임</button>
+        <button class="btn" id="undoBtn" data-i18n="undo">무르기</button>
+      </div>
+    </div>
+    <div class="card stats">
+      <span data-i18n="moveCount">놓은 돌</span><b id="moveCount">0</b>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 다국어 =====
+const I18N = {
+  ko: {
+    name: '한국어', title: '오목', hint: '가로·세로·대각선으로 돌 5개를 먼저 이으면 승리', board: '오목판', back: '← 게임 목록',
+    turnB: '흑 차례', turnW: '백 차례', thinking: 'AI가 생각 중…', yourTurn: '당신의 차례입니다',
+    tapAgain: '같은 곳을 한 번 더 누르면 돌을 놓아요', winB: '흑 승리!', winW: '백 승리!', draw: '무승부',
+    full: '판이 가득 찼어요', five: '다섯 개를 이었어요', restart: '새 게임을 눌러 다시 시작하세요',
+    level: 'AI 난이도', lv0: '입문', lv1: '쉬움', lv2: '보통', lv3: '어려움',
+    mode: '대전 방식', modeB: '나: 흑 (먼저)', modeW: '나: 백', modePvp: '2인 대전',
+    newGame: '새 게임', undo: '무르기', viewBoard: '판 보기', moveCount: '놓은 돌',
+    confirmMode: '대전 방식을 바꾸면 새 게임이 시작돼요. 계속할까요?',
+    langLabel: '언어', cellEmpty: '빈 자리', cellB: '흑돌', cellW: '백돌', kbdHelp: '방향키로 이동, Enter 또는 Space로 착수',
+  },
+  en: {
+    name: 'English', title: 'Gomoku', hint: 'Get five stones in a row — across, down or diagonally', board: 'Gomoku board', back: '← All games',
+    turnB: 'Black to move', turnW: 'White to move', thinking: 'AI is thinking…', yourTurn: 'Your move',
+    tapAgain: 'Tap the same spot again to place', winB: 'Black wins!', winW: 'White wins!', draw: 'Draw',
+    full: 'The board is full', five: 'Five in a row', restart: 'Press New game to play again',
+    level: 'AI level', lv0: 'Beginner', lv1: 'Easy', lv2: 'Medium', lv3: 'Hard',
+    mode: 'Mode', modeB: 'Me: Black (first)', modeW: 'Me: White', modePvp: '2 players',
+    newGame: 'New game', undo: 'Undo', viewBoard: 'View board', moveCount: 'Stones placed',
+    confirmMode: 'Changing the mode starts a new game. Continue?',
+    langLabel: 'Language', cellEmpty: 'empty', cellB: 'black stone', cellW: 'white stone', kbdHelp: 'Arrow keys to move, Enter or Space to place',
+  },
+  ja: {
+    name: '日本語', title: '五目並べ', hint: '縦・横・斜めに石を5つ先に並べたら勝ち', board: '碁盤', back: '← ゲーム一覧',
+    turnB: '黒の番', turnW: '白の番', thinking: 'AIが考え中…', yourTurn: 'あなたの番です',
+    tapAgain: '同じ場所をもう一度タップすると石を置きます', winB: '黒の勝ち！', winW: '白の勝ち！', draw: '引き分け',
+    full: '盤が埋まりました', five: '5つ並びました', restart: '「新しいゲーム」で再開できます',
+    level: 'AIの強さ', lv0: '入門', lv1: 'やさしい', lv2: 'ふつう', lv3: 'むずかしい',
+    mode: '対戦モード', modeB: '自分: 黒（先手）', modeW: '自分: 白', modePvp: '2人対戦',
+    newGame: '新しいゲーム', undo: '待った', viewBoard: '盤を見る', moveCount: '置いた石',
+    confirmMode: 'モードを変えると新しいゲームが始まります。続けますか？',
+    langLabel: '言語', cellEmpty: '空き', cellB: '黒石', cellW: '白石', kbdHelp: '矢印キーで移動、Enter または Space で置く',
+  },
+  zh: {
+    name: '中文', title: '五子棋', hint: '横、竖、斜先连成五子者获胜', board: '棋盘', back: '← 游戏列表',
+    turnB: '黑方落子', turnW: '白方落子', thinking: 'AI 思考中…', yourTurn: '轮到你了',
+    tapAgain: '再点一次同一位置即可落子', winB: '黑方获胜！', winW: '白方获胜！', draw: '和棋',
+    full: '棋盘已满', five: '五子连珠', restart: '点击「新游戏」重新开始',
+    level: 'AI 难度', lv0: '入门', lv1: '简单', lv2: '普通', lv3: '困难',
+    mode: '对战模式', modeB: '我: 黑方（先手）', modeW: '我: 白方', modePvp: '双人对战',
+    newGame: '新游戏', undo: '悔棋', viewBoard: '查看棋盘', moveCount: '已落子',
+    confirmMode: '切换模式将开始新游戏。是否继续？',
+    langLabel: '语言', cellEmpty: '空位', cellB: '黑子', cellW: '白子', kbdHelp: '方向键移动，Enter 或空格键落子',
+  },
+  es: {
+    name: 'Español', title: 'Gomoku', hint: 'Alinea cinco piedras: en horizontal, vertical o diagonal', board: 'Tablero de Gomoku', back: '← Todos los juegos',
+    turnB: 'Turno de negras', turnW: 'Turno de blancas', thinking: 'La IA está pensando…', yourTurn: 'Tu turno',
+    tapAgain: 'Toca de nuevo el mismo punto para colocar', winB: '¡Ganan negras!', winW: '¡Ganan blancas!', draw: 'Empate',
+    full: 'El tablero está lleno', five: 'Cinco en línea', restart: 'Pulsa «Nueva partida» para volver a jugar',
+    level: 'Nivel de la IA', lv0: 'Principiante', lv1: 'Fácil', lv2: 'Medio', lv3: 'Difícil',
+    mode: 'Modo', modeB: 'Yo: negras (salgo)', modeW: 'Yo: blancas', modePvp: '2 jugadores',
+    newGame: 'Nueva partida', undo: 'Deshacer', viewBoard: 'Ver tablero', moveCount: 'Piedras colocadas',
+    confirmMode: 'Cambiar el modo inicia una nueva partida. ¿Continuar?',
+    langLabel: 'Idioma', cellEmpty: 'vacío', cellB: 'piedra negra', cellW: 'piedra blanca', kbdHelp: 'Flechas para mover, Intro o Espacio para colocar',
+  },
+  fr: {
+    name: 'Français', title: 'Gomoku', hint: 'Alignez cinq pierres : horizontalement, verticalement ou en diagonale', board: 'Plateau de Gomoku', back: '← Tous les jeux',
+    turnB: 'Aux noirs de jouer', turnW: 'Aux blancs de jouer', thinking: "L'IA réfléchit…", yourTurn: 'À vous de jouer',
+    tapAgain: 'Touchez à nouveau le même point pour poser', winB: 'Les noirs gagnent !', winW: 'Les blancs gagnent !', draw: 'Match nul',
+    full: 'Le plateau est plein', five: 'Cinq alignés', restart: 'Appuyez sur « Nouvelle partie » pour rejouer',
+    level: "Niveau de l'IA", lv0: 'Débutant', lv1: 'Facile', lv2: 'Moyen', lv3: 'Difficile',
+    mode: 'Mode', modeB: 'Moi : noirs (1er)', modeW: 'Moi : blancs', modePvp: '2 joueurs',
+    newGame: 'Nouvelle partie', undo: 'Annuler', viewBoard: 'Voir le plateau', moveCount: 'Pierres posées',
+    confirmMode: 'Changer de mode lance une nouvelle partie. Continuer ?',
+    langLabel: 'Langue', cellEmpty: 'vide', cellB: 'pierre noire', cellW: 'pierre blanche', kbdHelp: 'Flèches pour se déplacer, Entrée ou Espace pour poser',
+  },
+  de: {
+    name: 'Deutsch', title: 'Gomoku', hint: 'Bilde zuerst eine Fünferreihe – waagrecht, senkrecht oder diagonal', board: 'Gomoku-Brett', back: '← Alle Spiele',
+    turnB: 'Schwarz am Zug', turnW: 'Weiß am Zug', thinking: 'Die KI denkt nach…', yourTurn: 'Du bist am Zug',
+    tapAgain: 'Tippe nochmal auf dieselbe Stelle zum Setzen', winB: 'Schwarz gewinnt!', winW: 'Weiß gewinnt!', draw: 'Unentschieden',
+    full: 'Das Brett ist voll', five: 'Fünf in einer Reihe', restart: 'Tippe auf „Neues Spiel“, um neu zu starten',
+    level: 'KI-Stärke', lv0: 'Anfänger', lv1: 'Leicht', lv2: 'Mittel', lv3: 'Schwer',
+    mode: 'Modus', modeB: 'Ich: Schwarz (beginnt)', modeW: 'Ich: Weiß', modePvp: '2 Spieler',
+    newGame: 'Neues Spiel', undo: 'Zurück', viewBoard: 'Brett ansehen', moveCount: 'Gesetzte Steine',
+    confirmMode: 'Ein Moduswechsel startet ein neues Spiel. Fortfahren?',
+    langLabel: 'Sprache', cellEmpty: 'leer', cellB: 'schwarzer Stein', cellW: 'weißer Stein', kbdHelp: 'Pfeiltasten zum Bewegen, Enter oder Leertaste zum Setzen',
+  },
+};
+
+// ===== ENGINE START =====
+const N = 15;
+const EMPTY = 0, BLACK = 1, WHITE = 2;
+const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+const other = p => 3 - p;
+
+// idx 위치에 p 의 돌이 있다고 보고, 5개 이상 이어진 줄을 돌려줌 (없으면 null)
+function fiveAt(b, idx, p) {
+  const r = (idx / N) | 0, c = idx % N;
+  for (const [dr, dc] of DIRS) {
+    const line = [idx];
+    for (const s of [1, -1]) {
+      let rr = r + dr * s, cc = c + dc * s;
+      while (rr >= 0 && rr < N && cc >= 0 && cc < N && b[rr * N + cc] === p) {
+        line.push(rr * N + cc);
+        rr += dr * s; cc += dc * s;
+      }
+    }
+    if (line.length >= 5) return line;
+  }
+  return null;
+}
+
+// 패턴 점수표 (x=내 돌, _=빈칸). 높은 점수부터 검사해서 처음 맞는 것을 사용.
+const PATS = [
+  ['xxxxx', 1000000],
+  ['_xxxx_', 100000],
+  ['xxxx_', 10000], ['_xxxx', 10000], ['xxx_x', 10000], ['x_xxx', 10000], ['xx_xx', 10000],
+  ['_xxx_', 3000], ['_xx_x_', 3000], ['_x_xx_', 3000],
+  ['xxx__', 300], ['__xxx', 300], ['xx_x_', 300], ['_x_xx', 300], ['x_xx_', 300], ['_xx_x', 300],
+  ['x__xx', 300], ['xx__x', 300], ['x_x_x', 300],
+  ['__xx__', 100], ['_xx__', 60], ['__xx_', 60], ['_x_x_', 60], ['_x__x_', 30],
+  ['__x__', 8], ['_x_', 2],
+];
+function lineScore(str) {
+  for (const [p, s] of PATS) if (str.includes(p)) return s;
+  return 0;
+}
+// idx 를 중심으로 한 방향 9칸 문자열
+function windowStr(b, idx, dr, dc, p, place) {
+  const r = (idx / N) | 0, c = idx % N;
+  let s = '';
+  for (let k = -4; k <= 4; k++) {
+    const rr = r + dr * k, cc = c + dc * k;
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N) { s += 'o'; continue; }
+    if (k === 0) { s += place ? 'x' : '_'; continue; }
+    const v = b[rr * N + cc];
+    s += v === p ? 'x' : v === EMPTY ? '_' : 'o';
+  }
+  return s;
+}
+// p 가 idx 에 두었을 때 얻는 이득
+function cellScore(b, idx, p) {
+  let total = 0, strong = 0;
+  for (const [dr, dc] of DIRS) {
+    const withS = lineScore(windowStr(b, idx, dr, dc, p, true));
+    const d = withS - lineScore(windowStr(b, idx, dr, dc, p, false));
+    if (d > 0) {
+      total += d;
+      if (withS >= 3000) strong++;
+    }
+  }
+  if (strong >= 2) total += 50000; // 쌍삼·사삼 등 동시 위협
+  return total;
+}
+function moveValue(b, idx, me) {
+  return cellScore(b, idx, me) + cellScore(b, idx, other(me)) * 0.9;
+}
+function candidates(b) {
+  const out = [];
+  for (let i = 0; i < N * N; i++) {
+    if (b[i] !== EMPTY) continue;
+    const r = (i / N) | 0, c = i % N;
+    let near = false;
+    for (let dr = -2; dr <= 2 && !near; dr++) {
+      for (let dc = -2; dc <= 2; dc++) {
+        const rr = r + dr, cc = c + dc;
+        if (rr >= 0 && rr < N && cc >= 0 && cc < N && b[rr * N + cc] !== EMPTY) { near = true; break; }
+      }
+    }
+    if (near) out.push(i);
+  }
+  return out;
+}
+
+// level: 0 입문 / 1 쉬움 / 2 보통 / 3 어려움
+function chooseMove(b, me, level) {
+  const cands = candidates(b);
+  const center = ((N / 2) | 0) * N + ((N / 2) | 0);
+  if (!cands.length) return b[center] === EMPTY ? center : b.indexOf(EMPTY);
+  const scored = cands.map(i => ({ i, s: moveValue(b, i, me) })).sort((a, b) => b.s - a.s);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)].i;
+  const top = scored[0];
+  const opp = other(me);
+  // 점수표와 별개로 먼저 확인: ① 내가 바로 5목 완성 ② 상대가 다음 수에 5목 완성 → 막기
+  // (막는 칸의 점수는 ×0.9 라서 점수 기준만으로는 놓칠 수 있음)
+  const winNow = threatCells(b, me);
+  const mustBlock = threatCells(b, opp);
+  // 막을 칸이 여럿(열린 4 등)이면 그중 점수가 가장 높은 칸
+  const blockCell = () => (scored.find(x => mustBlock.includes(x.i)) || { i: mustBlock[0] }).i;
+
+  if (level === 0) {
+    // 입문: 5목 완성/막기는 각각 절반 확률로만 챙김
+    if (winNow.length && Math.random() < 0.5) return winNow[0];
+    if (mustBlock.length && Math.random() < 0.5) return blockCell();
+    return pick(scored.slice(0, 6));
+  }
+  if (winNow.length) return winNow[0];
+  if (mustBlock.length) return blockCell();
+  if (level === 1) {
+    if (top.s >= 90000) return top.i;
+    return pick(scored.filter(x => x.s >= top.s * 0.5).slice(0, 4));
+  }
+  if (level === 2) {
+    return pick(scored.filter(x => x.s === top.s));
+  }
+
+  // ----- 어려움 -----
+  // 1) 5목 완성 / 상대 5목 막기는 위에서 이미 처리
+  // 2) 상대가 지금 5목 위협이 없으면, 4를 연달아 두어 이기는 수순(VCF)을 찾음
+  if (!mustBlock.length) {
+    vcfBudget = 4000;
+    const v = vcf(b, me, 10);
+    if (v >= 0) return v;
+  }
+  // 3) 상위 후보마다: 상대의 VCF 허용 여부 + 상대 최선 응수 + 내 다음 기회
+  let best = null, bestV = -Infinity;
+  for (const { i, s } of scored.slice(0, 12)) {
+    b[i] = me;
+    let v = s;
+    const myThreat = threatCells(b, me).length > 0; // 4를 만들었으면 상대는 막아야만 함
+    if (!myThreat) {
+      vcfBudget = 1500;
+      if (vcf(b, opp, 8) >= 0) v -= 500000;
+    }
+    let oppBest = 0, myNext = 0;
+    for (const j of candidates(b)) {
+      const a = cellScore(b, j, opp);
+      if (a > oppBest) oppBest = a;
+      const m = cellScore(b, j, me);
+      if (m > myNext) myNext = m;
+    }
+    b[i] = EMPTY;
+    v += (myThreat ? 0 : -0.6 * oppBest) + 0.25 * myNext + Math.random();
+    if (v > bestV) { bestV = v; best = i; }
+  }
+  return best;
+}
+
+// p 가 다음 수에 5목을 완성할 수 있는 빈칸들
+function threatCells(b, p) {
+  const out = [];
+  for (let i = 0; i < N * N; i++) {
+    if (b[i] !== EMPTY) continue;
+    b[i] = p;
+    if (fiveAt(b, i, p)) out.push(i);
+    b[i] = EMPTY;
+  }
+  return out;
+}
+// idx 주변에서 p 가 5목을 완성할 수 있는 빈칸들 (idx 에 방금 둔 돌 기준)
+function winCellsNear(b, idx, p) {
+  const res = new Set();
+  const r = (idx / N) | 0, c = idx % N;
+  for (const [dr, dc] of DIRS) {
+    for (let k = -4; k <= 4; k++) {
+      if (!k) continue;
+      const rr = r + dr * k, cc = c + dc * k;
+      if (rr < 0 || rr >= N || cc < 0 || cc >= N) continue;
+      const j = rr * N + cc;
+      if (b[j] !== EMPTY) continue;
+      b[j] = p;
+      if (fiveAt(b, j, p)) res.add(j);
+      b[j] = EMPTY;
+    }
+  }
+  return [...res];
+}
+// VCF 탐색: p 가 4(5목 위협)만 연속으로 두어 이길 수 있으면 첫 수를 반환, 아니면 -1
+let vcfBudget = 0;
+function vcf(b, p, depth) {
+  if (depth <= 0) return -1;
+  const q = other(p);
+  for (const i of candidates(b)) {
+    if (--vcfBudget < 0) return -1;
+    b[i] = p;
+    if (fiveAt(b, i, p)) { b[i] = EMPTY; return i; }
+    const w = winCellsNear(b, i, p);
+    if (w.length >= 2) { b[i] = EMPTY; return i; }       // 막을 수 없는 쌍4 / 열린4
+    if (w.length === 1) {
+      const blk = w[0];
+      b[blk] = q;                                         // 상대는 강제로 막음
+      let ok = false;
+      if (!fiveAt(b, blk, q) && winCellsNear(b, blk, q).length === 0) ok = vcf(b, p, depth - 1) >= 0;
+      b[blk] = EMPTY;
+      if (ok) { b[i] = EMPTY; return i; }
+    }
+    b[i] = EMPTY;
+  }
+  return -1;
+}
+// ===== ENGINE END =====
+
+// ===== UI =====
+const $ = id => document.getElementById(id);
+const svg = $('board');
+const NS = 'http://www.w3.org/2000/svg';
+const M = 24, G = 40, SIZE = M * 2 + G * (N - 1);
+const pos = i => [M + (i % N) * G, M + ((i / N) | 0) * G];
+
+let board, history, over, winLine, thinking, preview = -1, hover = -1, gen = 0;
+// 키보드 커서: cursor 는 칸 인덱스, kbdOn 은 키보드로 조작 중일 때만 true (마우스·터치를 쓰면 꺼짐)
+let cursor = -1, kbdOn = false;
+let mode = 'me-b', level = 2;
+
+function detectLang() {
+  for (const l of (navigator.languages || [navigator.language || 'ko'])) {
+    const code = String(l).toLowerCase().slice(0, 2);
+    if (I18N[code]) return code;
+  }
+  return 'ko'; // 지원하지 않는 언어면 기본 한국어
+}
+let lang = detectLang();
+try {
+  const sv = JSON.parse(localStorage.getItem('gomoku-settings') || '{}');
+  if (['me-b', 'me-w', 'pvp'].includes(sv.mode)) mode = sv.mode;
+  if ([0, 1, 2, 3].includes(sv.level)) level = sv.level;
+  const gl = localStorage.getItem('games-lang');
+  if (I18N[gl]) lang = gl;
+} catch (e) {}
+function saveSettings() {
+  try {
+    localStorage.setItem('gomoku-settings', JSON.stringify({ mode, level }));
+    localStorage.setItem('games-lang', lang);
+  } catch (e) {}
+}
+const t = k => (I18N[lang] && I18N[lang][k]) || I18N.ko[k] || k;
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = t('title');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  svg.setAttribute('aria-label', t('board') + '. ' + t('kbdHelp'));
+  $('lang').setAttribute('aria-label', t('langLabel'));
+  $('lang').value = lang;
+}
+
+// 좌표 이름: 열 A~O(왼→오), 행 15~1(위→아래). 가운데는 H8
+const COLS = 'ABCDEFGHIJKLMNO';
+const coordName = i => COLS[i % N] + (N - ((i / N) | 0));
+function cellInfo(i) {
+  const v = board[i];
+  return coordName(i) + ', ' + t(v === BLACK ? 'cellB' : v === WHITE ? 'cellW' : 'cellEmpty');
+}
+// 스크린리더 안내 (같은 문구도 다시 읽히도록 끝에 보이지 않는 공백을 번갈아 붙임)
+function announce(text) {
+  const sr = $('sr');
+  sr.textContent = sr.textContent === text ? text + ' ' : text;
+}
+
+const aiColor = () => (mode === 'me-b' ? WHITE : mode === 'me-w' ? BLACK : 0);
+const turn = () => (history.length % 2 === 0 ? BLACK : WHITE);
+
+// --- 정적인 판 그리기 ---
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+let stonesLayer;
+function drawBoard() {
+  svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
+  const defs = el('defs', {}, svg);
+  const gb = el('radialGradient', { id: 'gb', cx: '35%', cy: '30%', r: '70%' }, defs);
+  el('stop', { offset: '0%', 'stop-color': '#6b6b6b' }, gb);
+  el('stop', { offset: '100%', 'stop-color': '#0d0d0d' }, gb);
+  const gw = el('radialGradient', { id: 'gw', cx: '35%', cy: '30%', r: '75%' }, defs);
+  el('stop', { offset: '0%', 'stop-color': '#ffffff' }, gw);
+  el('stop', { offset: '100%', 'stop-color': '#cfcac0' }, gw);
+  // CSS 변수는 SVG 속성에서 안 먹으므로 style 로 지정
+  el('rect', { x: 0, y: 0, width: SIZE, height: SIZE, style: 'fill: var(--wood)' }, svg);
+  const lines = el('g', { style: 'stroke: var(--wood-line)', 'stroke-width': 1.2 }, svg);
+  for (let k = 0; k < N; k++) {
+    const p = M + k * G;
+    el('line', { x1: M, y1: p, x2: SIZE - M, y2: p }, lines);
+    el('line', { x1: p, y1: M, x2: p, y2: SIZE - M }, lines);
+  }
+  el('rect', { x: M, y: M, width: G * (N - 1), height: G * (N - 1), fill: 'none', style: 'stroke: var(--wood-line)', 'stroke-width': 2.4 }, svg);
+  for (const [r, c] of [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]]) {
+    el('circle', { cx: M + c * G, cy: M + r * G, r: 4.5, style: 'fill: var(--wood-line)' }, svg);
+  }
+  stonesLayer = el('g', {}, svg);
+}
+
+function stone(i, color, extra) {
+  const [x, y] = pos(i);
+  return el('circle', Object.assign({
+    cx: x, cy: y, r: G * 0.45,
+    fill: color === BLACK ? 'url(#gb)' : 'url(#gw)',
+    stroke: color === BLACK ? '#000' : '#9c968b', 'stroke-width': 1,
+  }, extra || {}), stonesLayer);
+}
+
+function render() {
+  stonesLayer.replaceChildren();
+  for (let i = 0; i < N * N; i++) if (board[i]) stone(i, board[i]);
+  const last = history[history.length - 1];
+  if (last != null && !winLine) {
+    const [x, y] = pos(last);
+    el('circle', { cx: x, cy: y, r: 5, fill: '#e03a3a' }, stonesLayer);
+  }
+  if (winLine) {
+    const sorted = winLine.slice().sort((a, b) => a - b);
+    const [x1, y1] = pos(sorted[0]), [x2, y2] = pos(sorted[sorted.length - 1]);
+    el('line', { x1, y1, x2, y2, stroke: '#e03a3a', 'stroke-width': 6, 'stroke-linecap': 'round', opacity: .85 }, stonesLayer);
+  }
+  // 미리보기 돌: 터치 미리보기 > 키보드 커서 > 마우스 호버
+  const ghost = preview >= 0 ? preview : kbdOn ? cursor : hover;
+  if (ghost >= 0 && !board[ghost] && humanTurn()) {
+    stone(ghost, turn(), { opacity: preview >= 0 ? .7 : .45 });
+  }
+  // 키보드 커서 테두리 (돌이 있는 칸에서도 위치가 보이도록)
+  if (kbdOn && cursor >= 0) {
+    const [x, y] = pos(cursor);
+    el('circle', { class: 'kbd-cursor', cx: x, cy: y, r: G * 0.5, fill: 'none', stroke: '#e03a3a', 'stroke-width': 2.5 }, stonesLayer);
+  }
+
+  // 상태 표시
+  const tc = turn();
+  $('turnDot').className = 'turn-dot ' + (tc === BLACK ? 'b' : 'w');
+  if (over) {
+    $('status').textContent = t(over.title);
+    $('statusSub').textContent = t(over.text) + ' · ' + t('restart');
+    $('endTitle').textContent = t(over.title);
+    $('endText').textContent = t(over.text);
+    $('turnDot').className = 'turn-dot ' + (over.winner === BLACK ? 'b' : over.winner === WHITE ? 'w' : '');
+  } else {
+    $('status').textContent = t(tc === BLACK ? 'turnB' : 'turnW');
+    $('statusSub').textContent = thinking ? t('thinking')
+      : preview >= 0 ? t('tapAgain')
+      : (aiColor() && tc !== aiColor() ? t('yourTurn') : '');
+  }
+  $('moveCount').textContent = history.length;
+  $('undoBtn').disabled = thinking || history.length === 0;
+
+  for (const b of $('levelSeg').children) {
+    b.classList.toggle('on', +b.dataset.v === level);
+    b.disabled = mode === 'pvp';
+  }
+  $('levelSeg').classList.toggle('disabled', mode === 'pvp');
+  for (const b of $('modeSeg').children) b.classList.toggle('on', b.dataset.v === mode);
+}
+
+function humanTurn() {
+  return !over && !thinking && turn() !== aiColor();
+}
+
+function newGame() {
+  gen++;
+  board = new Array(N * N).fill(EMPTY);
+  history = [];
+  over = null;
+  winLine = null;
+  thinking = false;
+  preview = -1;
+  $('endOverlay').classList.remove('show');
+  render();
+  maybeAI();
+}
+
+function place(i) {
+  const p = turn();
+  board[i] = p;
+  history.push(i);
+  preview = -1;
+  announce(t(p === BLACK ? 'cellB' : 'cellW') + ' ' + coordName(i)); // 예: "흑돌 H8"
+  const line = fiveAt(board, i, p);
+  if (line) {
+    winLine = line;
+    over = { title: p === BLACK ? 'winB' : 'winW', text: 'five', winner: p };
+  } else if (history.length === N * N) {
+    over = { title: 'draw', text: 'full', winner: 0 };
+  }
+  render();
+  if (over) $('endOverlay').classList.add('show');
+  else maybeAI();
+}
+
+function maybeAI() {
+  if (over || turn() !== aiColor()) return;
+  thinking = true;
+  render();
+  const myGen = gen;
+  setTimeout(() => {
+    if (myGen !== gen) return;
+    const i = chooseMove(board.slice(), aiColor(), level);
+    if (myGen !== gen) return;
+    thinking = false;
+    place(i);
+  }, 350);
+}
+
+function undo() {
+  if (thinking || !history.length) return;
+  gen++;
+  const pop = () => { board[history.pop()] = EMPTY; };
+  pop();
+  if (aiColor() && turn() === aiColor() && history.length) pop();
+  over = null;
+  winLine = null;
+  preview = -1;
+  $('endOverlay').classList.remove('show');
+  render();
+  maybeAI();
+}
+
+function pointToIdx(e) {
+  const rect = svg.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width * SIZE;
+  const y = (e.clientY - rect.top) / rect.height * SIZE;
+  const c = Math.round((x - M) / G), r = Math.round((y - M) / G);
+  if (r < 0 || r >= N || c < 0 || c >= N) return -1;
+  if (Math.hypot(x - (M + c * G), y - (M + r * G)) > G * 0.55) return -1;
+  return r * N + c;
+}
+
+// 마우스: 클릭하면 바로 착수 / 터치: 첫 탭은 미리보기, 같은 곳을 다시 탭하면 착수
+svg.addEventListener('pointerdown', () => {
+  if (kbdOn) { kbdOn = false; render(); } // 마우스·터치를 쓰면 키보드 커서 숨김
+});
+svg.addEventListener('pointerup', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return; // 왼쪽 버튼만 (우클릭·휠클릭 무시)
+  if (!humanTurn()) return;
+  const i = pointToIdx(e);
+  if (i < 0 || board[i]) { preview = -1; render(); return; }
+  if (e.pointerType === 'mouse') { place(i); return; }
+  if (preview === i) place(i);
+  else { preview = i; render(); }
+});
+svg.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  const i = pointToIdx(e);
+  if (i !== hover) { hover = i; render(); }
+});
+svg.addEventListener('pointerleave', () => { if (hover !== -1) { hover = -1; render(); } });
+
+// 키보드: 방향키로 커서 이동, Enter/Space 로 착수
+function startKbd() {
+  kbdOn = true;
+  preview = -1;
+  if (cursor < 0) {
+    const last = history[history.length - 1];
+    cursor = last != null ? last : ((N / 2) | 0) * N + ((N / 2) | 0);
+  }
+}
+const ARROWS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+svg.addEventListener('keydown', e => {
+  const d = ARROWS[e.key];
+  if (d) {
+    e.preventDefault();
+    if (kbdOn && cursor >= 0) {
+      const r = Math.min(N - 1, Math.max(0, ((cursor / N) | 0) + d[0]));
+      const c = Math.min(N - 1, Math.max(0, (cursor % N) + d[1]));
+      cursor = r * N + c;
+    }
+    startKbd(); // 처음 누른 방향키는 커서만 보여 줌
+    announce(cellInfo(cursor));
+    render();
+  } else if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    if (e.repeat) return;
+    if (!kbdOn || cursor < 0) { startKbd(); announce(cellInfo(cursor)); render(); return; }
+    if (!humanTurn()) return;
+    if (board[cursor]) { announce(cellInfo(cursor)); return; } // 이미 돌이 있는 자리
+    place(cursor);
+  }
+});
+// Tab 으로 들어오면 커서를 바로 보여 줌 (마우스 클릭으로 생긴 포커스는 제외)
+svg.addEventListener('focus', () => {
+  let byKey = true;
+  try { byKey = svg.matches(':focus-visible'); } catch (e) {}
+  if (!byKey) return;
+  startKbd();
+  announce(cellInfo(cursor));
+  render();
+});
+svg.addEventListener('blur', () => { if (kbdOn) { kbdOn = false; render(); } });
+
+$('newBtn').addEventListener('click', newGame);
+$('endNew').addEventListener('click', newGame);
+$('endClose').addEventListener('click', () => $('endOverlay').classList.remove('show'));
+$('undoBtn').addEventListener('click', undo);
+$('levelSeg').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b || b.disabled) return;
+  level = +b.dataset.v;
+  saveSettings();
+  render();
+});
+$('modeSeg').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b || b.dataset.v === mode) return;
+  if (history.length && !over && !confirm(t('confirmMode'))) return;
+  mode = b.dataset.v;
+  saveSettings();
+  newGame();
+});
+for (const code of Object.keys(I18N)) {
+  const o = document.createElement('option');
+  o.value = code;
+  o.textContent = I18N[code].name;
+  $('lang').appendChild(o);
+}
+$('lang').addEventListener('change', e => {
+  lang = e.target.value;
+  saveSettings();
+  applyLang();
+  render();
+});
+
+drawBoard();
+applyLang();
+newGame();
+</script>
+</body>
+</html>
