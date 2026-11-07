@@ -2,8 +2,31 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>공 배틀</title>
+<script>/* 화면 배치(mobile|pc)를 첫 그리기 전에 적용 → 깜빡임 방지. 사이트 공통 키 'games-layout'.
+   저장값이 없으면 폭 820px 이하 = mobile, 그보다 넓으면 pc (저장은 버튼 클릭 시 본문 스크립트가 한다).
+   좁은 기기(screen.width < 1024)에서 PC 배치 = viewport를 width=1280으로 → '데스크톱 사이트'처럼 축소 표시.
+   그때 --vp-zoom(= min(1280/screen.width, 3))을 :root 인라인에 넘겨 #layoutSeg 버튼만 손가락 크기로 키운다. 본문 스크립트도 applyLayoutViewport()를 쓴다 */
+(function () {
+  var vp = document.getElementById('vp');
+  var VP_DEFAULT = 'width=device-width, initial-scale=1, viewport-fit=cover', VP_PC = 'width=1280'; // 기본값 = 위 meta 원문
+  window.applyLayoutViewport = function (L) {
+    var w = 0;
+    try { w = screen.width; } catch (e) {}
+    var zoom = L === 'pc' && w > 0 && w < 1024, want = zoom ? VP_PC : VP_DEFAULT, st = document.documentElement.style;
+    if (vp.getAttribute('content') !== want) vp.setAttribute('content', want);
+    if (zoom) st.setProperty('--vp-zoom', String(Math.min(1280 / w, 3)));
+    else st.removeProperty('--vp-zoom');
+  };
+  var L = null;
+  try { L = localStorage.getItem('games-layout'); } catch (e) {}
+  if (L !== 'pc' && L !== 'mobile') {
+    try { L = (matchMedia('(max-width: 820px)').matches || (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 820)) ? 'mobile' : 'pc'; } catch (e) { L = 'mobile'; }
+  }
+  document.documentElement.dataset.layout = L;
+  window.applyLayoutViewport(L);
+})();</script>
 <style>
   :root {
     --bg: #f4f1ea;
@@ -51,6 +74,14 @@
     --c-frost: #4db6ac;
     --c-blink: #aed581;
     --c-magnet: #fdd835;
+    --c-giant: #a1887f;
+    --c-poison: #c0ca33;
+    --c-storm: #7986cb;
+    --c-berserker: #d9825b;
+    --c-ghost: #eceff1;      /* 아주 밝음: 진한 --ball-outline 테두리로 구분 */
+    --c-mirror: #80e0c8;
+    --c-sniper: #c48fa3;
+    --c-swapper: #e0b84a;
     /* 둔화 링·빙결 결정 효과색 */
     --frost: #4a9fd8;
     /* 팀 색(팀전 링·칩·헤더): 직업 색(중명도 파스텔)과 명도로 구분되는 진한 고채도 4색 */
@@ -66,6 +97,7 @@
     --weapon-wood: #9a6532;
     --weapon-string: #3b342c;
     --weapon-outline: #2b2620;
+    --weapon-dark: #3a3f47;   /* 폭탄 몸체·자석·소총 개머리 등 짙은 금속 */
     /* ===== 아레나 배경 테마 (장식, 저대비) =====
        라이트: 모든 면 L* 약 80~93 (--arena L*≈91 근처). 공(직업색 L*≈55~85)은 진한 --ball-outline 테두리로,
        HP 숫자는 짙은 --hp-text + 밝은 외곽선으로, 팀 링(L*≈30~45)은 명도 차로 항상 앞에 선다.
@@ -107,9 +139,11 @@
       --c-twin: #74d1fa; --c-shooter: #ffb74d; --c-guardian: #7aa3f8;
       --c-mage: #ea85e0; --c-bomber: #c5d0d6; --c-vampire: #f7a6c2;
       --c-frost: #6cc7bd; --c-blink: #c0e09a; --c-magnet: #ffe066; --frost: #8fd3ff;
+      --c-giant: #b9a49c; --c-poison: #d4dd5c; --c-storm: #95a1dc; --c-berserker: #e69a77;
+      --c-ghost: #f4f6f7; --c-mirror: #9aead6; --c-sniper: #d4a6b7; --c-swapper: #ebc965;
       --hp-text: #6ee07f; --hp-text-outline: #0f0d0a;
       --team-a: #ff7043; --team-b: #4fa3ff; --team-c: #2ed3a0; --team-d: #e86bff;
-      --weapon-metal: #8994a3; --weapon-wood: #a06b38; --weapon-string: #efe8dc; --weapon-outline: #e6dfd3;
+      --weapon-metal: #8994a3; --weapon-wood: #a06b38; --weapon-string: #efe8dc; --weapon-outline: #e6dfd3; --weapon-dark: #2c3038;
       --abg-forest-sky1: #0f1612; --abg-forest-sky2: #141a14; --abg-forest-far: #18211a; --abg-forest-near: #1c271e; --abg-forest-accent: #4a5a2a;
       --abg-desert-sky1: #14131c; --abg-desert-sky2: #1d1812; --abg-desert-far: #231e16; --abg-desert-near: #29231a; --abg-desert-accent: #5a5240;
       --abg-space-sky1: #0b0d18; --abg-space-sky2: #120f1f; --abg-space-far: #1a1830; --abg-space-near: #211d37; --abg-space-accent: #5d5b80;
@@ -135,9 +169,11 @@
     --c-twin: #74d1fa; --c-shooter: #ffb74d; --c-guardian: #7aa3f8;
     --c-mage: #ea85e0; --c-bomber: #c5d0d6; --c-vampire: #f7a6c2;
     --c-frost: #6cc7bd; --c-blink: #c0e09a; --c-magnet: #ffe066; --frost: #8fd3ff;
+    --c-giant: #b9a49c; --c-poison: #d4dd5c; --c-storm: #95a1dc; --c-berserker: #e69a77;
+    --c-ghost: #f4f6f7; --c-mirror: #9aead6; --c-sniper: #d4a6b7; --c-swapper: #ebc965;
     --hp-text: #6ee07f; --hp-text-outline: #0f0d0a;
     --team-a: #ff7043; --team-b: #4fa3ff; --team-c: #2ed3a0; --team-d: #e86bff;
-    --weapon-metal: #8994a3; --weapon-wood: #a06b38; --weapon-string: #efe8dc; --weapon-outline: #e6dfd3;
+    --weapon-metal: #8994a3; --weapon-wood: #a06b38; --weapon-string: #efe8dc; --weapon-outline: #e6dfd3; --weapon-dark: #2c3038;
     --abg-forest-sky1: #0f1612; --abg-forest-sky2: #141a14; --abg-forest-far: #18211a; --abg-forest-near: #1c271e; --abg-forest-accent: #4a5a2a;
     --abg-desert-sky1: #14131c; --abg-desert-sky2: #1d1812; --abg-desert-far: #231e16; --abg-desert-near: #29231a; --abg-desert-accent: #5a5240;
     --abg-space-sky1: #0b0d18; --abg-space-sky2: #120f1f; --abg-space-far: #1a1830; --abg-space-near: #211d37; --abg-space-accent: #5d5b80;
@@ -158,59 +194,52 @@
     touch-action: manipulation;
     overflow-x: hidden;
   }
-  h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; color: var(--on-page); }
+  h1 { font-size: 19px; margin: 0; letter-spacing: -.01em; color: var(--on-page); }
   .hidden { display: none !important; }
 
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   :focus:not(:focus-visible) { outline: none; }
 
-  /* ===== 레이아웃 =====
-     >1100px : [전투 현황 | 아레나 | 헤더+사이드] 3열
-     821~1100: [아레나 | 헤더 / 전투 현황 / 사이드] 2열
-     ≤820px  : 1열 (헤더 → 아레나 → 전투 현황 → 컨트롤 → 구성)
-     --bw(아레나 한 변)는 .app 에서 정의해 전투 현황 패널 높이에도 쓴다.
-     -20px 은 세로 스크롤바 폭 여유. */
+  /* ===== 레이아웃 공통 =====
+     배치별 격자·아레나 크기(--bw)는 아래 "모바일 배치"(기본)와 "PC 배치"(html[data-layout="pc"]) 블록에서 정한다. */
   .app {
-    --left-w: 232px;
-    --side-w: 300px;
-    --bw: min(calc(100vw - 32px - var(--left-w) - var(--side-w) - 48px - 20px), calc(100vh - 48px), 640px);
-    max-width: 1280px;
     margin: 0 auto;
-    padding: 24px 16px 40px;
     display: grid;
-    grid-template-columns: var(--left-w) auto var(--side-w);
-    grid-template-areas: "left board head" "left board side";
-    grid-template-rows: auto 1fr;
-    gap: 14px 24px;
-    justify-content: center;
     align-items: start;
   }
-  @media (max-width: 1100px) {
-    .app {
-      --bw: min(calc(100vw - 32px - var(--side-w) - 24px - 20px), calc(100vh - 48px), 600px);
-      max-width: 1000px;
-      grid-template-columns: auto var(--side-w);
-      grid-template-areas: "board head" "board left" "board side";
-      grid-template-rows: auto auto 1fr;
-    }
-  }
-  .head { grid-area: head; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* 헤더: [← 게임 목록 … 언어] / [제목 … 화면 배치] / 상태 */
+  .head { grid-area: head; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .head-row, .title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
   .back {
-    color: var(--on-page-muted); font-size: 14px; text-decoration: none; align-self: flex-start;
-    padding: 10px 8px; margin: -6px 0 -6px -8px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 4px;
+    color: var(--on-page-muted); font-size: 14px; text-decoration: none;
+    padding: 10px 8px; margin: 0 0 0 -8px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 4px;
   }
-  .back:hover { color: var(--on-page); }
   /* 사용자 배경 위에서도 보이도록 페이지 글자색으로 포커스 링 */
   .back:focus-visible { outline-color: var(--on-page); }
-  .side { grid-area: side; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; min-width: 0; }
-  .card.stack { display: flex; flex-direction: column; gap: 12px; }
-  .status { font-size: 17px; font-weight: 600; min-height: 1.3em; overflow-wrap: anywhere; }
-  .status-sub { color: var(--muted); font-size: 13px; margin-top: 4px; min-height: 1em; font-variant-numeric: tabular-nums; }
+  /* 화면 배치 세그먼트: 선택 표시는 html[data-layout] 기준(JS가 .on/aria-pressed 를 붙여도 같은 모양) */
+  #layoutSeg { margin-left: auto; flex: none; }
+  #layoutSeg button { min-width: 60px; padding: 9px 10px; white-space: nowrap; }
+  /* 폰에서 PC 모드(viewport 1280 축소)일 때만 --vp-zoom 이 있음 → 실제 손가락 크기 유지 (없으면 배율 1 = 기존 크기) */
+  :root[data-layout="pc"] #layoutSeg button {
+    min-height: calc(44px * var(--vp-zoom, 1)); min-width: max(60px, calc(52px * var(--vp-zoom, 1)));
+    font-size: calc(13px * min(var(--vp-zoom, 1), 2.8));
+  }
+  :root:not([data-layout="pc"]) #layoutSeg button[data-v="mobile"],
+  :root[data-layout="pc"] #layoutSeg button[data-v="pc"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+  :root:not([data-layout="pc"]) #layoutSeg button[data-v="pc"].on,
+  :root[data-layout="pc"] #layoutSeg button[data-v="mobile"].on { background: transparent; color: var(--text); font-weight: 400; }
+  .side { grid-area: side; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+  /* 설정 카드: 2열 그리드(모드|전투 방식, 팀 수|내 공), 속도·버튼은 전체 폭 */
+  .card.stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; align-items: end; }
+  .card.stack > .speed-field, .card.stack > .panel-head { grid-column: 1 / -1; }
+  /* 팀 수(3칸)·내 공은 전체 폭: 반 칸(PC 사이드 약 133px)에선 팀 버튼이 40px로 44px 미만 */
+  .card.stack > #teamField, .card.stack > #myField { grid-column: 1 / -1; }
+  .status { font-size: 16px; font-weight: 600; min-height: 1.3em; overflow-wrap: anywhere; }
+  .status-sub { color: var(--muted); font-size: 13px; margin-top: 2px; min-height: 1em; font-variant-numeric: tabular-nums; }
   .status-sub.danger { color: var(--danger); font-weight: 600; }
-  .field-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; }
-  .field-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .field-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; display: block; }
+  .field-head { display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap; margin-bottom: 8px; }
   .field-head .field-label { margin: 0; }
   .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
@@ -219,12 +248,16 @@
     background: var(--btn); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px;
   }
   .seg button {
-    font: inherit; font-size: 14px; border: 0; border-radius: 7px; background: transparent; color: var(--text);
+    font: inherit; font-size: 13px; border: 0; border-radius: 7px; background: transparent; color: var(--text);
     padding: 9px 4px; min-height: 44px; cursor: pointer; white-space: normal; line-height: 1.2;
   }
   .seg button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
   .seg button:disabled { opacity: .45; cursor: default; }
-  .seg.disabled button.on { background: var(--btn-hover); color: var(--muted); }
+  /* 전투 중 잠긴 세그먼트: 선택된 칸은 흐리게 하지 않고 테두리로 "현재 값"을 계속 보여 준다 */
+  .seg.disabled button.on {
+    background: var(--btn-hover); color: var(--muted); opacity: 1;
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
   /* 속도 5단계: 좁은 칸(약 49px~)에서도 한 줄 유지 */
   #speedSeg { gap: 2px; }
   #speedSeg button {
@@ -237,26 +270,23 @@
 
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
   button.btn {
-    font: inherit; font-size: 14px; flex: 1; padding: 9px 10px; min-height: 44px; border-radius: 8px;
+    font: inherit; font-size: 13px; flex: 1; padding: 9px 10px; min-height: 44px; border-radius: 8px;
     border: 1px solid var(--border); background: var(--btn); color: var(--text); cursor: pointer;
   }
-  button.btn:hover { background: var(--btn-hover); }
   button.btn.primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-  button.btn.primary:hover { filter: brightness(1.08); }
   button.btn:disabled { opacity: .5; cursor: default; }
-  button.btn:disabled:hover { background: var(--btn); filter: none; }
-  button.btn.primary:disabled:hover { background: var(--accent); }
   button.btn.small { flex: none; font-size: 13px; padding: 6px 12px; }
-  /* 시작/일시정지/재시작/결과 바로 보기: 300px 사이드·좁은 폰에서 2×2 */
-  .ctrl-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .ctrl-row button.btn { min-width: 0; padding: 9px 6px; line-height: 1.2; overflow-wrap: anywhere; }
+  /* 시작/일시정지/재시작/결과 바로 보기: 1행 4열 (PC 넓은 화면 사이드 열에서는 2×2) */
+  .ctrl-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .ctrl-row button.btn { min-width: 0; padding: 6px 4px; line-height: 1.2; overflow-wrap: anywhere; }
 
+  /* select 는 16px: iOS 포커스 시 자동 확대 방지 */
   select.lang, select.field {
-    font: inherit; font-size: 13px; color: var(--text); background: var(--btn);
+    font: inherit; font-size: 16px; color: var(--text); background: var(--btn);
     border: 1px solid var(--border); border-radius: 8px; padding: 8px 8px; min-height: 44px;
   }
   select.lang { margin-left: auto; }
-  select.field { width: 100%; font-size: 14px; min-height: 44px; padding: 8px 10px; }
+  select.field { width: 100%; min-height: 44px; padding: 8px 10px; }
   select:disabled { opacity: .5; }
   select.lang:focus-visible { outline-color: var(--on-page); }
 
@@ -276,7 +306,6 @@
       linear-gradient(135deg, transparent calc(50% - 1px), var(--muted) calc(50% - 1px), var(--muted) calc(50% + 1px), transparent calc(50% + 1px)),
       var(--bg);
   }
-  .swatch:hover, .swatch-custom:hover { box-shadow: 0 0 0 2px var(--btn-hover); }
   .swatch.on, .swatch-custom.on { box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--accent); }
   .swatch:focus-visible { outline-offset: 4px; }
   /* 사용자 지정: 원형 color input */
@@ -305,33 +334,39 @@
   /* ===== 아레나 ===== */
   .arena-wrap {
     grid-area: board;
-    width: var(--bw);
+    justify-self: center;
+    width: 100%;
+    max-width: var(--bw);
     position: relative;
   }
   canvas#arena {
     display: block;
-    width: var(--bw);
-    height: var(--bw);
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
     background: var(--arena);
-    border-radius: 6px;
+    border-radius: 4px;
     box-shadow: 0 0 0 1px var(--arena-line), 0 10px 30px var(--shadow);
     user-select: none;
     -webkit-user-select: none;
+    -webkit-touch-callout: none;   /* 길게 눌러 이미지 메뉴 방지 */
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+    touch-action: manipulation;    /* 평소: 스크롤은 되고 더블탭 확대만 막음 */
   }
+  /* 직접 모드 전투 중: 드래그 조향이 페이지 스크롤·핀치로 빼앗기지 않게 */
+  body.in-battle.mode-play canvas#arena { touch-action: none; }
 
   .overlay {
     position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-    background: var(--scrim); border-radius: 6px; z-index: 5; padding: 10px;
+    background: var(--scrim); border-radius: 4px; z-index: 5; padding: 10px;
   }
   .overlay.show { display: flex; }
   .dialog {
-    background: var(--panel); color: var(--text); border-radius: 12px; padding: 18px 20px;
+    background: var(--panel); color: var(--text); border-radius: 12px; padding: 14px;
     text-align: center; box-shadow: 0 10px 30px var(--shadow);
-    width: min(340px, 100%); max-height: 100%; display: flex; flex-direction: column; gap: 12px; min-height: 0;
+    width: min(340px, 100%); max-height: 100%; display: flex; flex-direction: column; gap: 10px; min-height: 0;
   }
-  .dialog h2 { margin: 0; font-size: 20px; overflow-wrap: anywhere; }
+  .dialog h2 { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
   #ovRank {
     list-style: none; margin: 0; padding: 0; text-align: left; font-size: 14px;
     overflow-y: auto; min-height: 0; flex: 1 1 auto; max-height: 260px;
@@ -346,33 +381,31 @@
   #ovRank:empty { display: none; }
 
   /* ===== 공 추가 ===== */
-  /* 12종: 기본 4열×3행, 버튼 안은 점 위·이름 아래.
-     가장 좁은 칸(300px 사이드)은 약 63px → 긴 이름(Bombardero 등)은 하이픈 줄바꿈. */
-  .add-bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  /* 20종: 5열×4행, 버튼 안은 점 위·이름 아래(터치 44px).
+     가장 좁은 칸(360px 폰)은 약 57px → 긴 이름(Bombardero 등)은 하이픈 줄바꿈. */
+  .add-bar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
   .add-btn {
     font: inherit; font-size: 12px; color: var(--text); background: var(--btn);
-    border: 1px solid var(--border); border-radius: 8px; min-height: 48px; padding: 5px 3px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer;
-    line-height: 1.15; min-width: 0; text-align: center;
+    border: 1px solid var(--border); border-radius: 8px; min-height: 44px; padding: 4px 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer;
+    line-height: 1.1; min-width: 0; text-align: center;
   }
   .add-btn > span:last-child { max-width: 100%; overflow-wrap: anywhere; hyphens: auto; -webkit-hyphens: auto; }
-  .add-btn:hover { background: var(--btn-hover); }
   .add-btn:disabled { opacity: .45; cursor: default; }
-  .add-btn:disabled:hover { background: var(--btn); }
   .dot {
-    width: 14px; height: 14px; border-radius: 50%; flex: none;
+    width: 12px; height: 12px; border-radius: 50%; flex: none;
     border: 1.5px solid var(--ball-outline);
   }
 
   /* ===== 구성 목록 ===== */
   #lineup {
-    list-style: none; margin: 10px 0 0; padding: 0;
-    max-height: 232px; overflow-y: auto; overscroll-behavior: contain;
+    list-style: none; margin: 8px 0 0; padding: 0;
+    max-height: 160px; overflow-y: auto; overscroll-behavior: contain;  /* 약 3.5행 → 더 있음을 보여 줌 */
     border: 1px solid var(--border); border-radius: 8px;
   }
   #lineup:empty { display: none; }
   .lineup-item {
-    display: flex; align-items: center; gap: 8px; padding: 0 2px 0 8px; min-height: 46px;
+    display: flex; align-items: center; gap: 8px; padding: 0 2px 0 8px; min-height: 44px;
     border-bottom: 1px solid var(--border);
   }
   .lineup-item:last-child { border-bottom: 0; }
@@ -391,24 +424,23 @@
     flex: none; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent;
     color: var(--muted); font: inherit; font-size: 20px; line-height: 1; cursor: pointer;
   }
-  .li-del:hover { background: var(--btn-hover); color: var(--text); }
   .li-del:disabled { opacity: .35; cursor: default; }
-  .li-del:disabled:hover { background: transparent; color: var(--muted); }
   /* 꾸미기 버튼(✎): .li-name 뒤 · .li-team 앞. 버튼 3개가 붙으므로 간격을 줄여 이름 폭 확보 */
   .li-edit {
     flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 8px; background: transparent;
     color: var(--muted); font: inherit; font-size: 18px; line-height: 1; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .li-edit:hover { background: var(--btn-hover); color: var(--text); }
   .li-edit:disabled { opacity: .35; cursor: default; }
-  .li-edit:disabled:hover { background: transparent; color: var(--muted); }
   .li-edit:focus-visible { outline-offset: -2px; }
+  /* 팀전: 팀 칩(44px)이 붙으면 간격을 줄여 360px에서 이름 폭(약 135px) 확보 */
+  .lineup-item:has(.li-team) { gap: 6px; }
   .lineup-item:has(.li-edit) { gap: 4px; }
   .lineup-item:has(.li-edit) .li-dot { margin: 0 4px; }
-  .hint { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+  .hint { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
   .hint:empty { display: none; }
-  .lineup-foot { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  /* 팀 자동 배분 / 모두 지우기: 제목 줄 오른쪽 */
+  .lineup-foot { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; margin-left: auto; }
 
   /* ===== 팀전 =====
      .t-a ~ .t-d 가 --tc(팀 색)를 정하고, .li-team / .team-head / .rank-team 이 이를 쓴다. */
@@ -425,7 +457,6 @@
     color: var(--tc, var(--muted)); font: inherit; font-size: 13px; font-weight: 700; line-height: 1;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .li-team:hover { background-color: color-mix(in srgb, var(--tc, var(--muted)) 24%, transparent); }
   .li-team:disabled { opacity: .45; cursor: default; }
   .li-team:focus-visible { outline-offset: -6px; }
 
@@ -464,6 +495,11 @@
   .rank-team-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   #ovRank li.rank-member { padding-left: 22px; font-weight: 400; }
   #ovRank li.rank-member .rk { min-width: 2em; }
+  /* 탈락한 팀원: 글자 muted + 점만 흐리게 (줄 구분선은 그대로 유지) */
+  #ovRank li.rank-member.out { color: var(--muted); }
+  #ovRank li.rank-member.out .li-dot { opacity: .45; }
+  /* 순위 행 이름(마지막 span): 좁은 대화상자에서 넘치지 않게 */
+  #ovRank li > span:last-child { min-width: 0; overflow-wrap: anywhere; }
 
   #myField:has(#mySelect.hidden) { display: none; }
 
@@ -488,20 +524,21 @@
   }
 
   /* ===== 전투 현황 (HP 목록) ===== */
+  /* 공 20개: 전투 현황이 너무 길어지지 않게 높이 제한, #hpList 안에서 스크롤 */
   .battle {
     grid-area: left; display: flex; flex-direction: column; min-height: 0;
-    max-height: var(--bw);
+    max-height: min(45vh, 360px);
   }
   .battle .field-label { flex: none; }
   #hpList {
-    display: flex; flex-direction: column; gap: 2px;
+    display: flex; flex-direction: column; gap: 1px;
     flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
     margin: 0 -4px; padding: 0 4px;
   }
   #hpList:empty { display: none; }
   .hp-row {
     display: grid; grid-template-columns: 22px minmax(0, 1fr) minmax(56px, 1.2fr) 7.5ch 34px;
-    align-items: center; gap: 6px; min-height: 30px; font-size: 13px;
+    align-items: center; gap: 6px; min-height: 26px; font-size: 13px;
     padding: 0 4px; border-radius: 6px;
   }
   .hp-row.mine {
@@ -524,97 +561,253 @@
   .hp-row.out .hp-fill { width: 0 !important; }
   .hp-val .hp-max { color: var(--muted); font-weight: 400; }
 
-  /* 3열: 좁은 왼쪽 패널 → 행을 2줄(번호·이름·HP·쿨다운 / HP 바)로 */
-  @media (min-width: 1101px) {
-    .hp-row {
+  @media (max-width: 380px) {
+    /* 아주 좁은 폰: 5열×4행 유지 (칸 약 57px @360), 점 위·이름 아래, 글자만 조금 작게 */
+    .add-btn { font-size: 11px; padding: 4px 1px; }
+    .hp-row { grid-template-columns: 20px minmax(0, 1fr) minmax(40px, 1fr) 7.5ch 30px; gap: 4px; font-size: 12px; }
+  }
+
+  /* ===== 액션 도크 / 도구 막대 / 패널 (공통 모양) =====
+     #actionDock = 스킬 + 시작/일시정지/재시작/결과 바로 보기. 고정(fixed) 도크는 없다:
+     모바일은 아레나 바로 아래 줄, PC는 사이드 열 카드 안 → 어떤 화면 높이에서도 아레나를 가리지 않는다. */
+  .action-dock { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  button#skillBtn { min-height: 52px; font-size: 16px; }
+
+  /* ===== 가상 조이스틱 =====
+     #joystick(터치 영역 120px) > .joy-base(바탕 108px) > .joy-knob(손잡이 48px).
+     손잡이 이동 반지름 --joy-r = (108 - 48) / 2 = 30px, JS가 --jx/--jy(-1~1)를 #joystick 에 넣는다.
+     보이는 조건: body.in-battle.mode-play 이면서 (모바일 배치 또는 pointer: coarse). 그 밖에는 숨김.
+     보일 때 도크 = [조이스틱 | 스킬(조이스틱 높이)] / [시작·일시정지·재시작·결과] (가로 폰은 아래 모바일 가로 블록) */
+  .joystick {
+    --joy-size: 120px; --joy-base: 108px; --joy-knob: 48px;
+    --joy-r: calc((var(--joy-base) - var(--joy-knob)) / 2);
+    display: none; flex: none; width: var(--joy-size); height: var(--joy-size);
+    align-items: center; justify-content: center; position: relative;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+    cursor: grab;
+  }
+  .joy-base {
+    width: var(--joy-base); height: var(--joy-base); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    background: var(--btn); border: 1px solid var(--border);
+    box-shadow: inset 0 2px 8px var(--shadow);
+    pointer-events: none;
+  }
+  /* 이동 범위 안내 원 */
+  .joy-base::before {
+    content: ""; position: absolute; inset: calc(var(--joy-knob) / 2 - 1px); border-radius: 50%;
+    border: 1px dashed var(--border);
+  }
+  .joy-knob {
+    width: var(--joy-knob); height: var(--joy-knob); border-radius: 50%; position: relative;
+    background: var(--panel); border: 2px solid var(--accent);
+    box-shadow: 0 2px 6px var(--shadow);
+    transform: translate(calc(var(--jx, 0) * var(--joy-r)), calc(var(--jy, 0) * var(--joy-r)));
+    transition: transform .12s ease-out;   /* 손을 떼면 가운데로 부드럽게 복귀 */
+  }
+  .joystick.active { cursor: grabbing; }
+  .joystick.active .joy-base {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, var(--btn));
+    box-shadow: inset 0 2px 8px var(--shadow), 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .joystick.active .joy-knob { background: var(--accent); border-color: var(--accent-text); transition: none; }
+  /* 보이기 + 도크 2열 배치 (같은 규칙을 모바일 배치 / 터치 기기 두 조건에 둔다) */
+  :root:not([data-layout="pc"]) body.in-battle.mode-play .joystick { display: flex; }
+  :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock {
+    display: grid; grid-template-columns: var(--joy-size, 120px) minmax(0, 1fr); gap: 6px;
+  }
+  :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock > .joystick { grid-column: 1; grid-row: 1; }
+  :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock > #skillBtn { grid-column: 2; grid-row: 1; min-height: 120px; height: auto; font-size: 18px; }
+  :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock > .ctrl-row { grid-column: 1 / -1; }
+  @media (pointer: coarse) {
+    body.in-battle.mode-play .joystick { display: flex; }
+    body.in-battle.mode-play .action-dock {
+      display: grid; grid-template-columns: var(--joy-size, 120px) minmax(0, 1fr); gap: 6px;
+    }
+    body.in-battle.mode-play .action-dock > .joystick { grid-column: 1; grid-row: 1; }
+    body.in-battle.mode-play .action-dock > #skillBtn { grid-column: 2; grid-row: 1; min-height: 120px; height: auto; font-size: 18px; }
+    body.in-battle.mode-play .action-dock > .ctrl-row { grid-column: 1 / -1; }
+  }
+  .panel-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; min-height: 0; }
+  .panel-head .field-label { margin: 0; }
+  .panel-close {
+    flex: none; width: 44px; height: 44px; margin: -10px -8px -10px auto; padding: 0;
+    border: 0; border-radius: 8px; background: transparent; color: var(--muted);
+    font: inherit; font-size: 22px; line-height: 1; cursor: pointer;
+  }
+  .panel-close:active { background: var(--btn-hover); color: var(--text); }
+  .field-head > .panel-close { margin: -6px -8px -6px 0; }
+  .tool {
+    width: 100%; min-height: 48px; padding: 0; display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); border-radius: 10px; background: var(--btn); color: var(--text); cursor: pointer;
+  }
+  .tool svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tool:active { background: var(--btn-hover); }
+  .tool[aria-expanded="true"] { background: var(--accent); color: var(--accent-text); border-color: transparent; }
+  /* 직접 모드 일시정지 중엔 페이지 스크롤 허용(JS가 body.paused 를 붙일 때) */
+  body.in-battle.mode-play.paused canvas#arena { touch-action: manipulation; }
+
+  /* ===== 모바일 배치 (기본: data-layout 없음 또는 "mobile") =====
+     [헤더: ← … 모바일|PC 언어 / 제목 / 상태 카드]
+     [아레나 | 도구 막대(52px)]
+     [도크: (직접 모드면 스킬, 전투 중엔 조이스틱|스킬) + 시작/일시정지/재시작/결과]
+     [열린 패널 1개: .app[data-open] 과 같은 data-panel-id]
+     아레나 폭 = 격자 열 폭(100%, 스크롤바 제외 실제 폭) 과 --bw(높이 기준 한 변) 중 작은 값.
+     --bw = max(160px, 화면 높이 - 여백 - 헤더 - 도크). --head-h / --dock-h 는 그 상태의 "최대" 높이
+     → 글이 짧으면 아레나가 몇 px 덜 커질 뿐 넘치지 않는다. 100vw 는 스크롤바를 포함해 쓰지 않는다. */
+  :root:not([data-layout="pc"]) { scrollbar-gutter: stable; }   /* 패널을 열어 스크롤바가 생겨도 폭이 그대로 */
+  :root:not([data-layout="pc"]) .app {
+    --app-max: 480px;
+    --tools-w: 52px;
+    /* 헤더 줄 52 + 6 + 제목 22 + 6 + 상태 카드 최대 72(여백·테두리 14 + 상태 2줄 40 + 2 + 보조 1줄 16) */
+    --head-h: 158px;
+    --dock-h: 52px;    /* 버튼 줄 44 + gap 8 */
+    --pad-y: 20px;
+    --bw: max(160px, calc(100vh - var(--pad-y) - var(--head-h) - 8px - var(--dock-h)));
+    max-width: var(--app-max);
+    padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    grid-template-columns: minmax(0, 1fr) var(--tools-w);
+    grid-template-areas: "head head" "board tools" "dock dock" "panel panel";
+    gap: 8px;
+  }
+  @supports (height: 100dvh) {
+    :root:not([data-layout="pc"]) .app {
+      --bw: max(160px, calc(100dvh - var(--pad-y) - var(--head-h) - 8px - var(--dock-h)));
+    }
+  }
+  /* 직접 모드(준비 중): 스킬 버튼(52) + 6 이 도크에 더해지고, 조작 안내가 보조 줄 최대 3줄(+32) */
+  :root:not([data-layout="pc"]) body.mode-play .app { --dock-h: 110px; --head-h: 190px; }
+  /* 직접 모드 전투 중: 조이스틱|스킬 줄 120 + 6 + 버튼 줄 44 + gap 8. 보조 줄은 시간 1줄 */
+  :root:not([data-layout="pc"]) body.in-battle.mode-play .app { --dock-h: 178px; --head-h: 158px; }
+  /* 헤더 2줄: [←][        ][모바일|PC][언어] / [제목(전체 폭)] / [상태 카드] */
+  :root:not([data-layout="pc"]) .head {
+    display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; gap: 6px;
+  }
+  :root:not([data-layout="pc"]) .head-row,
+  :root:not([data-layout="pc"]) .title-row { display: contents; }
+  :root:not([data-layout="pc"]) .back {
+    order: 1; width: 44px; margin: 0; padding: 0; justify-content: center;
+    font-size: 0; /* 글자는 접근성 이름으로 남기고 화살표만 표시 */
+  }
+  :root:not([data-layout="pc"]) .back::before { content: "\2190"; font-size: 22px; line-height: 1; }
+  :root:not([data-layout="pc"]) #layoutSeg { order: 3; grid-column: 3; margin: 0; }
+  :root:not([data-layout="pc"]) #layoutSeg button { min-width: 44px; padding: 6px 8px; font-size: 12px; }
+  :root:not([data-layout="pc"]) select.lang { order: 4; grid-column: 4; margin: 0; max-width: 92px; padding: 8px 4px; }
+  /* 제목: 둘째 줄 전체 폭(360px에서 약 328px → 가장 긴 fr "Bataille de boules" 약 160px 도 한 줄) */
+  :root:not([data-layout="pc"]) h1 {
+    order: 5; grid-column: 1 / -1; font-size: 17px; line-height: 22px; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  :root:not([data-layout="pc"]) .head > .card { order: 6; grid-column: 1 / -1; padding: 6px 10px; }
+  /* 상태: 최대 2줄, 보조 줄(조작 안내): 최대 3줄. 넘치면 마지막 줄 말줄임(전체 문장은 role=status 로 읽힘).
+     높이 상한이 정해져 있어 --head-h(최대값)로 한 화면 맞춤이 유지된다 */
+  :root:not([data-layout="pc"]) .status {
+    font-size: 15px; line-height: 20px; min-height: 20px; max-height: 40px;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+  }
+  :root:not([data-layout="pc"]) .status-sub {
+    line-height: 16px; min-height: 16px; max-height: 48px; margin-top: 2px;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+  }
+  /* 아레나: 열 폭(100%) 안에서 --bw 이하. 열 폭은 스크롤바를 뺀 실제 폭이라 패널을 열어도 밀리지 않는다 */
+  :root:not([data-layout="pc"]) .arena-wrap { width: 100%; max-width: var(--bw); justify-self: end; }
+  :root:not([data-layout="pc"]) .tools { display: contents; }
+  :root:not([data-layout="pc"]) .tool-group {
+    grid-area: tools; display: flex; flex-direction: column; gap: 6px;
+    max-height: var(--bw); overflow-y: auto; overscroll-behavior: contain;
+  }
+  /* 버튼 4개 + 간격 3개(18)가 --bw 안에 들도록 높이를 44~48px 사이로 줄인다(1px 여유). --bw 가 194px 미만이면 44px 고정 + 스크롤 */
+  :root:not([data-layout="pc"]) .tool { min-height: clamp(44px, calc((var(--bw) - 19px) / 4), 48px); }
+  :root:not([data-layout="pc"]) .action-dock { grid-area: dock; }
+  :root:not([data-layout="pc"]) .side { display: contents; }
+  :root:not([data-layout="pc"]) [data-panel-id] { grid-area: panel; box-shadow: 0 6px 20px var(--shadow); }
+  /* 한 번에 하나: .app[data-open] 과 같은 패널만 보인다(속성 없음 = 모두 닫힘) */
+  :root:not([data-layout="pc"]) .app:not([data-open="battle"]) [data-panel-id="battle"],
+  :root:not([data-layout="pc"]) .app:not([data-open="controls"]) [data-panel-id="controls"],
+  :root:not([data-layout="pc"]) .app:not([data-open="lineup"]) [data-panel-id="lineup"],
+  :root:not([data-layout="pc"]) .app:not([data-open="bg"]) [data-panel-id="bg"] { display: none; }
+  /* 배경 패널: 패널 자체가 접힘 역할 → summary 숨김(JS가 패널을 열 때 #bgSettings.open = true) */
+  :root:not([data-layout="pc"]) .settings > summary { display: none; }
+  :root:not([data-layout="pc"]) .settings-body { padding: 0; border-top: 0; }
+  /* 전투 중: 잠긴 설정(모드·전투 방식·팀 수·내 공)은 숨기고 설정 패널엔 속도만 */
+  :root:not([data-layout="pc"]) body.in-battle .card.stack > .set-field { display: none; }
+
+  /* 모바일 가로(높이 ≤500px): [헤더 / 도크 / 패널 | 아레나 | 도구 막대]
+     왼쪽 열 최소 272px: 카드 안쪽 246px → 공 추가 5열 46px, 속도 5칸 46px, 모드·전투 방식 54px, 팀 수 77px.
+     아레나 열 = minmax(0, --bw): 왼쪽 최소·도구 막대를 뺀 남은 폭과 --bw(높이) 중 작은 값을 격자가 정한다(100vw 미사용). */
+  @media (orientation: landscape) and (max-height: 500px) {
+    :root:not([data-layout="pc"]) .app {
+      --app-max: 1000px;
+      --left-min: 272px;
+      --dock-h: 94px;    /* 버튼 2×2 = 44 + 6 + 44 */
+      --bw: max(160px, calc(100vh - var(--pad-y)));
+      grid-template-columns: minmax(var(--left-min), 1fr) minmax(0, var(--bw)) var(--tools-w);
+      grid-template-areas: "head board tools" "dock board tools" "panel board tools";
+      grid-template-rows: auto auto 1fr;
+    }
+    @supports (height: 100dvh) {
+      :root:not([data-layout="pc"]) .app { --bw: max(160px, calc(100dvh - var(--pad-y))); }
+    }
+    /* 직접 모드: 스킬 52 + 6 + 2×2(94). 전투 중 조이스틱(120)은 그 왼쪽에 놓여 높이가 늘지 않는다 */
+    :root:not([data-layout="pc"]) body.mode-play .app,
+    :root:not([data-layout="pc"]) body.in-battle.mode-play .app { --dock-h: 152px; }
+    :root:not([data-layout="pc"]) .arena-wrap { width: 100%; max-width: none; }
+    :root:not([data-layout="pc"]) .ctrl-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* 조작 안내는 좁은 열(약 250px)에서 3줄 안에 들도록 12px */
+    :root:not([data-layout="pc"]) .status-sub { font-size: 12px; line-height: 15px; min-height: 15px; max-height: 45px; }
+    /* 전투 중 직접 모드 도크: [조이스틱 | 스킬 / 버튼 2×2] (왼쪽 열 높이 = 헤더 + 152) */
+    :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock {
+      grid-template-columns: 120px minmax(0, 1fr); grid-template-rows: auto auto; align-items: center;
+    }
+    :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock > .joystick { grid-row: 1 / span 2; }
+    :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock > #skillBtn { min-height: 52px; font-size: 16px; }
+    :root:not([data-layout="pc"]) body.in-battle.mode-play .action-dock > .ctrl-row { grid-column: 2; grid-row: 2; }
+    :root:not([data-layout="pc"]) body.in-battle.mode-play .ctrl-row button.btn { font-size: 12px; padding: 6px 2px; overflow-wrap: normal; hyphens: auto; -webkit-hyphens: auto; }
+    /* 전투 현황: 좁은 열 → 행을 2줄(번호·이름·HP·쿨다운 / HP 바)로 해서 이름 폭 확보(약 110px) */
+    :root:not([data-layout="pc"]) .hp-row {
       grid-template-columns: 22px minmax(0, 1fr) auto 34px;
       grid-template-areas: "num name val cd" ". bar bar bar";
       row-gap: 3px; padding: 5px 4px;
     }
-    .hp-num { grid-area: num; }
-    .hp-name { grid-area: name; }
-    .hp-bar { grid-area: bar; }
-    .hp-val { grid-area: val; }
-    .cd { grid-area: cd; }
-    /* addBar 3행(+58px)만큼 사이드가 길어지는 것을 일부 상쇄: 4.5개 보이게 */
-    #lineup { max-height: 210px; }
-  }
-  /* 2열: 오른쪽 열 중간에 놓이므로 고정 높이 */
-  @media (min-width: 821px) and (max-width: 1100px) {
-    .battle { max-height: 260px; }
+    :root:not([data-layout="pc"]) .hp-num { grid-area: num; }
+    :root:not([data-layout="pc"]) .hp-name { grid-area: name; }
+    :root:not([data-layout="pc"]) .hp-bar { grid-area: bar; }
+    :root:not([data-layout="pc"]) .hp-val { grid-area: val; }
+    :root:not([data-layout="pc"]) .cd { grid-area: cd; }
+    :root:not([data-layout="pc"]) [data-panel-id] {
+      /* 헤더·도크·격자 간격(8×2)을 뺀 남은 높이 */
+      max-height: max(120px, calc(100dvh - var(--pad-y) - var(--head-h) - var(--dock-h) - 16px));
+      overflow-y: auto; overscroll-behavior: contain;
+      /* 데스크톱 스크롤바(약 15px)가 패널 안쪽 폭을 줄여도 공 추가·속도 5칸이 44px 이상: 272 - 2 - 14 - 15 = 241 → 45px */
+      padding-left: 8px; padding-right: 6px;
+    }
   }
 
-  @media (max-width: 820px) {
-    .app {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "head" "board" "left" "side";
-      grid-template-rows: auto;
-      padding: 12px 16px 28px;
-      gap: 10px;
-      --bw: min(calc(100vw - 32px), 70vh, 600px);
-    }
-    .arena-wrap { justify-self: center; }
-    .battle { max-height: none; }
-    .head { gap: 8px; }
-    h1 { font-size: 19px; }
-    .card { padding: 12px; }
-    .status { font-size: 16px; }
-    .seg button, button.btn { font-size: 13px; }
-    canvas#arena, .overlay { border-radius: 4px; }
-    .dialog { padding: 14px; gap: 10px; }
-    .dialog h2 { font-size: 18px; }
+  /* ===== 배경 설정 (접힘, <details>) ===== */
+  /* PC: 카드 = 접힘 summary 한 줄. 모바일 패널에서는 일반 카드 여백(아래 모바일 블록) */
+  :root[data-layout="pc"] .settings-card { padding: 0; }
+  .settings > summary {
+    list-style: none; display: flex; align-items: center; gap: 8px;
+    min-height: 44px; padding: 0 14px 0 12px; border-radius: 11px;
+    font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; user-select: none;
   }
-  @media (min-width: 600px) and (max-width: 820px) {
-    .ctrl-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .settings > summary::-webkit-details-marker { display: none; }
+  /* 펼침 표시: 닫힘 ▽ / 열림 △ 모양의 꺾쇠 */
+  .settings > summary::after {
+    content: ""; flex: none; margin-left: auto; width: 8px; height: 8px;
+    border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+    transform: translateY(-2px) rotate(45deg); transition: transform .15s ease;
   }
-  @media (max-width: 380px) {
-    /* 3열×4행, 점·이름 가로 배치 (칸 약 98px @360) */
-    .add-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .add-btn { flex-direction: row; min-height: 44px; padding: 6px 4px; }
-    .hp-row { grid-template-columns: 20px minmax(0, 1fr) minmax(40px, 1fr) 7.5ch 30px; gap: 4px; font-size: 12px; }
-  }
-
-  /* ===== 전투 중 액션 도크 =====
-     #actionDock(스킬 + 시작/일시정지/재시작/결과 바로 보기)은 평소 display: contents 라
-     .card.stack 안에서 기존 배치 그대로. body.in-battle(JS가 running/paused 동안 부착)일 때만
-     폰 세로(≤820px)는 화면 하단 고정, 가로 폰(높이 ≤500px)은 오른쪽 아래 떠 있는 패널.
-     z-index 4 < 결과 오버레이 5. */
-  .action-dock { display: contents; }
-  @media (max-width: 820px) {
-    /* 도크 높이만큼 페이지 하단 여백: 관전 ≈ 10+48+10+1, 직접(스킬 포함) ≈ 10+56+8+48+10+1 */
-    body.in-battle { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
-    body.in-battle.mode-play { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
-    body.in-battle .action-dock {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 4;
-      display: flex; flex-direction: column; gap: 8px;
-      padding: 10px max(16px, env(safe-area-inset-right), calc(50vw - 300px)) calc(10px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left), calc(50vw - 300px));
-      background: var(--panel); color: var(--text);
-      border-top: 1px solid var(--border);
-      box-shadow: 0 -6px 20px var(--shadow);
-    }
-    body.in-battle .action-dock .ctrl-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-    body.in-battle .action-dock .ctrl-row button.btn { min-height: 48px; padding: 6px 4px; }
-    body.in-battle .action-dock #skillBtn { min-height: 56px; font-size: 17px; }
-  }
-  @media (orientation: landscape) and (max-height: 500px) {
-    /* 가로 폰: 아레나 오른쪽 빈 공간(사이드 열 위)에 떠 있는 패널 → 아레나를 가리지 않음.
-       폭은 (화면 - 아레나)/2 - 24px 이내라 아레나가 가운데·왼쪽 어디 있든 겹치지 않는다. */
-    body.in-battle { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
-    body.in-battle.mode-play { padding-bottom: calc(204px + env(safe-area-inset-bottom)); }
-    body.in-battle .action-dock {
-      position: fixed; left: auto; top: auto; z-index: 4;
-      right: max(16px, env(safe-area-inset-right));
-      bottom: max(12px, env(safe-area-inset-bottom));
-      width: min(240px, calc((100vw - var(--bw)) / 2 - 24px));
-      display: flex; flex-direction: column; gap: 8px;
-      padding: 10px;
-      background: var(--panel); color: var(--text);
-      border: 1px solid var(--border); border-radius: 12px;
-      box-shadow: 0 10px 30px var(--shadow);
-    }
-    body.in-battle .action-dock .ctrl-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-    body.in-battle .action-dock .ctrl-row button.btn { min-height: 44px; padding: 6px 4px; }
-    body.in-battle .action-dock #skillBtn { min-height: 52px; font-size: 16px; }
+  .settings[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+  .settings[open] > summary { border-radius: 11px 11px 0 0; }
+  .settings > summary:focus-visible { outline-offset: -2px; }
+  .settings > summary:active { background: var(--btn-hover); }
+  .settings-body {
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 10px 12px 12px; border-top: 1px solid var(--border);
   }
 
   /* ===== 아레나 배경 테마 선택 =====
@@ -627,7 +820,6 @@
     line-height: 1.15; min-width: 0; text-align: center;
   }
   .theme-btn > span:last-child { overflow-wrap: anywhere; hyphens: auto; -webkit-hyphens: auto; }
-  .theme-btn:hover { background: var(--btn-hover); }
   .theme-btn.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 600; }
   .theme-sw {
     display: block; height: 26px; border-radius: 5px;
@@ -702,6 +894,99 @@
     #customColors { gap: 6px; }
   }
 
+  /* ===== 누름 / 호버 =====
+     터치: 누르는 동안 :active 로 즉시 피드백 (상태 정보는 hover 에 두지 않는다).
+     hover 는 마우스 등 실제 호버가 되는 기기에서만 → 탭 후 호버색이 남는 문제 방지. */
+  button.btn:not(:disabled):active, .add-btn:not(:disabled):active, .theme-btn:active,
+  .li-del:not(:disabled):active, .li-edit:not(:disabled):active { background: var(--btn-hover); }
+  button.btn.primary:not(:disabled):active, button#skillBtn.ready:active { background: var(--accent); filter: brightness(.92); }
+  .li-team:not(:disabled):active { background-color: color-mix(in srgb, var(--tc, var(--muted)) 24%, transparent); }
+  .seg button:not(:disabled):not(.on):active { background: var(--btn-hover); }
+  .swatch:active, .swatch-custom:active { transform: scale(.92); }
+  .back:active { color: var(--on-page); background: color-mix(in srgb, var(--on-page) 12%, transparent); }
+  @media (hover: hover) {
+    .back:hover { color: var(--on-page); }
+    button.btn:not(:disabled):hover { background: var(--btn-hover); }
+    button.btn.primary:not(:disabled):hover { background: var(--accent); filter: brightness(1.08); }
+    .swatch:hover, .swatch-custom:hover { box-shadow: 0 0 0 2px var(--btn-hover); }
+    .swatch.on:hover, .swatch-custom.on:hover { box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--accent); }
+    .add-btn:not(:disabled):hover { background: var(--btn-hover); }
+    .li-del:not(:disabled):hover, .li-edit:not(:disabled):hover { background: var(--btn-hover); color: var(--text); }
+    .li-team:not(:disabled):hover { background-color: color-mix(in srgb, var(--tc, var(--muted)) 24%, transparent); }
+    .theme-btn:hover { background: var(--btn-hover); }
+    .settings > summary:hover { background: var(--btn-hover); }
+  }
+
+  /* ===== PC 배치: html[data-layout="pc"] =====
+     "pc" = 이전 PC 배치를 폭 제한 없이(모바일 도구 막대·패널 전환은 쓰지 않고 모든 카드가 보임):
+     >1100px : [전투 현황 | 아레나 | 헤더 / 도크 / 사이드] 3열
+     821~1100: [아레나 | 헤더 / 도크 / 전투 현황 / 사이드] 2열
+     ≤820px  : 1열(헤더 → 아레나 → 도크 → 전투 현황 → 사이드, 화면 폭 전체, 아레나 최대 600px)
+     도크(#actionDock 카드)는 항상 문서 흐름 안 → 아레나를 가리지 않는다.
+     -20px 은 세로 스크롤바 폭 여유. 이번 압축(접힌 배경 설정·5열 공 추가 등)은 그대로 쓴다. */
+  :root[data-layout="pc"] .app {
+    --left-w: 232px;
+    --side-w: 300px;
+    --bw: min(calc(100vw - 32px - var(--left-w) - var(--side-w) - 48px - 20px), calc(100vh - 48px), 640px);
+    max-width: 1280px;
+    padding: 24px 16px 40px;
+    grid-template-columns: var(--left-w) auto var(--side-w);
+    grid-template-areas: "left board head" "left board dock" "left board side";
+    grid-template-rows: auto auto 1fr;
+    gap: 14px 24px;
+    justify-content: center;
+  }
+  :root[data-layout="pc"] .head { gap: 8px; }
+  :root[data-layout="pc"] .arena-wrap { width: var(--bw); max-width: none; justify-self: start; }
+  :root[data-layout="pc"] .battle { max-height: var(--bw); }
+  :root[data-layout="pc"] .tools {
+    grid-area: dock; min-width: 0;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
+  }
+  :root[data-layout="pc"] .tool-group,
+  :root[data-layout="pc"] .panel-close,
+  :root[data-layout="pc"] .m-only { display: none; }
+  :root[data-layout="pc"] .ctrl-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  @media (min-width: 1101px) {
+    /* 3열: 좁은 왼쪽 패널 → 행을 2줄(번호·이름·HP·쿨다운 / HP 바)로 */
+    :root[data-layout="pc"] .hp-row {
+      grid-template-columns: 22px minmax(0, 1fr) auto 34px;
+      grid-template-areas: "num name val cd" ". bar bar bar";
+      row-gap: 3px; padding: 5px 4px;
+    }
+    :root[data-layout="pc"] .hp-num { grid-area: num; }
+    :root[data-layout="pc"] .hp-name { grid-area: name; }
+    :root[data-layout="pc"] .hp-bar { grid-area: bar; }
+    :root[data-layout="pc"] .hp-val { grid-area: val; }
+    :root[data-layout="pc"] .cd { grid-area: cd; }
+  }
+  @media (max-width: 1100px) {
+    :root[data-layout="pc"] .app {
+      --bw: min(calc(100vw - 32px - var(--side-w) - 24px - 20px), calc(100vh - 48px), 600px);
+      max-width: 1000px;
+      grid-template-columns: auto var(--side-w);
+      grid-template-areas: "board head" "board dock" "board left" "board side";
+      grid-template-rows: auto auto auto 1fr;
+    }
+    /* 2열: 오른쪽 열 중간에 놓이므로 고정 높이 */
+    :root[data-layout="pc"] .battle { max-height: 260px; }
+  }
+  @media (max-width: 820px) {
+    :root[data-layout="pc"] .app {
+      --bw: min(calc(100vw - 32px), 70vh, 600px);
+      max-width: none;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "head" "board" "dock" "left" "side";
+      grid-template-rows: auto;
+      padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left));
+      gap: 10px;
+      justify-content: normal;
+    }
+    :root[data-layout="pc"] .arena-wrap { width: 100%; max-width: var(--bw); justify-self: center; }
+    :root[data-layout="pc"] .battle { max-height: min(45vh, 360px); }
+    :root[data-layout="pc"] .ctrl-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -710,10 +995,16 @@
 <body>
 <div class="app">
   <header class="head">
-    <a class="back" href="index.html" data-i18n="back">← 게임 목록</a>
+    <div class="head-row">
+      <a class="back" href="index.html" data-i18n="back">← 게임 목록</a>
+      <select class="lang" id="lang" aria-label="Language"></select>
+    </div>
     <div class="title-row">
       <h1 data-i18n="title">공 배틀</h1>
-      <select class="lang" id="lang" aria-label="Language"></select>
+      <div class="seg" id="layoutSeg" role="group" aria-label="화면 배치" data-i18n-aria="layout">
+        <button type="button" data-v="mobile" aria-pressed="true" data-i18n="layoutMobile">모바일</button>
+        <button type="button" data-v="pc" aria-pressed="false" data-i18n="layoutPc">PC</button>
+      </div>
     </div>
     <div class="card">
       <div class="status" id="status" role="status" aria-live="polite"></div>
@@ -722,7 +1013,7 @@
   </header>
 
   <div class="arena-wrap">
-    <canvas id="arena" role="img" aria-label="공 배틀 경기장" data-i18n-aria="arena"></canvas>
+    <canvas id="arena" role="img" aria-label="공 배틀 아레나" data-i18n-aria="arena"></canvas>
     <div class="overlay" id="overlay">
       <div class="dialog" role="dialog" aria-modal="false" aria-labelledby="ovTitle">
         <h2 id="ovTitle"></h2>
@@ -735,28 +1026,65 @@
     </div>
   </div>
 
-  <section class="card battle" aria-labelledby="hpLabel">
-    <span class="field-label" id="hpLabel" data-i18n="battleStatus">전투 현황</span>
+  <!-- 도구 막대: 모바일은 아레나 오른쪽 세로 열(아이콘), PC는 사이드 열의 시작/일시정지 카드.
+       .tool[data-panel] 은 아래 [data-panel-id] 패널을 연다(JS: .app[data-open]). -->
+  <nav class="tools" id="tools" aria-label="도구" data-i18n-aria="tools">
+    <div class="action-dock" id="actionDock">
+      <!-- 가상 조이스틱(직접 모드 전투 중, 모바일 배치 또는 터치 기기). 손잡이 위치 = JS가 --jx/--jy(-1~1), 누르는 중 .active -->
+      <div id="joystick" class="joystick" aria-hidden="true"><div class="joy-base"><div class="joy-knob"></div></div></div>
+      <button class="btn hidden" id="skillBtn" data-i18n="skill">스킬 사용</button>
+      <div class="row ctrl-row">
+        <button class="btn primary" id="startBtn" data-i18n="start">시작</button>
+        <button class="btn" id="pauseBtn" data-i18n="pause">일시정지</button>
+        <button class="btn" id="restartBtn" data-i18n="restart">재시작</button>
+        <button id="skipBtn" class="btn" data-i18n="skip">결과 바로 보기</button>
+      </div>
+    </div>
+    <div class="tool-group">
+      <button type="button" class="tool" data-panel="lineup" aria-controls="panelLineup" aria-expanded="false" aria-label="공 구성" data-i18n-aria="lineup">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="7" cy="8" r="3.2"/><circle cx="17" cy="8" r="3.2"/><circle cx="12" cy="16.5" r="3.2"/></svg>
+      </button>
+      <button type="button" class="tool" data-panel="controls" aria-controls="panelControls" aria-expanded="false" aria-label="게임 설정" data-i18n-aria="controls">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg>
+      </button>
+      <button type="button" class="tool" data-panel="battle" aria-controls="panelBattle" aria-expanded="false" aria-label="전투 현황" data-i18n-aria="battleStatus">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h11M4 18h7"/></svg>
+      </button>
+      <button type="button" class="tool" data-panel="bg" aria-controls="panelBg" aria-expanded="false" aria-label="배경 설정" data-i18n-aria="bgSettings">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 16l5-5 4 4 3-3 5 5"/><circle cx="15.5" cy="9" r="1.6"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <section class="card battle" id="panelBattle" data-panel-id="battle" aria-labelledby="hpLabel">
+    <div class="panel-head">
+      <span class="field-label" id="hpLabel" data-i18n="battleStatus">전투 현황</span>
+      <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
+    </div>
     <div id="hpList"></div>
   </section>
 
   <div class="side">
-    <section class="card stack">
-      <div>
+    <section class="card stack" id="panelControls" data-panel-id="controls" aria-labelledby="controlsTitle">
+      <div class="panel-head m-only">
+        <span class="field-label panel-title" id="controlsTitle" data-i18n="controls">게임 설정</span>
+        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
+      </div>
+      <div class="set-field">
         <span class="field-label" id="modeLabel" data-i18n="mode">모드</span>
         <div class="seg" id="modeSeg" role="group" aria-labelledby="modeLabel">
           <button data-v="watch" class="on" data-i18n="modeWatch">관전</button>
           <button data-v="play" data-i18n="modePlay">직접</button>
         </div>
       </div>
-      <div>
+      <div class="set-field">
         <span class="field-label" id="battleLabel" data-i18n="battleMode">전투 방식</span>
         <div class="seg" id="battleSeg" role="group" aria-labelledby="battleLabel">
           <button data-v="ffa" class="on" data-i18n="ffa">개인전</button>
           <button data-v="team" data-i18n="team">팀전</button>
         </div>
       </div>
-      <div id="teamField" class="hidden">
+      <div id="teamField" class="set-field hidden">
         <span class="field-label" id="teamCountLabel" data-i18n="teamCount">팀 수</span>
         <div class="seg" id="teamCountSeg" role="group" aria-labelledby="teamCountLabel">
           <button data-v="2" class="on">2</button>
@@ -764,11 +1092,11 @@
           <button data-v="4">4</button>
         </div>
       </div>
-      <div id="myField">
+      <div id="myField" class="set-field">
         <label class="field-label" for="mySelect" data-i18n="myBall">내 공</label>
         <select class="field hidden" id="mySelect"></select>
       </div>
-      <div>
+      <div class="speed-field">
         <span class="field-label" id="speedLabel" data-i18n="speed">속도</span>
         <div class="seg" id="speedSeg" role="group" aria-labelledby="speedLabel">
           <button data-v="1" class="on">1x</button>
@@ -778,21 +1106,17 @@
           <button data-v="3">3x</button>
         </div>
       </div>
-      <div class="action-dock" id="actionDock">
-        <button class="btn hidden" id="skillBtn" data-i18n="skill">스킬 사용</button>
-        <div class="row ctrl-row">
-          <button class="btn primary" id="startBtn" data-i18n="start">시작</button>
-          <button class="btn" id="pauseBtn" data-i18n="pause">일시정지</button>
-          <button class="btn" id="restartBtn" data-i18n="restart">재시작</button>
-          <button id="skipBtn" class="btn" data-i18n="skip">결과 바로 보기</button>
-        </div>
-      </div>
     </section>
 
-    <section class="card" aria-labelledby="lineupLabel">
+    <section class="card lineup-card" id="panelLineup" data-panel-id="lineup" aria-labelledby="lineupLabel">
       <div class="field-head">
         <span class="field-label" id="lineupLabel" data-i18n="lineup">공 구성</span>
-        <span class="count" id="lineupCount">0 / 10</span>
+        <span class="count" id="lineupCount">0 / 20</span>
+        <div class="lineup-foot">
+          <button class="btn small hidden" id="autoTeamBtn" data-i18n="autoTeam">팀 자동 배분</button>
+          <button class="btn small" id="clearBtn" data-i18n="clear">모두 지우기</button>
+        </div>
+        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
       </div>
       <div class="add-bar" id="addBar">
         <button class="add-btn" data-type="charger" aria-label="돌격 추가" data-i18n-aria="addCharger"><span class="dot" style="background: var(--c-charger)"></span><span data-i18n="charger">돌격</span></button>
@@ -807,16 +1131,28 @@
         <button class="add-btn" data-type="frost" aria-label="빙결 추가" data-i18n-aria="addFrost"><span class="dot" style="background: var(--c-frost)"></span><span data-i18n="frost">빙결</span></button>
         <button class="add-btn" data-type="blink" aria-label="섬광 추가" data-i18n-aria="addBlink"><span class="dot" style="background: var(--c-blink)"></span><span data-i18n="blink">섬광</span></button>
         <button class="add-btn" data-type="magnet" aria-label="자석 추가" data-i18n-aria="addMagnet"><span class="dot" style="background: var(--c-magnet)"></span><span data-i18n="magnet">자석</span></button>
+        <button class="add-btn" data-type="giant" aria-label="거인 추가" data-i18n-aria="addGiant"><span class="dot" style="background: var(--c-giant)"></span><span data-i18n="giant">거인</span></button>
+        <button class="add-btn" data-type="poison" aria-label="독 추가" data-i18n-aria="addPoison"><span class="dot" style="background: var(--c-poison)"></span><span data-i18n="poison">독</span></button>
+        <button class="add-btn" data-type="storm" aria-label="번개 추가" data-i18n-aria="addStorm"><span class="dot" style="background: var(--c-storm)"></span><span data-i18n="storm">번개</span></button>
+        <button class="add-btn" data-type="berserker" aria-label="광전사 추가" data-i18n-aria="addBerserker"><span class="dot" style="background: var(--c-berserker)"></span><span data-i18n="berserker">광전사</span></button>
+        <button class="add-btn" data-type="ghost" aria-label="유령 추가" data-i18n-aria="addGhost"><span class="dot" style="background: var(--c-ghost)"></span><span data-i18n="ghost">유령</span></button>
+        <button class="add-btn" data-type="mirror" aria-label="반사 추가" data-i18n-aria="addMirror"><span class="dot" style="background: var(--c-mirror)"></span><span data-i18n="mirror">반사</span></button>
+        <button class="add-btn" data-type="sniper" aria-label="저격 추가" data-i18n-aria="addSniper"><span class="dot" style="background: var(--c-sniper)"></span><span data-i18n="sniper">저격</span></button>
+        <button class="add-btn" data-type="swapper" aria-label="교환 추가" data-i18n-aria="addSwapper"><span class="dot" style="background: var(--c-swapper)"></span><span data-i18n="swapper">교환</span></button>
       </div>
       <ul id="lineup" aria-labelledby="lineupLabel"></ul>
       <p class="hint" id="lineupHint" aria-live="polite"></p>
-      <div class="lineup-foot">
-        <button class="btn small hidden" id="autoTeamBtn" data-i18n="autoTeam">팀 자동 배분</button>
-        <button class="btn small" id="clearBtn" data-i18n="clear">모두 지우기</button>
-      </div>
     </section>
 
-    <section class="card" id="bgField" aria-labelledby="bgLabel">
+    <section class="card settings-card" id="panelBg" data-panel-id="bg" aria-labelledby="bgSettingsTitle">
+    <div class="panel-head m-only">
+      <span class="field-label panel-title" id="bgSettingsTitle" data-i18n="bgSettings">배경 설정</span>
+      <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
+    </div>
+    <details class="settings" id="bgSettings">
+      <summary data-i18n="bgSettings">배경 설정</summary>
+      <div class="settings-body">
+    <section id="bgField" aria-labelledby="bgLabel">
       <div class="bg-head">
         <span class="field-label" id="bgLabel" data-i18n="bgColor">배경색</span>
         <button class="btn small" id="bgResetBtn" data-i18n="reset">초기화</button>
@@ -834,7 +1170,7 @@
       </div>
     </section>
 
-    <section class="card" id="arenaField" aria-labelledby="arenaBgLabel">
+    <section id="arenaField" aria-labelledby="arenaBgLabel">
       <span class="field-label" id="arenaBgLabel" data-i18n="arenaBg">아레나 배경</span>
       <div class="theme-grid" id="arenaThemes" role="group" aria-labelledby="arenaBgLabel">
         <button class="theme-btn on" data-v="city" aria-pressed="true"><span class="theme-sw" aria-hidden="true"></span><span data-i18n="themeCity">도시</span></button>
@@ -846,6 +1182,9 @@
         <button class="theme-btn" data-v="snow" aria-pressed="false"><span class="theme-sw" aria-hidden="true"></span><span data-i18n="themeSnow">설원</span></button>
         <button class="theme-btn" data-v="plain" aria-pressed="false"><span class="theme-sw" aria-hidden="true"></span><span data-i18n="themePlain">무늬 없음</span></button>
       </div>
+    </section>
+      </div>
+    </details>
     </section>
   </div>
 </div>
@@ -896,7 +1235,7 @@
         <div class="seg chips" id="customHat" role="group" aria-labelledby="customHatLabel">
           <button data-v="none" class="on" aria-pressed="true" data-i18n="hatNone">없음</button>
           <button data-v="crown" aria-pressed="false" data-i18n="hatCrown">왕관</button>
-          <button data-v="cap" aria-pressed="false" data-i18n="hatCap">모자</button>
+          <button data-v="cap" aria-pressed="false" data-i18n="hatCap">야구 모자</button>
           <button data-v="horns" aria-pressed="false" data-i18n="hatHorns">뿔</button>
           <button data-v="halo" aria-pressed="false" data-i18n="hatHalo">후광</button>
           <button data-v="helmet" aria-pressed="false" data-i18n="hatHelmet">투구</button>
@@ -925,17 +1264,39 @@
 // ===== 다국어 =====
 const I18N = {
   ko: {
-    name: '한국어', title: '공 배틀', back: '← 게임 목록', arena: '공 배틀 경기장',
+    name: '한국어', title: '공 배틀', back: '← 게임 목록', arena: '공 배틀 아레나',
     skip: '결과 바로 보기', battleStatus: '전투 현황',
     lineup: '공 구성', charger: '돌격', spike: '가시', healer: '치유', twin: '분신', shooter: '사수', guardian: '수호',
     addCharger: '돌격 추가', addSpike: '가시 추가', addHealer: '치유 추가', addTwin: '분신 추가', addShooter: '사수 추가', addGuardian: '수호 추가',
     clear: '모두 지우기', mode: '모드', modeWatch: '관전', modePlay: '직접', myBall: '내 공', speed: '속도',
     start: '시작', pause: '일시정지', resume: '재개', restart: '재시작', skill: '스킬 사용', hp: '체력', changeLineup: '구성 변경',
-    needTwo: '공을 2개 이상 추가하세요', maxReached: '최대 10개까지 추가할 수 있어요', pressStart: '시작을 누르면 전투가 시작돼요',
-    playHint: 'WASD/방향키 또는 아레나를 누른 채 끌어서 이동 · 탭/Space로 스킬', paused: '일시정지됨', alive: '생존 {a}/{n}',
+    needTwo: '공을 2개 이상 추가하세요', maxReached: '최대 {n}개까지 추가할 수 있어요', pressStart: '시작을 누르면 전투가 시작돼요',
+    playHint: '조이스틱이나 아레나를 끌어서 이동(WASD/방향키) · 탭/Space로 스킬', paused: '일시정지됨', alive: '생존 {a}/{n}',
     win: '{name} 승리!', draw: '무승부', rank: '{n}위', suddenDeath: '서든데스', del: '{name} 삭제', none: '없음',
     ready: '준비됨', myOut: '내 공 탈락',
     skDash: '돌진', skSpike: '가시 전개', skRegen: '재생', skClone: '분신', skShoot: '사격', skShield: '실드',
+    mage: '마법', bomber: '폭탄', vampire: '흡혈', frost: '빙결', blink: '섬광', magnet: '자석', giant: '거인',
+    poison: '독', storm: '번개', berserker: '광전사', ghost: '유령', mirror: '반사', sniper: '저격', swapper: '교환',
+    addMage: '마법 추가', addBomber: '폭탄 추가', addVampire: '흡혈 추가', addFrost: '빙결 추가', addBlink: '섬광 추가',
+    addMagnet: '자석 추가', addGiant: '거인 추가', addPoison: '독 추가', addStorm: '번개 추가', addBerserker: '광전사 추가',
+    addGhost: '유령 추가', addMirror: '반사 추가', addSniper: '저격 추가', addSwapper: '교환 추가',
+    skBolt: '마법탄', skBomb: '폭발', skDrain: '흡혈', skFreeze: '빙결탄', skBlink: '순간이동', skPull: '끌어당기기',
+    skGrow: '거대화', skPoison: '독침', skNova: '번개 파동', skRage: '광폭화', skPhase: '유령화', skReflect: '반사막',
+    skSnipe: '저격', skSwap: '자리 바꾸기',
+    battleMode: '전투 방식', ffa: '개인전', team: '팀전', teamCount: '팀 수', autoTeam: '팀 자동 배분',
+    teamName: '{t}팀', teamLabel: '{name} 팀: {team}', needTwoTeams: '공이 있는 팀이 2개 이상이어야 해요', teamWin: '{team} 승리!',
+    bgColor: '배경색', reset: '초기화', swDefault: '기본', swNavy: '남색', swForest: '숲색', swPlum: '자두색',
+    swCharcoal: '숯색', swSand: '모래색', swSky: '하늘색', swRose: '장미색', swCustom: '사용자 지정 색',
+    bgSettings: '배경 설정', layout: '화면 배치', layoutMobile: '모바일', layoutPc: 'PC', controls: '게임 설정', tools: '도구',
+    arenaBg: '아레나 배경',themeCity: '도시', themeForest: '숲', themeDesert: '사막', themeSpace: '우주',
+    themeOcean: '바다', themeVolcano: '화산', themeSnow: '설원', themePlain: '무늬 없음',
+    customize: '꾸미기', nickname: '별명', ballColor: '공 색', colRed: '빨강', colOrange: '주황', colYellow: '노랑',
+    colLime: '연두', colGreen: '초록', colTeal: '청록', colBlue: '파랑', colPurple: '보라', colPink: '분홍',
+    colBrown: '갈색', colWhite: '흰색', colBlack: '검정',
+    face: '표정', faceNone: '없음', faceEyes: '눈', faceHappy: '웃음', faceAngry: '화남', faceCool: '선글라스', faceSleepy: '졸림',
+    hat: '모자', hatNone: '없음', hatCrown: '왕관', hatCap: '야구 모자', hatHorns: '뿔', hatHalo: '후광', hatHelmet: '투구',
+    trail: '흔적', trailNone: '없음', trailSpark: '반짝이', trailFire: '불꽃', trailBubble: '거품', trailShadow: '잔상',
+    resetDefault: '기본값으로', close: '닫기', apply: '적용',
   },
   en: {
     name: 'English', title: 'Ball Battle', back: '← All games', arena: 'Ball battle arena',
@@ -944,11 +1305,33 @@ const I18N = {
     addCharger: 'Add Charger', addSpike: 'Add Spike', addHealer: 'Add Healer', addTwin: 'Add Twin', addShooter: 'Add Shooter', addGuardian: 'Add Guardian',
     clear: 'Clear all', mode: 'Mode', modeWatch: 'Watch', modePlay: 'Play', myBall: 'My ball', speed: 'Speed',
     start: 'Start', pause: 'Pause', resume: 'Resume', restart: 'Restart', skill: 'Use skill', hp: 'HP', changeLineup: 'Change lineup',
-    needTwo: 'Add at least 2 balls', maxReached: 'You can add up to 10 balls', pressStart: 'Press Start to begin the battle',
-    playHint: 'Move with WASD/arrow keys or press and drag on the arena · Tap/Space for skill', paused: 'Paused', alive: 'Alive {a}/{n}',
+    needTwo: 'Add at least 2 balls', maxReached: 'You can add up to {n} balls', pressStart: 'Press Start to begin the battle',
+    playHint: 'Drag the joystick or arena to move (WASD/arrows) · Tap/Space for skill', paused: 'Paused', alive: 'Alive {a}/{n}',
     win: '{name} wins!', draw: 'Draw', rank: n => n + (n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th'),
     suddenDeath: 'Sudden death', del: 'Remove {name}', none: 'None', ready: 'Ready', myOut: 'Your ball is out',
     skDash: 'Dash', skSpike: 'Spikes', skRegen: 'Regen', skClone: 'Clone', skShoot: 'Shoot', skShield: 'Shield',
+    mage: 'Mage', bomber: 'Bomber', vampire: 'Vampire', frost: 'Frost', blink: 'Blink', magnet: 'Magnet', giant: 'Giant',
+    poison: 'Poison', storm: 'Storm', berserker: 'Berserker', ghost: 'Ghost', mirror: 'Mirror', sniper: 'Sniper', swapper: 'Swapper',
+    addMage: 'Add Mage', addBomber: 'Add Bomber', addVampire: 'Add Vampire', addFrost: 'Add Frost', addBlink: 'Add Blink',
+    addMagnet: 'Add Magnet', addGiant: 'Add Giant', addPoison: 'Add Poison', addStorm: 'Add Storm', addBerserker: 'Add Berserker',
+    addGhost: 'Add Ghost', addMirror: 'Add Mirror', addSniper: 'Add Sniper', addSwapper: 'Add Swapper',
+    skBolt: 'Magic bolt', skBomb: 'Blast', skDrain: 'Drain', skFreeze: 'Frost bolt', skBlink: 'Blink', skPull: 'Pull',
+    skGrow: 'Grow', skPoison: 'Poison dart', skNova: 'Thunder nova', skRage: 'Rage', skPhase: 'Phase', skReflect: 'Reflect',
+    skSnipe: 'Snipe', skSwap: 'Swap',
+    battleMode: 'Battle type', ffa: 'Free-for-all', team: 'Teams', teamCount: 'Number of teams', autoTeam: 'Auto-assign teams',
+    teamName: 'Team {t}', teamLabel: '{name} team: {team}', needTwoTeams: 'At least 2 teams need balls', teamWin: '{team} wins!',
+    bgColor: 'Background', reset: 'Reset', swDefault: 'Default', swNavy: 'Navy', swForest: 'Forest', swPlum: 'Plum',
+    swCharcoal: 'Charcoal', swSand: 'Sand', swSky: 'Sky', swRose: 'Rose', swCustom: 'Custom color',
+    bgSettings: 'Background settings', layout: 'Layout', layoutMobile: 'Mobile', layoutPc: 'PC', controls: 'Game settings', tools: 'Tools',
+    arenaBg: 'Arena background',themeCity: 'City', themeForest: 'Forest', themeDesert: 'Desert', themeSpace: 'Space',
+    themeOcean: 'Ocean', themeVolcano: 'Volcano', themeSnow: 'Snowfield', themePlain: 'Plain',
+    customize: 'Customize', nickname: 'Nickname', ballColor: 'Ball color', colRed: 'Red', colOrange: 'Orange', colYellow: 'Yellow',
+    colLime: 'Lime', colGreen: 'Green', colTeal: 'Teal', colBlue: 'Blue', colPurple: 'Purple', colPink: 'Pink',
+    colBrown: 'Brown', colWhite: 'White', colBlack: 'Black',
+    face: 'Face', faceNone: 'None', faceEyes: 'Eyes', faceHappy: 'Happy', faceAngry: 'Angry', faceCool: 'Sunglasses', faceSleepy: 'Sleepy',
+    hat: 'Hat', hatNone: 'None', hatCrown: 'Crown', hatCap: 'Cap', hatHorns: 'Horns', hatHalo: 'Halo', hatHelmet: 'Helmet',
+    trail: 'Trail', trailNone: 'None', trailSpark: 'Sparkle', trailFire: 'Fire', trailBubble: 'Bubbles', trailShadow: 'Afterimage',
+    resetDefault: 'Reset to default', close: 'Close', apply: 'Apply',
   },
   ja: {
     name: '日本語', title: 'ボールバトル', back: '← ゲーム一覧', arena: 'ボールバトルのアリーナ',
@@ -957,11 +1340,33 @@ const I18N = {
     addCharger: '突撃を追加', addSpike: 'トゲを追加', addHealer: '回復を追加', addTwin: '分身を追加', addShooter: '射手を追加', addGuardian: '守護を追加',
     clear: 'すべて削除', mode: 'モード', modeWatch: '観戦', modePlay: '操作', myBall: '自分のボール', speed: '速度',
     start: 'スタート', pause: '一時停止', resume: '再開', restart: 'リスタート', skill: 'スキル使用', hp: '体力', changeLineup: '編成を変更',
-    needTwo: 'ボールを2つ以上追加してください', maxReached: '最大10個まで追加できます', pressStart: 'スタートを押すと戦闘が始まります',
-    playHint: 'WASD/矢印キー、またはアリーナを押したままドラッグで移動 · タップ/Spaceでスキル', paused: '一時停止中', alive: '生存 {a}/{n}',
+    needTwo: 'ボールを2つ以上追加してください', maxReached: '最大{n}個まで追加できます', pressStart: 'スタートを押すと戦闘が始まります',
+    playHint: 'ジョイスティックかアリーナをドラッグで移動(WASD/矢印キー) · タップ/Spaceでスキル', paused: '一時停止中', alive: '生存 {a}/{n}',
     win: '{name}の勝利！', draw: '引き分け', rank: '{n}位', suddenDeath: 'サドンデス', del: '{name}を削除', none: 'なし',
-    ready: '準備完了', myOut: '自分のボールは脱落',
+    ready: '準備完了', myOut: '自分のボールが脱落',
     skDash: '突進', skSpike: 'トゲ展開', skRegen: '再生', skClone: '分身', skShoot: '射撃', skShield: 'シールド',
+    mage: '魔法', bomber: '爆弾', vampire: '吸血', frost: '氷結', blink: '閃光', magnet: '磁石', giant: '巨人',
+    poison: '毒', storm: '雷', berserker: '狂戦士', ghost: '幽霊', mirror: '反射', sniper: '狙撃', swapper: '入れ替え',
+    addMage: '魔法を追加', addBomber: '爆弾を追加', addVampire: '吸血を追加', addFrost: '氷結を追加', addBlink: '閃光を追加',
+    addMagnet: '磁石を追加', addGiant: '巨人を追加', addPoison: '毒を追加', addStorm: '雷を追加', addBerserker: '狂戦士を追加',
+    addGhost: '幽霊を追加', addMirror: '反射を追加', addSniper: '狙撃を追加', addSwapper: '入れ替えを追加',
+    skBolt: '魔法弾', skBomb: '爆発', skDrain: '吸血', skFreeze: '氷結弾', skBlink: '瞬間移動', skPull: '引き寄せ',
+    skGrow: '巨大化', skPoison: '毒針', skNova: '雷撃波', skRage: '狂暴化', skPhase: '霊体化', skReflect: '反射膜',
+    skSnipe: '狙撃', skSwap: '位置交換',
+    battleMode: '対戦形式', ffa: '個人戦', team: 'チーム戦', teamCount: 'チーム数', autoTeam: 'チーム自動振り分け',
+    teamName: 'チーム{t}', teamLabel: '{name}のチーム: {team}', needTwoTeams: 'ボールのいるチームが2つ以上必要です', teamWin: '{team}の勝利！',
+    bgColor: '背景色', reset: 'リセット', swDefault: 'デフォルト', swNavy: '紺', swForest: '深緑', swPlum: 'プラム',
+    swCharcoal: '炭色', swSand: '砂色', swSky: '空色', swRose: 'ローズ', swCustom: 'カスタム色',
+    bgSettings: '背景設定', layout: '画面レイアウト', layoutMobile: 'モバイル', layoutPc: 'PC', controls: 'ゲーム設定', tools: 'ツール',
+    arenaBg: 'アリーナ背景',themeCity: '都市', themeForest: '森', themeDesert: '砂漠', themeSpace: '宇宙',
+    themeOcean: '海', themeVolcano: '火山', themeSnow: '雪原', themePlain: '無地',
+    customize: 'カスタマイズ', nickname: 'ニックネーム', ballColor: 'ボールの色', colRed: '赤', colOrange: 'オレンジ', colYellow: '黄',
+    colLime: '黄緑', colGreen: '緑', colTeal: '青緑', colBlue: '青', colPurple: '紫', colPink: 'ピンク',
+    colBrown: '茶', colWhite: '白', colBlack: '黒',
+    face: '表情', faceNone: 'なし', faceEyes: '目', faceHappy: '笑顔', faceAngry: '怒り', faceCool: 'サングラス', faceSleepy: '眠い',
+    hat: '帽子', hatNone: 'なし', hatCrown: '王冠', hatCap: 'キャップ', hatHorns: '角', hatHalo: '光輪', hatHelmet: '兜',
+    trail: '軌跡', trailNone: 'なし', trailSpark: 'キラキラ', trailFire: '炎', trailBubble: '泡', trailShadow: '残像',
+    resetDefault: 'デフォルトに戻す', close: '閉じる', apply: '適用',
   },
   zh: {
     name: '中文', title: '弹球大战', back: '← 游戏列表', arena: '弹球大战竞技场',
@@ -970,11 +1375,33 @@ const I18N = {
     addCharger: '添加冲锋', addSpike: '添加尖刺', addHealer: '添加治疗', addTwin: '添加分身', addShooter: '添加射手', addGuardian: '添加守护',
     clear: '全部清除', mode: '模式', modeWatch: '观战', modePlay: '操控', myBall: '我的球', speed: '速度',
     start: '开始', pause: '暂停', resume: '继续', restart: '重新开始', skill: '使用技能', hp: '生命值', changeLineup: '更改阵容',
-    needTwo: '请至少添加 2 个球', maxReached: '最多可添加 10 个球', pressStart: '点击开始进行战斗',
-    playHint: 'WASD/方向键或在竞技场上按住拖动来移动 · 轻点/空格键发动技能', paused: '已暂停', alive: '存活 {a}/{n}',
-    win: '{name} 获胜！', draw: '平局', rank: '第{n}名', suddenDeath: '决胜时刻', del: '删除{name}', none: '无',
+    needTwo: '请至少添加 2 个球', maxReached: '最多可添加{n}个球', pressStart: '点击开始进行战斗',
+    playHint: '拖动摇杆或竞技场来移动(WASD/方向键) · 轻点/空格键发动技能', paused: '已暂停', alive: '存活 {a}/{n}',
+    win: '{name}获胜！', draw: '平局', rank: '第{n}名', suddenDeath: '决胜时刻', del: '删除{name}', none: '无',
     ready: '就绪', myOut: '我的球已出局',
     skDash: '冲刺', skSpike: '尖刺展开', skRegen: '再生', skClone: '分身', skShoot: '射击', skShield: '护盾',
+    mage: '法师', bomber: '炸弹', vampire: '吸血', frost: '冰冻', blink: '闪光', magnet: '磁铁', giant: '巨人',
+    poison: '毒雾', storm: '雷电', berserker: '狂战士', ghost: '幽灵', mirror: '反射', sniper: '狙击', swapper: '换位',
+    addMage: '添加法师', addBomber: '添加炸弹', addVampire: '添加吸血', addFrost: '添加冰冻', addBlink: '添加闪光',
+    addMagnet: '添加磁铁', addGiant: '添加巨人', addPoison: '添加毒雾', addStorm: '添加雷电', addBerserker: '添加狂战士',
+    addGhost: '添加幽灵', addMirror: '添加反射', addSniper: '添加狙击', addSwapper: '添加换位',
+    skBolt: '魔法弹', skBomb: '爆炸', skDrain: '吸血', skFreeze: '冰霜弹', skBlink: '瞬移', skPull: '吸引',
+    skGrow: '巨大化', skPoison: '毒针', skNova: '雷霆新星', skRage: '狂暴', skPhase: '虚化', skReflect: '反射',
+    skSnipe: '狙击', skSwap: '换位',
+    battleMode: '对战方式', ffa: '个人战', team: '团队战', teamCount: '队伍数', autoTeam: '自动分队',
+    teamName: '{t}队', teamLabel: '{name}队伍：{team}', needTwoTeams: '至少需要 2 支有球的队伍', teamWin: '{team}获胜！',
+    bgColor: '背景色', reset: '重置', swDefault: '默认', swNavy: '藏青', swForest: '森林绿', swPlum: '梅紫',
+    swCharcoal: '炭灰', swSand: '沙色', swSky: '天蓝', swRose: '玫瑰', swCustom: '自定义颜色',
+    bgSettings: '背景设置', layout: '页面布局', layoutMobile: '手机', layoutPc: '电脑', controls: '游戏设置', tools: '工具',
+    arenaBg: '竞技场背景',themeCity: '城市', themeForest: '森林', themeDesert: '沙漠', themeSpace: '太空',
+    themeOcean: '海洋', themeVolcano: '火山', themeSnow: '雪原', themePlain: '纯色',
+    customize: '装扮', nickname: '昵称', ballColor: '球的颜色', colRed: '红', colOrange: '橙', colYellow: '黄',
+    colLime: '黄绿', colGreen: '绿', colTeal: '青', colBlue: '蓝', colPurple: '紫', colPink: '粉',
+    colBrown: '棕', colWhite: '白', colBlack: '黑',
+    face: '表情', faceNone: '无', faceEyes: '眼睛', faceHappy: '笑脸', faceAngry: '生气', faceCool: '墨镜', faceSleepy: '困倦',
+    hat: '帽子', hatNone: '无', hatCrown: '王冠', hatCap: '鸭舌帽', hatHorns: '角', hatHalo: '光环', hatHelmet: '头盔',
+    trail: '拖尾', trailNone: '无', trailSpark: '闪光', trailFire: '火焰', trailBubble: '气泡', trailShadow: '残影',
+    resetDefault: '恢复默认', close: '关闭', apply: '应用',
   },
   es: {
     name: 'Español', title: 'Batalla de bolas', back: '← Todos los juegos', arena: 'Arena de batalla de bolas',
@@ -983,11 +1410,33 @@ const I18N = {
     addCharger: 'Añadir Embestida', addSpike: 'Añadir Púas', addHealer: 'Añadir Sanadora', addTwin: 'Añadir Gemela', addShooter: 'Añadir Tiradora', addGuardian: 'Añadir Guardiana',
     clear: 'Borrar todo', mode: 'Modo', modeWatch: 'Ver', modePlay: 'Jugar', myBall: 'Mi bola', speed: 'Velocidad',
     start: 'Empezar', pause: 'Pausa', resume: 'Reanudar', restart: 'Reiniciar', skill: 'Usar habilidad', hp: 'Vida', changeLineup: 'Cambiar alineación',
-    needTwo: 'Añade al menos 2 bolas', maxReached: 'Puedes añadir hasta 10 bolas', pressStart: 'Pulsa Empezar para iniciar la batalla',
-    playHint: 'Muévete con WASD/flechas o mantén pulsado y arrastra en la arena · Toca/Espacio para la habilidad', paused: 'En pausa', alive: 'Vivas {a}/{n}',
+    needTwo: 'Añade al menos 2 bolas', maxReached: 'Puedes añadir hasta {n} bolas', pressStart: 'Pulsa Empezar para iniciar la batalla',
+    playHint: 'Arrastra el joystick o la arena para moverte (WASD/flechas) · Toca/Espacio para la habilidad', paused: 'En pausa', alive: 'Vivas {a}/{n}',
     win: '¡Gana {name}!', draw: 'Empate', rank: '{n}.º', suddenDeath: 'Muerte súbita', del: 'Quitar {name}', none: 'Ninguna',
     ready: 'Lista', myOut: 'Tu bola está eliminada',
     skDash: 'Embestida', skSpike: 'Púas', skRegen: 'Regenerar', skClone: 'Clon', skShoot: 'Disparo', skShield: 'Escudo',
+    mage: 'Maga', bomber: 'Bombardera', vampire: 'Vampira', frost: 'Escarcha', blink: 'Destello', magnet: 'Imán', giant: 'Gigante',
+    poison: 'Veneno', storm: 'Tormenta', berserker: 'Berserker', ghost: 'Fantasma', mirror: 'Espejo', sniper: 'Francotiradora', swapper: 'Permuta',
+    addMage: 'Añadir Maga', addBomber: 'Añadir Bombardera', addVampire: 'Añadir Vampira', addFrost: 'Añadir Escarcha', addBlink: 'Añadir Destello',
+    addMagnet: 'Añadir Imán', addGiant: 'Añadir Gigante', addPoison: 'Añadir Veneno', addStorm: 'Añadir Tormenta', addBerserker: 'Añadir Berserker',
+    addGhost: 'Añadir Fantasma', addMirror: 'Añadir Espejo', addSniper: 'Añadir Francotiradora', addSwapper: 'Añadir Permuta',
+    skBolt: 'Proyectil mágico', skBomb: 'Explosión', skDrain: 'Drenar', skFreeze: 'Proyectil helado', skBlink: 'Teletransporte', skPull: 'Atracción',
+    skGrow: 'Crecer', skPoison: 'Dardo venenoso', skNova: 'Nova eléctrica', skRage: 'Furia', skPhase: 'Fase', skReflect: 'Reflejo',
+    skSnipe: 'Disparo certero', skSwap: 'Intercambio',
+    battleMode: 'Tipo de combate', ffa: 'Todos contra todos', team: 'Por equipos', teamCount: 'Equipos', autoTeam: 'Repartir equipos',
+    teamName: 'Equipo {t}', teamLabel: 'Equipo de {name}: {team}', needTwoTeams: 'Se necesitan al menos 2 equipos con bolas', teamWin: '¡Gana el {team}!',
+    bgColor: 'Color de fondo', reset: 'Restablecer', swDefault: 'Predeterminado', swNavy: 'Marino', swForest: 'Bosque', swPlum: 'Ciruela',
+    swCharcoal: 'Carbón', swSand: 'Arena', swSky: 'Cielo', swRose: 'Rosa', swCustom: 'Color personalizado',
+    bgSettings: 'Ajustes de fondo', layout: 'Diseño', layoutMobile: 'Móvil', layoutPc: 'PC', controls: 'Ajustes de juego', tools: 'Herramientas',
+    arenaBg: 'Fondo de la arena',themeCity: 'Ciudad', themeForest: 'Bosque', themeDesert: 'Desierto', themeSpace: 'Espacio',
+    themeOcean: 'Océano', themeVolcano: 'Volcán', themeSnow: 'Nieve', themePlain: 'Liso',
+    customize: 'Personalizar', nickname: 'Apodo', ballColor: 'Color de la bola', colRed: 'Rojo', colOrange: 'Naranja', colYellow: 'Amarillo',
+    colLime: 'Lima', colGreen: 'Verde', colTeal: 'Turquesa', colBlue: 'Azul', colPurple: 'Morado', colPink: 'Rosa',
+    colBrown: 'Marrón', colWhite: 'Blanco', colBlack: 'Negro',
+    face: 'Cara', faceNone: 'Ninguna', faceEyes: 'Ojos', faceHappy: 'Feliz', faceAngry: 'Enfadada', faceCool: 'Gafas de sol', faceSleepy: 'Dormida',
+    hat: 'Sombrero', hatNone: 'Ninguno', hatCrown: 'Corona', hatCap: 'Gorra', hatHorns: 'Cuernos', hatHalo: 'Aureola', hatHelmet: 'Casco',
+    trail: 'Estela', trailNone: 'Ninguna', trailSpark: 'Destellos', trailFire: 'Fuego', trailBubble: 'Burbujas', trailShadow: 'Sombra',
+    resetDefault: 'Restablecer', close: 'Cerrar', apply: 'Aplicar',
   },
   fr: {
     name: 'Français', title: 'Bataille de boules', back: '← Tous les jeux', arena: 'Arène de bataille de boules',
@@ -996,11 +1445,33 @@ const I18N = {
     addCharger: 'Ajouter Chargeur', addSpike: 'Ajouter Épines', addHealer: 'Ajouter Soigneur', addTwin: 'Ajouter Jumeau', addShooter: 'Ajouter Tireur', addGuardian: 'Ajouter Gardien',
     clear: 'Tout effacer', mode: 'Mode', modeWatch: 'Regarder', modePlay: 'Jouer', myBall: 'Ma boule', speed: 'Vitesse',
     start: 'Démarrer', pause: 'Pause', resume: 'Reprendre', restart: 'Recommencer', skill: 'Utiliser la compétence', hp: 'PV', changeLineup: 'Modifier la composition',
-    needTwo: 'Ajoutez au moins 2 boules', maxReached: 'Vous pouvez ajouter jusqu’à 10 boules', pressStart: 'Appuyez sur Démarrer pour lancer le combat',
-    playHint: 'Déplacez-vous avec ZQSD/WASD/flèches ou maintenez et glissez sur l’arène · Touchez/Espace pour la compétence', paused: 'En pause', alive: 'En vie {a}/{n}',
+    needTwo: 'Ajoutez au moins 2 boules', maxReached: 'Vous pouvez ajouter jusqu’à {n} boules', pressStart: 'Appuyez sur Démarrer pour lancer le combat',
+    playHint: 'Glissez le joystick ou l’arène pour bouger (ZQSD/WASD/flèches) · Touchez/Espace pour la compétence', paused: 'En pause', alive: 'En vie {a}/{n}',
     win: '{name} gagne !', draw: 'Égalité', rank: n => (n === 1 ? '1er' : n + 'e'), suddenDeath: 'Mort subite', del: 'Retirer {name}', none: 'Aucune',
-    ready: 'Prêt', myOut: 'Votre boule est éliminée',
+    ready: 'Prête', myOut: 'Votre boule est éliminée',
     skDash: 'Charge', skSpike: 'Épines', skRegen: 'Régénération', skClone: 'Clone', skShoot: 'Tir', skShield: 'Bouclier',
+    mage: 'Mage', bomber: 'Bombardier', vampire: 'Vampire', frost: 'Givre', blink: 'Flash', magnet: 'Aimant', giant: 'Géant',
+    poison: 'Poison', storm: 'Foudre', berserker: 'Berserker', ghost: 'Fantôme', mirror: 'Miroir', sniper: 'Sniper', swapper: 'Permuteur',
+    addMage: 'Ajouter Mage', addBomber: 'Ajouter Bombardier', addVampire: 'Ajouter Vampire', addFrost: 'Ajouter Givre', addBlink: 'Ajouter Flash',
+    addMagnet: 'Ajouter Aimant', addGiant: 'Ajouter Géant', addPoison: 'Ajouter Poison', addStorm: 'Ajouter Foudre', addBerserker: 'Ajouter Berserker',
+    addGhost: 'Ajouter Fantôme', addMirror: 'Ajouter Miroir', addSniper: 'Ajouter Sniper', addSwapper: 'Ajouter Permuteur',
+    skBolt: 'Projectile magique', skBomb: 'Explosion', skDrain: 'Drain', skFreeze: 'Trait de givre', skBlink: 'Téléportation', skPull: 'Attraction',
+    skGrow: 'Grandir', skPoison: 'Dard empoisonné', skNova: 'Nova foudroyante', skRage: 'Rage', skPhase: 'Intangible', skReflect: 'Renvoi',
+    skSnipe: 'Tir de précision', skSwap: 'Échange',
+    battleMode: 'Type de combat', ffa: 'Chacun pour soi', team: 'Par équipes', teamCount: 'Équipes', autoTeam: 'Répartir les équipes',
+    teamName: 'Équipe {t}', teamLabel: 'Équipe de {name} : {team}', needTwoTeams: 'Il faut au moins 2 équipes avec des boules', teamWin: '{team} gagne !',
+    bgColor: 'Couleur de fond', reset: 'Réinitialiser', swDefault: 'Par défaut', swNavy: 'Marine', swForest: 'Forêt', swPlum: 'Prune',
+    swCharcoal: 'Anthracite', swSand: 'Sable', swSky: 'Ciel', swRose: 'Rose', swCustom: 'Couleur personnalisée',
+    bgSettings: 'Réglages du fond', layout: 'Disposition', layoutMobile: 'Mobile', layoutPc: 'PC', controls: 'Réglages du jeu', tools: 'Outils',
+    arenaBg: 'Fond de l’arène',themeCity: 'Ville', themeForest: 'Forêt', themeDesert: 'Désert', themeSpace: 'Espace',
+    themeOcean: 'Océan', themeVolcano: 'Volcan', themeSnow: 'Neige', themePlain: 'Uni',
+    customize: 'Personnaliser', nickname: 'Surnom', ballColor: 'Couleur de la boule', colRed: 'Rouge', colOrange: 'Orange', colYellow: 'Jaune',
+    colLime: 'Citron vert', colGreen: 'Vert', colTeal: 'Sarcelle', colBlue: 'Bleu', colPurple: 'Violet', colPink: 'Rose',
+    colBrown: 'Marron', colWhite: 'Blanc', colBlack: 'Noir',
+    face: 'Visage', faceNone: 'Aucun', faceEyes: 'Yeux', faceHappy: 'Joyeux', faceAngry: 'Fâché', faceCool: 'Lunettes de soleil', faceSleepy: 'Endormi',
+    hat: 'Chapeau', hatNone: 'Aucun', hatCrown: 'Couronne', hatCap: 'Casquette', hatHorns: 'Cornes', hatHalo: 'Auréole', hatHelmet: 'Casque',
+    trail: 'Traînée', trailNone: 'Aucune', trailSpark: 'Étincelles', trailFire: 'Feu', trailBubble: 'Bulles', trailShadow: 'Image rémanente',
+    resetDefault: 'Valeurs par défaut', close: 'Fermer', apply: 'Appliquer',
   },
   de: {
     name: 'Deutsch', title: 'Ballkampf', back: '← Alle Spiele', arena: 'Ballkampf-Arena',
@@ -1009,17 +1480,41 @@ const I18N = {
     addCharger: 'Stürmer hinzufügen', addSpike: 'Stachel hinzufügen', addHealer: 'Heiler hinzufügen', addTwin: 'Zwilling hinzufügen', addShooter: 'Schütze hinzufügen', addGuardian: 'Wächter hinzufügen',
     clear: 'Alle entfernen', mode: 'Modus', modeWatch: 'Zuschauen', modePlay: 'Spielen', myBall: 'Mein Ball', speed: 'Tempo',
     start: 'Start', pause: 'Pause', resume: 'Weiter', restart: 'Neustart', skill: 'Fähigkeit nutzen', hp: 'LP', changeLineup: 'Aufstellung ändern',
-    needTwo: 'Füge mindestens 2 Bälle hinzu', maxReached: 'Du kannst bis zu 10 Bälle hinzufügen', pressStart: 'Drücke Start, um den Kampf zu beginnen',
-    playHint: 'Mit WASD/Pfeiltasten oder Drücken und Ziehen in der Arena bewegen · Tippen/Leertaste für Fähigkeit', paused: 'Pausiert', alive: 'Am Leben {a}/{n}',
+    needTwo: 'Füge mindestens 2 Bälle hinzu', maxReached: 'Du kannst bis zu {n} Bälle hinzufügen', pressStart: 'Drücke Start, um den Kampf zu beginnen',
+    playHint: 'Joystick oder Arena ziehen zum Bewegen (WASD/Pfeiltasten) · Tippen/Leertaste für Fähigkeit', paused: 'Pausiert', alive: 'Am Leben {a}/{n}',
     win: '{name} gewinnt!', draw: 'Unentschieden', rank: '{n}.', suddenDeath: 'Sudden Death', del: '{name} entfernen', none: 'Keiner',
     ready: 'Bereit', myOut: 'Dein Ball ist raus',
     skDash: 'Sturmangriff', skSpike: 'Stacheln', skRegen: 'Regeneration', skClone: 'Klon', skShoot: 'Schuss', skShield: 'Schild',
+    mage: 'Magier', bomber: 'Bomber', vampire: 'Vampir', frost: 'Frost', blink: 'Flash', magnet: 'Magnet', giant: 'Riese',
+    poison: 'Gift', storm: 'Gewitter', berserker: 'Berserker', ghost: 'Geist', mirror: 'Spiegel', sniper: 'Sniper', swapper: 'Tauscher',
+    addMage: 'Magier hinzufügen', addBomber: 'Bomber hinzufügen', addVampire: 'Vampir hinzufügen', addFrost: 'Frost hinzufügen', addBlink: 'Flash hinzufügen',
+    addMagnet: 'Magnet hinzufügen', addGiant: 'Riese hinzufügen', addPoison: 'Gift hinzufügen', addStorm: 'Gewitter hinzufügen', addBerserker: 'Berserker hinzufügen',
+    addGhost: 'Geist hinzufügen', addMirror: 'Spiegel hinzufügen', addSniper: 'Sniper hinzufügen', addSwapper: 'Tauscher hinzufügen',
+    skBolt: 'Zauberblitz', skBomb: 'Explosion', skDrain: 'Aussaugen', skFreeze: 'Frostgeschoss', skBlink: 'Teleport', skPull: 'Anziehung',
+    skGrow: 'Wachsen', skPoison: 'Giftpfeil', skNova: 'Donnernova', skRage: 'Raserei', skPhase: 'Phasen', skReflect: 'Reflexion',
+    skSnipe: 'Präzisionsschuss', skSwap: 'Tausch',
+    battleMode: 'Kampfart', ffa: 'Jeder gegen jeden', team: 'Teamkampf', teamCount: 'Teams', autoTeam: 'Teams automatisch verteilen',
+    teamName: 'Team {t}', teamLabel: 'Team von {name}: {team}', needTwoTeams: 'Mindestens 2 Teams brauchen Bälle', teamWin: '{team} gewinnt!',
+    bgColor: 'Hintergrundfarbe', reset: 'Zurücksetzen', swDefault: 'Standard', swNavy: 'Marineblau', swForest: 'Waldgrün', swPlum: 'Pflaume',
+    swCharcoal: 'Anthrazit', swSand: 'Sand', swSky: 'Himmelblau', swRose: 'Rosé', swCustom: 'Eigene Farbe',
+    bgSettings: 'Hintergrund', layout: 'Layout', layoutMobile: 'Mobil', layoutPc: 'PC', controls: 'Spieleinstellungen', tools: 'Werkzeuge',
+    arenaBg: 'Arena-Hintergrund',themeCity: 'Stadt', themeForest: 'Wald', themeDesert: 'Wüste', themeSpace: 'Weltraum',
+    themeOcean: 'Meer', themeVolcano: 'Vulkan', themeSnow: 'Schnee', themePlain: 'Schlicht',
+    customize: 'Anpassen', nickname: 'Spitzname', ballColor: 'Ballfarbe', colRed: 'Rot', colOrange: 'Orange', colYellow: 'Gelb',
+    colLime: 'Hellgrün', colGreen: 'Grün', colTeal: 'Petrol', colBlue: 'Blau', colPurple: 'Lila', colPink: 'Pink',
+    colBrown: 'Braun', colWhite: 'Weiß', colBlack: 'Schwarz',
+    face: 'Gesicht', faceNone: 'Keins', faceEyes: 'Augen', faceHappy: 'Fröhlich', faceAngry: 'Wütend', faceCool: 'Sonnenbrille', faceSleepy: 'Müde',
+    hat: 'Hut', hatNone: 'Keiner', hatCrown: 'Krone', hatCap: 'Kappe', hatHorns: 'Hörner', hatHalo: 'Heiligenschein', hatHelmet: 'Helm',
+    trail: 'Spur', trailNone: 'Keine', trailSpark: 'Funkeln', trailFire: 'Feuer', trailBubble: 'Blasen', trailShadow: 'Nachbild',
+    resetDefault: 'Standard wiederherstellen', close: 'Schließen', apply: 'Übernehmen',
   },
 };
 
 // ===== ENGINE (DOM 없음 — 헤드리스 테스트 가능) =====
 const ARENA = 600, DT = 1 / 60;
-const MAX_BALLS = 10, MIN_BALLS = 2;
+const MAX_BALLS = 20, MIN_BALLS = 2;
+// 이 인원 이하는 기존 스케일·분신 상한을 그대로 써서 기존 6종 ?seed= 결과를 보존
+const SMALL_N = 10;
 // --- 밸런스 수치 (한곳에서 조정) ---
 const DMG_MULT = 2.0;          // 충돌(ATK·돌진·가시 보너스 포함, 분신 포함)·투사체 데미지 배율
 const SHIELD_AMOUNT = 35;      // 수호 실드 흡수량
@@ -1029,15 +1524,41 @@ const SUDDEN_AT = 30, SUDDEN_DRAIN = 3, SUDDEN_RAMP = 0.6, SUDDEN_MUL = 1.5; // 
 const PAIR_CD = 0.3, DASH_MUL = 2.5, DASH_BONUS = 10;
 const STEER_RATE = 10; // 직접 모드 내 공 조향: 초당 최대 회전(rad)
 const DMG_VAR = 0.1; // 충돌 데미지 ±10% (시드 RNG) — 같은 종류 1:1이 항상 무승부가 되는 것 방지
-const CLONE_PER_OWNER = 2, CLONE_MAX = 12, PROJ_MAX = 40;
+const CLONE_PER_OWNER = 2, CLONE_MAX = 16, CLONE_MAX_SMALL = 12, PROJ_MAX = 80;
 const SPAWN_R = 210, SPAWN_JITTER = 12;
+const PAIR_CD_SWEEP = 60;      // 60스텝마다 만료된 pairHitCd 항목 정리 (결과 영향 없음)
+const RETRY_CD = 0.5;          // retry 종류: 스킬 실패 시 이만큼 기다렸다 재시도
+// --- 신규 종류 수치 ---
+const BLINK_BONUS = 8, GROW_BONUS = 5, RAGE_BONUS = 6; // 공격력 보너스 (섬광 직후·거대화·광폭화)
+const RAGE_SPD = 1.35, RAGE_TAKEN = 1.2;  // 광폭화: 속도 배율, 받는 충돌 피해 배율
+const SLOW_MUL = 0.55, SLOW_T = 2;        // 빙결 둔화
+const POISON_T = 3, POISON_DPS = 4;       // 독: 지속 시간, 초당 피해(×DMG_MULT)
+const DRAIN_RATE = 0.6, GROW_MUL = 1.3;   // 흡혈 회복 비율, 거대화 반지름 배율
+const PULL_R = 220, SWAP_DMG = 6;         // 자석 반경(×scale), 교환 피해(×DMG_MULT)
+const MIRROR_SHIELD = 25, MIRROR_T = 2.5;
+const GHOST_HP = 0.6, PHASE_ALPHA = 0.35; // 유령: AI는 HP 60% 이하에서만 사용
+// retry: true → useSkill 실패 시 b.cd = RETRY_CD (twin은 기존 동작·시드 보존을 위해 제외)
 const TYPES = {
-  charger:  { hp: 100, atk: 6, r: 26, spd: 220, cd: 4,   skill: 'skDash' },
-  spike:    { hp: 120, atk: 5, r: 28, spd: 180, cd: 6,   skill: 'skSpike' },
-  healer:   { hp: 110, atk: 4, r: 26, spd: 200, cd: 5,   skill: 'skRegen' },
-  twin:     { hp: 90,  atk: 5, r: 24, spd: 210, cd: 8,   skill: 'skClone' },
-  shooter:  { hp: 90,  atk: 4, r: 24, spd: 190, cd: 1.5, skill: 'skShoot' },
-  guardian: { hp: 130, atk: 5, r: 30, spd: 160, cd: 7,   skill: 'skShield' },
+  charger:   { hp: 100, atk: 6, r: 26, spd: 220, cd: 4,   skill: 'skDash' },
+  spike:     { hp: 120, atk: 5, r: 28, spd: 180, cd: 6,   skill: 'skSpike' },
+  healer:    { hp: 110, atk: 4, r: 26, spd: 200, cd: 5,   skill: 'skRegen' },
+  twin:      { hp: 90,  atk: 5, r: 24, spd: 210, cd: 8,   skill: 'skClone' },
+  shooter:   { hp: 90,  atk: 4, r: 24, spd: 190, cd: 1.5, skill: 'skShoot' },
+  guardian:  { hp: 130, atk: 5, r: 30, spd: 160, cd: 7,   skill: 'skShield' },
+  mage:      { hp: 90,  atk: 4, r: 25, spd: 190, cd: 3.5, skill: 'skBolt' },
+  bomber:    { hp: 110, atk: 5, r: 27, spd: 175, cd: 6,   skill: 'skBomb' },
+  vampire:   { hp: 100, atk: 5, r: 25, spd: 205, cd: 7,   skill: 'skDrain' },
+  frost:     { hp: 105, atk: 4, r: 26, spd: 185, cd: 5,   skill: 'skFreeze' },
+  blink:     { hp: 85,  atk: 6, r: 23, spd: 230, cd: 4.5, skill: 'skBlink', retry: true },
+  magnet:    { hp: 120, atk: 5, r: 28, spd: 170, cd: 7,   skill: 'skPull' },
+  giant:     { hp: 150, atk: 6, r: 32, spd: 140, cd: 8,   skill: 'skGrow' },
+  poison:    { hp: 100, atk: 4, r: 25, spd: 195, cd: 5,   skill: 'skPoison' },
+  storm:     { hp: 90,  atk: 4, r: 24, spd: 195, cd: 4,   skill: 'skNova' },
+  berserker: { hp: 115, atk: 6, r: 27, spd: 200, cd: 7,   skill: 'skRage' },
+  ghost:     { hp: 85,  atk: 5, r: 24, spd: 215, cd: 6,   skill: 'skPhase' },
+  mirror:    { hp: 115, atk: 4, r: 27, spd: 175, cd: 6,   skill: 'skReflect' },
+  sniper:    { hp: 80,  atk: 3, r: 23, spd: 185, cd: 4,   skill: 'skSnipe' },
+  swapper:   { hp: 95,  atk: 5, r: 25, spd: 205, cd: 5,   skill: 'skSwap', retry: true },
 };
 const TYPE_IDS = Object.keys(TYPES);
 const DEFAULT_LINEUP = ['charger', 'spike', 'healer', 'shooter'];
@@ -1064,13 +1585,27 @@ function dupInfo(lineup) {
 
 function emit(sim, ev) { if (sim.events.length < 100) sim.events.push(ev); }
 
-// 스폰 위치: 반지름 210 원 위 균등 배치 + 지터, 배치 순서는 셔플
-function spawnPositions(n, rng, radii) {
-  const order = [];
-  for (let i = 0; i < n; i++) order.push(i);
-  for (let i = n - 1; i > 0; i--) {
+// 배열 제자리 셔플 (Fisher–Yates, 뒤에서부터)
+function shuffleIn(arr, rng) {
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// 스폰 위치: 반지름 210 원 위 균등 배치 + 지터, 배치 순서는 셔플
+// teams가 있으면(팀전) 팀 순서·팀 안 순서를 각각 셔플해 이어 붙임 → 팀원이 원 위에서 이웃
+function spawnPositions(n, rng, radii, teams) {
+  let order = [];
+  if (!teams) {
+    for (let i = 0; i < n; i++) order.push(i);
+    shuffleIn(order, rng);
+  } else {
+    const groups = new Map();
+    teams.forEach((tm, i) => { if (!groups.has(tm)) groups.set(tm, []); groups.get(tm).push(i); });
+    const keys = shuffleIn(Array.from(groups.keys()).sort((a, b) => a - b), rng);
+    for (const k of keys) order = order.concat(shuffleIn(groups.get(k), rng));
   }
   const a0 = rng() * Math.PI * 2;
   const jit = order.map(() => [(rng() * 2 - 1) * SPAWN_JITTER, (rng() * 2 - 1) * SPAWN_JITTER]);
@@ -1099,29 +1634,37 @@ function spawnPositions(n, rng, radii) {
   return ok(p) ? p : build(false);
 }
 
-function createBattle(lineup, seed) {
+// teams: 팀전이면 lineup과 같은 길이의 팀 번호 배열(0..3), 개인전이면 생략 → team = i+1 (기존 시드 그대로)
+function createBattle(lineup, seed, teams) {
   const rng = mulberry32(seed >>> 0);
   const n = lineup.length;
-  const scale = clamp(Math.sqrt(6 / Math.max(n, 1)), 0.8, 1);
+  const teamMode = Array.isArray(teams) && teams.length === n;
+  // 10개 이하는 기존 공식 그대로(시드 보존), 11~20개는 0.8 → 0.7로 더 작게
+  const scale = n <= SMALL_N ? clamp(Math.sqrt(6 / Math.max(n, 1)), 0.8, 1) : clamp(0.8 * Math.sqrt(SMALL_N / n), 0.7, 0.8);
   const dups = dupInfo(lineup);
   const sim = {
     seed, rng, time: 0, suddenDeath: false, scale, total: n,
     bodies: [], balls: [], projectiles: [], events: [],
     pairHitCd: new Map(), eliminations: [], nextId: n + 1,
     manualId: 0, manualReq: false, result: null,
+    cloneMax: n <= SMALL_N ? CLONE_MAX_SMALL : CLONE_MAX, stepN: 0,
+    battle: teamMode ? 'team' : 'ffa',
   };
   const radii = lineup.map(ty => TYPES[ty].r * scale);
-  const pos = spawnPositions(n, rng, radii);
+  const pos = spawnPositions(n, rng, radii, teamMode ? teams : null);
   lineup.forEach((type, i) => {
     const T = TYPES[type], [x, y] = pos[i];
     const a = Math.atan2(ARENA / 2 - y, ARENA / 2 - x) + (rng() * 2 - 1) * (Math.PI / 3);
     const b = {
       id: i + 1, slot: i + 1, type, dupIndex: dups[i].dupIndex, dupCount: dups[i].dupCount,
-      team: i + 1, isClone: false, ownerId: 0,
+      // 팀 번호: 개인전은 공마다 다름(i+1), 팀전은 팀 인덱스+1 (1=A … 4=D)
+      team: teamMode ? teams[i] + 1 : i + 1, isClone: false, ownerId: 0,
       x, y, vx: Math.cos(a) * T.spd, vy: Math.sin(a) * T.spd, r: radii[i],
       hp: T.hp, maxHp: T.hp, atk: T.atk, baseSpd: T.spd,
       cd: 0.5 + rng(), cdMax: T.cd, ready: false,
       dashT: 0, spikeT: 0, shield: 0, shieldT: 0, life: Infinity, alive: true,
+      baseR: radii[i], slowT: 0, drainT: 0, rageT: 0, phaseT: 0, reflectT: 0, growT: 0, blinkT: 0, poisonT: 0,
+      look: null, // UI 꾸미기 전용 (엔진 미사용)
     };
     sim.bodies.push(b);
     sim.balls.push(b);
@@ -1132,7 +1675,7 @@ function createBattle(lineup, seed) {
 function nearestEnemy(sim, b) {
   let best = null, bd = Infinity;
   for (const o of sim.balls) {
-    if (o.team === b.team) continue;
+    if (o.team === b.team || o.phaseT > 0) continue; // 유령화 중인 적은 대상 아님
     const d = (o.x - b.x) ** 2 + (o.y - b.y) ** 2;
     if (d < bd) { bd = d; best = o; }
   }
@@ -1142,7 +1685,7 @@ function nearestEnemy(sim, b) {
 function spawnClone(sim, owner) {
   let mine = 0, all = 0;
   for (const o of sim.balls) if (o.isClone) { all++; if (o.ownerId === owner.id) mine++; }
-  if (mine >= CLONE_PER_OWNER || all >= CLONE_MAX) return false;
+  if (mine >= CLONE_PER_OWNER || all >= sim.cloneMax) return false;
   const cr = 16 * sim.scale, a0 = sim.rng() * Math.PI * 2;
   for (let k = 0; k < 8; k++) {
     const a = a0 + (k * Math.PI) / 4, dist = owner.r + cr + 3;
@@ -1156,6 +1699,8 @@ function spawnClone(sim, owner) {
       hp: CLONE_HP, maxHp: CLONE_HP, atk: CLONE_ATK, baseSpd: owner.baseSpd,
       cd: Infinity, cdMax: 0, ready: false,
       dashT: 0, spikeT: 0, shield: 0, shieldT: 0, life: 5, alive: true,
+      baseR: cr, slowT: 0, drainT: 0, rageT: 0, phaseT: 0, reflectT: 0, growT: 0, blinkT: 0, poisonT: 0,
+      look: owner.look,
     });
     emit(sim, { k: 'clone', x, y });
     return true;
@@ -1163,7 +1708,84 @@ function spawnClone(sim, owner) {
   return false;
 }
 
-// 스킬 발동. 실패(대상 없음, 상한 등)하면 false → 쿨다운 소모 없이 대기
+// 투사체 발사: (ux, uy) 단위 방향, o = { dmg(×DMG_MULT), spd, life, r(×scale), col(색 키), onHit('slow'|'poison') }
+function fireProj(sim, b, ux, uy, o) {
+  const pr = o.r * sim.scale;
+  sim.projectiles.push({
+    team: b.team, ownerId: b.id, r: pr, dmg: o.dmg * DMG_MULT, life: o.life,
+    x: b.x + ux * (b.r + pr + 1), y: b.y + uy * (b.r + pr + 1), vx: ux * o.spd, vy: uy * o.spd,
+    col: o.col || 'shooter', onHit: o.onHit || null,
+  });
+  if (sim.projectiles.length > PROJ_MAX) sim.projectiles.shift();
+}
+const fireAt = (sim, b, a, o) => fireProj(sim, b, Math.cos(a), Math.sin(a), o);
+// 가장 가까운 적 방향(rad), 없으면 null
+function aimAngle(sim, b) {
+  const e = nearestEnemy(sim, b);
+  return e ? Math.atan2(e.y - b.y, e.x - b.x) : null;
+}
+// 섬광: 가장 가까운 적 e의 진행 반대쪽(뒤)부터 8방향 빈자리로 이동. RNG 미사용
+function blinkTo(sim, b) {
+  const e = nearestEnemy(sim, b);
+  if (!e) return false;
+  const dist = e.r + b.r + 4;
+  const a0 = Math.hypot(e.vx, e.vy) > 1e-6 ? Math.atan2(-e.vy, -e.vx) : Math.atan2(b.y - e.y, b.x - e.x);
+  for (let k = 0; k < 8; k++) {
+    const a = a0 + (k * Math.PI) / 4;
+    const x = e.x + Math.cos(a) * dist, y = e.y + Math.sin(a) * dist;
+    if (x < b.r || y < b.r || x > ARENA - b.r || y > ARENA - b.r) continue;
+    if (sim.balls.some(o => o !== b && Math.hypot(o.x - x, o.y - y) < o.r + b.r + 1)) continue;
+    emit(sim, { k: 'blink', x: b.x, y: b.y });
+    b.x = x; b.y = y;
+    // 도착 후 적을 향해 (속력 유지)
+    const sp = Math.hypot(b.vx, b.vy) || b.baseSpd;
+    b.vx = (-Math.cos(a)) * sp; b.vy = (-Math.sin(a)) * sp;
+    b.blinkT = 1;
+    emit(sim, { k: 'blink', x, y });
+    return true;
+  }
+  return false;
+}
+// 교환: 가장 먼 적 본체(분신·유령화 제외)와 위치 교환(속도 유지) + 피해. RNG 미사용
+function swapWithFarthest(sim, b) {
+  let far = null, fd = -1;
+  for (const o of sim.balls) {
+    if (o.team === b.team || o.isClone || o.phaseT > 0) continue;
+    const d = (o.x - b.x) ** 2 + (o.y - b.y) ** 2;
+    if (d > fd) { fd = d; far = o; }
+  }
+  if (!far) return false;
+  const x = b.x, y = b.y;
+  b.x = far.x; b.y = far.y;
+  far.x = x; far.y = y;
+  applyDamage(far, SWAP_DMG * DMG_MULT, false);
+  emit(sim, { k: 'swap', x1: x, y1: y, x2: b.x, y2: b.y });
+  emit(sim, { k: 'hit', x: far.x, y: far.y });
+  return true;
+}
+// 자석: 반경 안 적(유령화 제외)의 진행 방향을 자석 쪽으로 즉시 돌림(속력 유지)
+function pullEnemies(sim, b) {
+  const R = PULL_R * sim.scale;
+  let any = false;
+  for (const o of sim.balls) {
+    if (o.team === b.team || o.phaseT > 0) continue;
+    const dx = b.x - o.x, dy = b.y - o.y, d = Math.hypot(dx, dy);
+    if (d > R || d < 1e-6) continue;
+    const sp = Math.hypot(o.vx, o.vy);
+    o.vx = (dx / d) * sp; o.vy = (dy / d) * sp;
+    any = true;
+  }
+  if (any) emit(sim, { k: 'pull', x: b.x, y: b.y, r: R });
+  return any;
+}
+// 근접 버프(흡혈·광폭화·거대화·반사막) AI: 이 반경(×scale) 안에 적이 있을 때만 사용
+const NEAR_R = 150;
+function enemyNear(sim, b) {
+  const e = nearestEnemy(sim, b), R = NEAR_R * sim.scale + b.r;
+  return !!e && (e.x - b.x) ** 2 + (e.y - b.y) ** 2 <= (R + e.r) ** 2;
+}
+
+// 스킬 발동. 실패(대상 없음, 상한 등)하면 false → 쿨다운 소모 없이 대기 (retry 종류는 RETRY_CD 대기)
 function useSkill(sim, b, manual) {
   switch (b.type) {
     case 'charger': {
@@ -1190,12 +1812,8 @@ function useSkill(sim, b, manual) {
       const e = nearestEnemy(sim, b);
       if (!e) return false;
       const dx = e.x - b.x, dy = e.y - b.y, d = Math.hypot(dx, dy) || 1;
-      const pr = 5 * sim.scale, ux = dx / d, uy = dy / d;
-      sim.projectiles.push({
-        team: b.team, ownerId: b.id, r: pr, dmg: PROJ_DMG * DMG_MULT, life: 2,
-        x: b.x + ux * (b.r + pr + 1), y: b.y + uy * (b.r + pr + 1), vx: ux * 420, vy: uy * 420,
-      });
-      if (sim.projectiles.length > PROJ_MAX) sim.projectiles.shift();
+      // 기존 사수와 같은 계산(단위 벡터 직접 전달) → 시드 결과 동일
+      fireProj(sim, b, dx / d, dy / d, { dmg: PROJ_DMG, spd: 420, life: 2, r: 5 });
       emit(sim, { k: 'shoot', id: b.id });
       return true;
     }
@@ -1203,13 +1821,85 @@ function useSkill(sim, b, manual) {
       b.shield = SHIELD_AMOUNT;
       b.shieldT = 4;
       return true;
+    case 'mage': {
+      const a = aimAngle(sim, b);
+      if (a === null) return false;
+      const spread = (15 * Math.PI) / 180;
+      for (let k = -1; k <= 1; k++) fireAt(sim, b, a + k * spread, { dmg: 5, spd: 360, life: 1.6, r: 4.5, col: 'mage' });
+      emit(sim, { k: 'shoot', id: b.id });
+      return true;
+    }
+    case 'bomber': {
+      const a0 = aimAngle(sim, b) || 0;
+      for (let k = 0; k < 8; k++) fireAt(sim, b, a0 + (k * Math.PI) / 4, { dmg: 5, spd: 300, life: 0.5, r: 5, col: 'bomber' });
+      emit(sim, { k: 'burst', x: b.x, y: b.y, type: 'bomber' });
+      return true;
+    }
+    case 'vampire':
+      if (!manual && !enemyNear(sim, b)) return false;
+      b.drainT = 3;
+      return true;
+    case 'frost': {
+      const a = aimAngle(sim, b);
+      if (a === null) return false;
+      fireAt(sim, b, a, { dmg: 5, spd: 380, life: 1.6, r: 5.5, col: 'frost', onHit: 'slow' });
+      emit(sim, { k: 'shoot', id: b.id });
+      return true;
+    }
+    case 'blink':
+      return blinkTo(sim, b);
+    case 'magnet':
+      return pullEnemies(sim, b);
+    case 'giant':
+      if (!manual && !enemyNear(sim, b)) return false;
+      b.growT = 3;
+      b.r = b.baseR * GROW_MUL;
+      return true;
+    case 'poison': {
+      const a = aimAngle(sim, b);
+      if (a === null) return false;
+      fireAt(sim, b, a, { dmg: 3, spd: 340, life: 1.6, r: 5.5, col: 'poison', onHit: 'poison' });
+      emit(sim, { k: 'shoot', id: b.id });
+      return true;
+    }
+    case 'storm': {
+      const a0 = aimAngle(sim, b) || 0;
+      for (let k = 0; k < 12; k++) fireAt(sim, b, a0 + (k * Math.PI) / 6, { dmg: 4, spd: 380, life: 0.8, r: 4, col: 'storm' });
+      emit(sim, { k: 'burst', x: b.x, y: b.y, type: 'storm' });
+      return true;
+    }
+    case 'berserker':
+      if (!manual && !enemyNear(sim, b)) return false;
+      b.rageT = 3.5;
+      return true;
+    case 'ghost':
+      if (!manual && b.hp > b.maxHp * GHOST_HP) return false;
+      b.phaseT = 2;
+      return true;
+    case 'mirror':
+      if (!manual && !enemyNear(sim, b)) return false;
+      b.shield = MIRROR_SHIELD;
+      b.shieldT = MIRROR_T;
+      b.reflectT = MIRROR_T;
+      return true;
+    case 'sniper': {
+      const a = aimAngle(sim, b);
+      if (a === null) return false;
+      fireAt(sim, b, a, { dmg: 15, spd: 760, life: 1.2, r: 4, col: 'sniper' });
+      emit(sim, { k: 'shoot', id: b.id });
+      return true;
+    }
+    case 'swapper':
+      return swapWithFarthest(sim, b);
   }
   return false;
 }
 
-const effAtk = b => (b.atk + (b.spikeT > 0 ? SPIKE_BONUS : 0) + (b.dashT > 0 ? DASH_BONUS : 0)) * DMG_MULT;
+// 신규 보너스는 타이머가 0이면 +0 → 기존 6종 값(부동소수 포함) 그대로
+const effAtk = b => (b.atk + (b.spikeT > 0 ? SPIKE_BONUS : 0) + (b.dashT > 0 ? DASH_BONUS : 0)
+  + (b.blinkT > 0 ? BLINK_BONUS : 0) + (b.growT > 0 ? GROW_BONUS : 0) + (b.rageT > 0 ? RAGE_BONUS : 0)) * DMG_MULT;
 
-// 데미지 순서: 가시 경감(충돌만) → 실드 흡수 → HP
+// 데미지 순서: 가시 경감(충돌만) → 실드 흡수 → HP. 반환값 = 실제로 깎인 HP (흡혈 계산용)
 function applyDamage(b, dmg, collision) {
   if (collision && b.spikeT > 0) dmg *= 0.5;
   if (b.shieldT > 0 && b.shield > 0) {
@@ -1217,7 +1907,16 @@ function applyDamage(b, dmg, collision) {
     b.shield -= ab;
     dmg -= ab;
   }
+  // 흡혈 기준은 피격 전 HP의 양수 부분까지 (초과 피해는 회복 대상 아님)
+  const lost = Math.min(dmg, Math.max(0, b.hp));
   b.hp -= dmg;
+  return lost;
+}
+// 흡혈: 준 충돌 피해(HP 기준)의 DRAIN_RATE만큼 회복, maxHp 상한. 같은 충돌에서 이미 HP 0 이하면 회복 없음
+function drainHeal(sim, b, dealt) {
+  if (!(b.drainT > 0) || !(dealt > 0) || b.hp <= 0) return;
+  b.hp = Math.min(b.maxHp, b.hp + dealt * DRAIN_RATE);
+  emit(sim, { k: 'drain', x: b.x, y: b.y });
 }
 
 function wallBounce(b) {
@@ -1234,6 +1933,8 @@ function collide(sim, withHit) {
     const a = bs[i];
     for (let j = i + 1; j < bs.length; j++) {
       const b = bs[j];
+      // 유령화 중이면 통과 (분리·속도 교환·데미지 모두 없음)
+      if (a.phaseT > 0 || b.phaseT > 0) continue;
       const dx = b.x - a.x, dy = b.y - a.y, rr = a.r + b.r, d2 = dx * dx + dy * dy;
       if (d2 >= rr * rr) continue;
       const d = Math.sqrt(d2);
@@ -1253,10 +1954,15 @@ function collide(sim, withHit) {
       if ((sim.pairHitCd.get(key) || 0) > sim.time) continue;
       sim.pairHitCd.set(key, sim.time + PAIR_CD);
       const mul = sim.suddenDeath ? SUDDEN_MUL : 1;
-      const da = effAtk(b) * mul * (1 - DMG_VAR + sim.rng() * 2 * DMG_VAR);
-      const db = effAtk(a) * mul * (1 - DMG_VAR + sim.rng() * 2 * DMG_VAR);
-      applyDamage(a, da, true);
-      applyDamage(b, db, true);
+      let da = effAtk(b) * mul * (1 - DMG_VAR + sim.rng() * 2 * DMG_VAR);
+      let db = effAtk(a) * mul * (1 - DMG_VAR + sim.rng() * 2 * DMG_VAR);
+      // 광폭화 중엔 받는 충돌 피해 증가
+      if (a.rageT > 0) da *= RAGE_TAKEN;
+      if (b.rageT > 0) db *= RAGE_TAKEN;
+      const lostA = applyDamage(a, da, true);
+      const lostB = applyDamage(b, db, true);
+      drainHeal(sim, a, lostB);
+      drainHeal(sim, b, lostA);
       emit(sim, { k: 'hit', x: a.x + nx * a.r, y: a.y + ny * a.r });
     }
   }
@@ -1278,7 +1984,9 @@ function playerSteering(sim) {
 }
 
 function normSpeed(sim, b) {
-  const target = b.dashT > 0 ? b.baseSpd * DASH_MUL : b.baseSpd;
+  let target = b.dashT > 0 ? b.baseSpd * DASH_MUL : b.baseSpd;
+  if (b.slowT > 0) target *= SLOW_MUL;
+  if (b.rageT > 0) target *= RAGE_SPD;
   const sp = Math.hypot(b.vx, b.vy);
   if (sp < 1e-6) {
     const a = sim.rng() * Math.PI * 2;
@@ -1303,6 +2011,7 @@ function step(sim) {
     const manual = b.id === sim.manualId;
     if (manual && !sim.manualReq) continue;
     if (useSkill(sim, b, manual)) { b.cd = b.cdMax; b.ready = false; }
+    else if (TYPES[b.type].retry) { b.cd = RETRY_CD; b.ready = false; }
     if (manual) sim.manualReq = false;
   }
 
@@ -1321,14 +2030,28 @@ function step(sim) {
   }
   for (const b of sim.balls) normSpeed(sim, b);
 
-  // 5. 투사체 (자기 팀 무시, 벽·수명 소멸)
+  // 5. 투사체 (자기 팀 무시, 유령화 통과, 반사막은 튕겨냄, 벽·수명 소멸)
   for (const p of sim.projectiles) {
     p.x += p.vx * DT; p.y += p.vy * DT; p.life -= DT;
     if (p.life <= 0 || p.x < p.r || p.y < p.r || p.x > ARENA - p.r || p.y > ARENA - p.r) { p.dead = true; continue; }
     for (const b of sim.balls) {
-      if (b.team === p.team) continue;
+      if (b.team === p.team || b.phaseT > 0) continue;
       if ((b.x - p.x) ** 2 + (b.y - p.y) ** 2 < (b.r + p.r) ** 2) {
+        if (b.reflectT > 0) {
+          // 반사: 법선 기준 속도 반사, 공 바깥으로 밀어낸 뒤 반사한 공의 팀·소유로 바뀜 (피해 없음)
+          const dx = p.x - b.x, dy = p.y - b.y, d = Math.hypot(dx, dy);
+          const nx = d > 1e-6 ? dx / d : -p.vx / (Math.hypot(p.vx, p.vy) || 1);
+          const ny = d > 1e-6 ? dy / d : -p.vy / (Math.hypot(p.vx, p.vy) || 1);
+          const vn = p.vx * nx + p.vy * ny;
+          if (vn < 0) { p.vx -= 2 * vn * nx; p.vy -= 2 * vn * ny; }
+          p.x = b.x + nx * (b.r + p.r + 1); p.y = b.y + ny * (b.r + p.r + 1);
+          p.team = b.team; p.ownerId = b.id;
+          emit(sim, { k: 'reflect', x: p.x, y: p.y });
+          break;
+        }
         applyDamage(b, p.dmg, false);
+        if (p.onHit === 'slow') b.slowT = SLOW_T;
+        else if (p.onHit === 'poison') b.poisonT = POISON_T;
         emit(sim, { k: 'hit', x: p.x, y: p.y });
         p.dead = true;
         break;
@@ -1342,6 +2065,18 @@ function step(sim) {
     if (b.dashT > 0) b.dashT = Math.max(0, b.dashT - DT);
     if (b.spikeT > 0) b.spikeT = Math.max(0, b.spikeT - DT);
     if (b.shieldT > 0) { b.shieldT = Math.max(0, b.shieldT - DT); if (b.shieldT === 0) b.shield = 0; }
+    // 신규 타이머 (기존 6종은 항상 0 → 분기만 추가, RNG 미사용)
+    if (b.poisonT > 0) {
+      b.hp -= POISON_DPS * DMG_MULT * DT; // 독: 실드 무시, HP에 직접
+      b.poisonT = Math.max(0, b.poisonT - DT);
+    }
+    if (b.slowT > 0) b.slowT = Math.max(0, b.slowT - DT);
+    if (b.drainT > 0) b.drainT = Math.max(0, b.drainT - DT);
+    if (b.rageT > 0) b.rageT = Math.max(0, b.rageT - DT);
+    if (b.phaseT > 0) b.phaseT = Math.max(0, b.phaseT - DT);
+    if (b.reflectT > 0) b.reflectT = Math.max(0, b.reflectT - DT);
+    if (b.blinkT > 0) b.blinkT = Math.max(0, b.blinkT - DT);
+    if (b.growT > 0) { b.growT = Math.max(0, b.growT - DT); if (b.growT === 0) b.r = b.baseR; }
     if (b.isClone) {
       b.life -= DT;
       if (b.life <= 0 || b.hp <= 0) { b.alive = false; emit(sim, { k: 'clone', x: b.x, y: b.y }); }
@@ -1357,30 +2092,47 @@ function step(sim) {
 
   // 8. 탈락 일괄 — 같은 스텝 탈락은 같은 순위
   const out = sim.balls.filter(b => !b.isClone && b.hp <= 0);
-  // 남은 본체 전원이 탈락하게 되면 HP(음수 포함)가 가장 높은 1개가 HP 1로 생존. 최고 HP 동률이면 무승부
+  // 남은 본체 전원이 탈락하게 되면 HP(음수 포함)가 가장 높은 1개가 HP 1로 생존. 최고 HP 동률이 서로 다른 팀이면 무승부
   if (out.length > 1 && out.length === sim.bodies.filter(b => b.alive).length) {
     let best = out[0], tie = false;
     for (const b of out.slice(1)) {
       if (b.hp > best.hp) { best = b; tie = false; }
-      else if (b.hp === best.hp) tie = true;
+      else if (b.hp === best.hp && b.team !== best.team) tie = true;
     }
     if (!tie) { best.hp = 1; out.splice(out.indexOf(best), 1); }
   }
   if (out.length) {
     const ids = new Set(out.map(b => b.id));
-    for (const b of out) { b.alive = false; b.hp = 0; b.ready = false; emit(sim, { k: 'out', x: b.x, y: b.y, type: b.type }); }
+    for (const b of out) { knockOut(b); emit(sim, { k: 'out', x: b.x, y: b.y, type: b.type }); }
     sim.balls = sim.balls.filter(b => b.alive && !ids.has(b.ownerId));
     sim.projectiles = sim.projectiles.filter(p => !ids.has(p.ownerId));
     sim.eliminations.push(out.map(b => b.id));
   }
 
-  // 9. 승패 — 분신만 남은 팀은 이미 탈락
+  // 9. 승패 — 분신만 남은 팀은 이미 탈락. 살아 있는 팀(개인전은 공 = 팀)이 1개 이하면 끝
   const alive = sim.bodies.filter(b => b.alive);
-  if (alive.length <= 1) {
-    sim.result = { winnerId: alive.length ? alive[0].id : 0 };
+  if (new Set(alive.map(b => b.team)).size <= 1) {
+    sim.result = makeResult(sim, alive);
     sim.balls = sim.balls.filter(b => !b.isClone);
     sim.projectiles = [];
   }
+  // 만료된 쌍 쿨다운 정리 (만료 항목은 없는 것과 같으므로 결과 영향 없음)
+  if (++sim.stepN % PAIR_CD_SWEEP === 0) {
+    for (const [k, v] of sim.pairHitCd) if (v <= sim.time) sim.pairHitCd.delete(k);
+  }
+}
+
+// 탈락 처리: HP 0, 버프 해제(거대화 반지름 복원)
+function knockOut(b) {
+  b.alive = false; b.hp = 0; b.ready = false;
+  b.r = b.baseR;
+  b.growT = b.slowT = b.drainT = b.rageT = b.phaseT = b.reflectT = b.blinkT = b.poisonT = 0;
+}
+// 결과 객체: 개인전은 생존 1개가 승자(winnerId), 팀전은 승리 팀(winnerTeam 1..4, winnerId 0). 0이면 무승부
+function makeResult(sim, alive) {
+  if (!alive.length) return { winnerId: 0, winnerTeam: 0 };
+  if (sim.battle !== 'team') return { winnerId: alive.length === 1 ? alive[0].id : 0, winnerTeam: alive.length === 1 ? alive[0].team : 0 };
+  return { winnerId: 0, winnerTeam: alive[0].team };
 }
 
 // 직접 모드 스킬 요청: 쿨다운 중이면 무시
@@ -1393,16 +2145,25 @@ function requestManual(sim) {
 }
 
 // 안전 상한 초과 시 강제 판정: 생존 본체 중 HP 최고 1개 승리, 최고 HP 동률이면 남은 전원 같은 순위로 무승부
+// 팀전: 같은 규칙을 공 단위로 적용하되, 최고 HP 공의 팀이 승리(팀원은 생존 유지). 최고 HP가 여러 팀이면 무승부
 function forceResult(sim) {
   if (sim.result) return;
   const alive = sim.bodies.filter(b => b.alive).sort((a, b) => b.hp - a.hp);
-  const win = alive.length && (alive.length === 1 || alive[0].hp > alive[1].hp) ? alive[0] : null;
-  const out = alive.filter(b => b !== win);
-  for (const b of out) { b.alive = false; b.hp = 0; b.ready = false; }
+  let out, winTeam = 0, win = null;
+  if (sim.battle === 'team') {
+    const top = alive.length ? alive[0].hp : 0;
+    const topTeams = new Set(alive.filter(b => b.hp === top).map(b => b.team));
+    winTeam = topTeams.size === 1 ? alive[0].team : 0;
+    out = alive.filter(b => b.team !== winTeam);
+  } else {
+    win = alive.length && (alive.length === 1 || alive[0].hp > alive[1].hp) ? alive[0] : null;
+    out = alive.filter(b => b !== win);
+  }
+  for (const b of out) knockOut(b);
   if (out.length) sim.eliminations.push(out.map(b => b.id));
   sim.balls = sim.balls.filter(b => b.alive && !b.isClone);
   sim.projectiles = [];
-  sim.result = { winnerId: win ? win.id : 0 };
+  sim.result = sim.battle === 'team' ? { winnerId: 0, winnerTeam: winTeam } : { winnerId: win ? win.id : 0, winnerTeam: win ? win.team : 0 };
 }
 
 // 순위: 승자 1위, 이후 늦게 탈락한 그룹부터. 같은 그룹은 같은 순위
@@ -1416,6 +2177,34 @@ function standings(sim) {
     better += sim.eliminations[g].length;
   }
   return res;
+}
+
+// 팀 순위: 승리 팀 1위, 나머지는 팀의 마지막 생존자가 늦게 탈락한 팀부터(같은 그룹에서 전멸하면 같은 순위)
+// 반환 [{ team(1..4), rank, members: [본체…] }] — 팀원은 생존자 → 늦게 탈락한 순, 같으면 슬롯 순
+function teamStandings(sim) {
+  const groupOf = new Map();
+  sim.eliminations.forEach((g, gi) => { for (const id of g) groupOf.set(id, gi); });
+  const teams = new Map();
+  for (const b of sim.bodies) {
+    if (!teams.has(b.team)) teams.set(b.team, []);
+    teams.get(b.team).push(b);
+  }
+  const key = b => (b.alive ? Infinity : groupOf.has(b.id) ? groupOf.get(b.id) : -1);
+  const list = [];
+  for (const [team, members] of teams) {
+    members.sort((a, b) => key(b) - key(a) || a.slot - b.slot);
+    const won = !!(sim.result && sim.result.winnerTeam === team);
+    // 팀의 탈락 시점 = 가장 늦게 탈락한 팀원의 그룹 (생존자가 있으면 Infinity)
+    list.push({ team, members, won, last: Math.max(...members.map(key)) });
+  }
+  list.sort((a, b) => (b.won - a.won) || (b.last - a.last) || a.team - b.team);
+  let better = 0;
+  list.forEach((e, i) => {
+    const prev = list[i - 1];
+    e.rank = prev && prev.won === e.won && prev.last === e.last ? prev.rank : better + 1;
+    better++;
+  });
+  return list;
 }
 // ===== ENGINE END =====
 
@@ -1445,8 +2234,15 @@ const state = {
   phase: 'select', // 'select' | 'running' | 'paused' | 'over'
   mode: 'watch', speed: 1, seed: 0,
   lineup: DEFAULT_LINEUP.slice(), myIndex: 0,
+  // 팀전: teams[i] = lineup[i]의 팀 인덱스(0..teamCount-1). 개인전에서도 유지(전환 시 그대로 복원)
+  battle: 'ffa', teamCount: 2, teams: [],
+  pageBg: '',          // '' = 테마 기본, 아니면 #rrggbb
+  arenaTheme: 'city',
   sim: null,
 };
+const ARENA_THEMES = ['city', 'forest', 'desert', 'space', 'ocean', 'volcano', 'snow', 'plain'];
+const TEAM_LETTERS = ['A', 'B', 'C', 'D'];
+const HEX_RE = /^#[0-9a-f]{6}$/i;
 
 function detectLang() {
   for (const l of (navigator.languages || [navigator.language || 'en'])) {
@@ -1464,10 +2260,20 @@ try {
   const raw = localStorage.getItem(SETTINGS_KEY);
   if (raw) {
     const sv = JSON.parse(raw);
-    if (sv && Array.isArray(sv.lineup)) state.lineup = sv.lineup.filter(ty => TYPE_IDS.includes(ty)).slice(0, MAX_BALLS);
+    // 남길 lineup 인덱스(잘못된 종류 제거 + MAX_BALLS 자르기) — teams도 같은 인덱스로 걸러 짝을 유지
+    let keep = null;
+    if (sv && Array.isArray(sv.lineup)) {
+      keep = sv.lineup.map((ty, i) => i).filter(i => TYPE_IDS.includes(sv.lineup[i])).slice(0, MAX_BALLS);
+      state.lineup = keep.map(i => sv.lineup[i]);
+    }
     if (sv && ['watch', 'play'].includes(sv.mode)) state.mode = sv.mode;
     if (sv && SPEEDS.includes(sv.speed)) state.speed = sv.speed;
     if (sv && Number.isInteger(sv.myIndex)) state.myIndex = sv.myIndex;
+    if (sv && ['ffa', 'team'].includes(sv.battle)) state.battle = sv.battle;
+    if (sv && [2, 3, 4].includes(sv.teamCount)) state.teamCount = sv.teamCount;
+    if (sv && Array.isArray(sv.teams)) state.teams = keep ? keep.map(i => sv.teams[i]) : sv.teams.slice();
+    if (sv && typeof sv.pageBg === 'string' && HEX_RE.test(sv.pageBg)) state.pageBg = sv.pageBg.toLowerCase();
+    if (sv && ARENA_THEMES.includes(sv.arenaTheme)) state.arenaTheme = sv.arenaTheme;
   }
 } catch (e) {
   // 손상된 JSON → 기본값
@@ -1475,14 +2281,37 @@ try {
   state.mode = 'watch';
   state.speed = 1;
   state.myIndex = 0;
+  state.battle = 'ffa'; state.teamCount = 2; state.teams = [];
+  state.pageBg = ''; state.arenaTheme = 'city';
 }
 if (!state.lineup.length) state.myIndex = -1;
 else if (!(state.myIndex >= 0 && state.myIndex < state.lineup.length)) state.myIndex = 0;
+// 팀 배정 검증: 길이가 다르거나 범위 밖 값이 있으면 자동 배분(i % teamCount)으로 다시
+if (state.teams.length !== state.lineup.length ||
+    state.teams.some(v => !Number.isInteger(v) || v < 0 || v >= state.teamCount)) autoTeams();
+
+// 팀 자동 배분: 순서대로 A, B, C… 돌아가며
+function autoTeams() { state.teams = state.lineup.map((_, i) => i % state.teamCount); }
+// 인원이 가장 적은 팀(동률이면 앞 팀)
+function smallestTeam() {
+  const cnt = new Array(state.teamCount).fill(0);
+  for (const v of state.teams) if (v >= 0 && v < state.teamCount) cnt[v]++;
+  let best = 0;
+  for (let k = 1; k < cnt.length; k++) if (cnt[k] < cnt[best]) best = k;
+  return best;
+}
+// 공이 있는 팀 수
+const filledTeams = () => new Set(state.teams).size;
+// 시작 가능: 공 2개 이상 + 팀전이면 공이 있는 팀 2개 이상
+const canStart = () => state.lineup.length >= MIN_BALLS && (state.battle !== 'team' || filledTeams() >= 2);
+const teamName = idx => tf('teamName', { t: TEAM_LETTERS[idx] || '?' });
 
 function saveSettings() {
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({
       lineup: state.lineup, mode: state.mode, speed: state.speed, myIndex: state.myIndex,
+      battle: state.battle, teamCount: state.teamCount, teams: state.teams,
+      pageBg: state.pageBg, arenaTheme: state.arenaTheme,
     }));
     localStorage.setItem('games-lang', lang);
   } catch (e) {}
@@ -1529,6 +2358,16 @@ function loadColors() {
   colors.skyTop = g('--sky-top'); colors.skyBottom = g('--sky-bottom');
   colors.bldgFar = g('--bldg-far'); colors.bldgNear = g('--bldg-near'); colors.bldgWin = g('--bldg-window');
   for (const ty of TYPE_IDS) colors[ty] = g('--c-' + ty);
+  // 효과색은 공 색(colors.frost = --c-frost)과 별도 키
+  colors.frostFx = g('--frost');
+  colors.wDark = g('--weapon-dark');
+  colors.team = TEAM_LETTERS.map(l => g('--team-' + l.toLowerCase()));
+  // 아레나 배경 테마: colors.abg[테마] = { sky1, sky2, far, near, accent }
+  colors.abg = {};
+  for (const th of ['forest', 'desert', 'space', 'ocean', 'volcano', 'snow']) {
+    colors.abg[th] = {};
+    for (const p of ['sky1', 'sky2', 'far', 'near', 'accent']) colors.abg[th][p] = g('--abg-' + th + '-' + p);
+  }
   bgDirty = true;
   dirty = true;
 }
@@ -1537,7 +2376,7 @@ const isDark = () => {
   return th === 'dark' || (th !== 'light' && darkMQ.matches);
 };
 
-// ===== 배경 (도시 실루엣) — 오프스크린에 한 번만 그림. 고정 시드라 매번 같은 모양, 게임 RNG와 분리 =====
+// ===== 배경 (테마별) — 오프스크린에 한 번만 그림. 고정 시드라 매번 같은 모양, 게임 RNG와 분리 =====
 const BG_SEED = 20261107;
 const bgCanvas = document.createElement('canvas');
 const bgCtx = bgCanvas.getContext('2d');
@@ -1547,6 +2386,171 @@ function renderBackground() {
   const c = bgCtx, rng = mulberry32(BG_SEED), dark = isDark();
   const rand = (a, b) => a + rng() * (b - a);
   c.setTransform(canvas.width / ARENA, 0, 0, canvas.height / ARENA, 0, 0);
+  const th = state.arenaTheme;
+  if (th === 'plain') {
+    c.fillStyle = colors.arena;
+    c.fillRect(0, 0, ARENA, ARENA);
+  } else if (colors.abg[th]) {
+    renderScenery(c, th, colors.abg[th], rand, rng, dark);
+  } else {
+    renderCity(c, rand, rng, dark);
+  }
+  c.globalAlpha = 1;
+  bgDirty = false;
+}
+// 하늘 그라디언트 + 바닥에서 올라오는 능선(y = base - 높이 함수)
+function bgSky(c, p) {
+  const sky = c.createLinearGradient(0, 0, 0, ARENA);
+  sky.addColorStop(0, p.sky1);
+  sky.addColorStop(1, p.sky2);
+  c.fillStyle = sky;
+  c.fillRect(0, 0, ARENA, ARENA);
+}
+function bgRidge(c, color, fn, step) {
+  c.fillStyle = color;
+  c.beginPath();
+  c.moveTo(0, ARENA);
+  for (let x = 0; x <= ARENA; x += step) c.lineTo(x, fn(x));
+  c.lineTo(ARENA, ARENA);
+  c.closePath();
+  c.fill();
+}
+// 사인 합성 능선 (위상은 고정 RNG)
+function waveFn(base, amps, rand) {
+  const ph = amps.map(() => rand(0, Math.PI * 2));
+  return x => base - amps.reduce((s, [a, f], k) => s + a * Math.sin(x * f + ph[k]), 0);
+}
+function bgPine(c, x, yBase, w, h) {
+  c.beginPath();
+  for (let k = 0; k < 3; k++) {
+    const y0 = yBase - h * (k * 0.28), ww = w * (1 - k * 0.22);
+    c.moveTo(x - ww / 2, y0); c.lineTo(x, y0 - h * 0.5); c.lineTo(x + ww / 2, y0);
+  }
+  c.rect(x - w * 0.06, yBase, w * 0.12, h * 0.12);
+  c.fill();
+}
+function bgDots(c, color, n, rand, yMin, yMax, rMin, rMax, alpha) {
+  c.fillStyle = color;
+  c.globalAlpha = alpha;
+  for (let i = 0; i < n; i++) {
+    c.beginPath(); c.arc(rand(0, ARENA), rand(yMin, yMax), rand(rMin, rMax), 0, Math.PI * 2); c.fill();
+  }
+  c.globalAlpha = 1;
+}
+function renderScenery(c, th, p, rand, rng, dark) {
+  bgSky(c, p);
+  switch (th) {
+    case 'forest': {
+      // 먼 언덕 + 먼 숲, 가까운 큰 소나무, 반딧불(accent)
+      const hill = waveFn(400, [[30, 0.008], [14, 0.021]], rand);
+      bgRidge(c, p.far, hill, 6);
+      c.fillStyle = p.far;
+      for (let x = -10; x < ARENA + 10; x += rand(14, 26)) bgPine(c, x, hill(clamp(x, 0, ARENA)) + 6, rand(22, 34), rand(60, 100));
+      const ground = waveFn(520, [[10, 0.012], [6, 0.03]], rand);
+      bgRidge(c, p.near, ground, 6);
+      c.fillStyle = p.near;
+      for (let x = -20; x < ARENA + 20; x += rand(50, 90)) bgPine(c, x, ground(clamp(x, 0, ARENA)) + 8, rand(40, 60), rand(120, 190));
+      bgDots(c, p.accent, 26, rand, 180, 560, 1.5, 3, dark ? 0.9 : 0.8);
+      break;
+    }
+    case 'desert': {
+      // 태양(accent), 먼 모래 언덕, 가까운 언덕 + 선인장
+      c.fillStyle = p.accent;
+      c.globalAlpha = 0.85;
+      c.beginPath(); c.arc(rand(380, 500), rand(110, 170), 46, 0, Math.PI * 2); c.fill();
+      c.globalAlpha = 1;
+      bgRidge(c, p.far, waveFn(420, [[34, 0.007], [12, 0.019]], rand), 6);
+      const near = waveFn(510, [[22, 0.01], [8, 0.027]], rand);
+      bgRidge(c, p.near, near, 6);
+      c.fillStyle = p.near;
+      for (let k = 0; k < 4; k++) {
+        const x = rand(40, ARENA - 40), y = near(x) + 4, h = rand(50, 80), w = 12;
+        c.fillRect(x - w / 2, y - h, w, h);
+        c.beginPath(); c.arc(x, y - h, w / 2, 0, Math.PI * 2); c.fill();
+        // 양팔
+        const ah = h * 0.45;
+        c.fillRect(x - w * 1.8, y - h * 0.6, w * 1.3, 7); c.fillRect(x - w * 1.8, y - h * 0.6 - ah, 7, ah);
+        c.fillRect(x + w * 0.5, y - h * 0.45, w * 1.3, 7); c.fillRect(x + w * 1.8 - 7, y - h * 0.45 - ah * 0.8, 7, ah * 0.8);
+      }
+      break;
+    }
+    case 'space': {
+      // 별(accent), 먼 행성(far), 가까운 달 표면(near) + 크레이터
+      bgDots(c, p.accent, 90, rand, 0, 460, 0.6, 1.8, dark ? 0.9 : 0.75);
+      const px = rand(110, 180), py = rand(120, 180);
+      c.fillStyle = p.far;
+      c.beginPath(); c.arc(px, py, 70, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = p.near; c.lineWidth = 6;
+      c.beginPath(); c.ellipse(px, py, 110, 20, -0.35, 0, Math.PI * 2); c.stroke();
+      const ground = waveFn(500, [[16, 0.009], [7, 0.026]], rand);
+      bgRidge(c, p.near, ground, 6);
+      c.fillStyle = p.far;
+      for (let k = 0; k < 7; k++) {
+        const x = rand(20, ARENA - 20), y = rand(ground(x) + 20, ARENA - 10);
+        c.beginPath(); c.ellipse(x, y, rand(10, 26), rand(4, 8), 0, 0, Math.PI * 2); c.fill();
+      }
+      break;
+    }
+    case 'ocean': {
+      // 수평선 아래 물결 층(far → near), 물보라·윤슬(accent)
+      bgRidge(c, p.far, waveFn(300, [[4, 0.03], [2, 0.08]], rand), 4);
+      for (let k = 0; k < 4; k++) {
+        bgRidge(c, k % 2 ? p.far : p.near, waveFn(360 + k * 60, [[6 + k * 2, 0.025 - k * 0.003], [3, 0.07]], rand), 4);
+      }
+      c.strokeStyle = p.accent; c.lineWidth = 2; c.globalAlpha = dark ? 0.7 : 0.85;
+      for (let i = 0; i < 24; i++) {
+        const x = rand(0, ARENA), y = rand(310, 590), w = rand(8, 20);
+        c.beginPath(); c.moveTo(x - w / 2, y); c.quadraticCurveTo(x, y - 4, x + w / 2, y); c.stroke();
+      }
+      c.globalAlpha = 1;
+      break;
+    }
+    case 'volcano': {
+      // 먼 산맥, 가까운 화산 원뿔 + 분화구 용암(accent), 불씨
+      bgRidge(c, p.far, x => 430 - Math.abs(Math.sin(x * 0.012 + 1.3)) * 70 - Math.sin(x * 0.031) * 12, 6);
+      const cx = rand(260, 340), top = 250, half = 300;
+      c.fillStyle = p.near;
+      c.beginPath();
+      c.moveTo(cx - half, ARENA); c.lineTo(cx - 40, top); c.lineTo(cx + 40, top); c.lineTo(cx + half, ARENA);
+      c.closePath(); c.fill();
+      c.fillStyle = p.accent;
+      c.beginPath(); c.ellipse(cx, top + 2, 38, 7, 0, 0, Math.PI * 2); c.fill();
+      // 용암 줄기
+      c.strokeStyle = p.accent; c.lineWidth = 5; c.lineCap = 'round';
+      for (let k = 0; k < 3; k++) {
+        let x = cx + rand(-25, 25), y = top + 4;
+        c.beginPath(); c.moveTo(x, y);
+        for (let s = 0; s < 6; s++) { x += rand(-16, 16); y += rand(25, 45); c.lineTo(x, y); }
+        c.stroke();
+      }
+      c.lineCap = 'butt';
+      bgDots(c, p.accent, 22, rand, 120, 260, 1.2, 2.8, 0.8);
+      break;
+    }
+    case 'snow': {
+      // 먼 설산(far) + 눈 덮인 봉우리, 가까운 언덕(near) + 소나무, 눈송이(accent)
+      const peaks = [];
+      for (let x = -40; x < ARENA + 80; x += rand(90, 150)) peaks.push([x, rand(220, 330)]);
+      c.fillStyle = p.far;
+      c.beginPath(); c.moveTo(-40, ARENA);
+      for (const [x, y] of peaks) { c.lineTo(x - 70, 470); c.lineTo(x, y); c.lineTo(x + 70, 470); }
+      c.lineTo(ARENA + 80, ARENA); c.closePath(); c.fill();
+      c.fillStyle = p.accent;
+      for (const [x, y] of peaks) {
+        c.beginPath(); c.moveTo(x, y); c.lineTo(x - 22, y + 34); c.lineTo(x - 6, y + 28); c.lineTo(x + 6, y + 36); c.lineTo(x + 22, y + 32);
+        c.closePath(); c.fill();
+      }
+      const ground = waveFn(515, [[14, 0.01], [6, 0.028]], rand);
+      bgRidge(c, p.near, ground, 6);
+      c.fillStyle = p.near;
+      for (let x = rand(10, 60); x < ARENA; x += rand(70, 130)) bgPine(c, x, ground(x) + 6, rand(30, 44), rand(80, 120));
+      bgDots(c, p.accent, 60, rand, 0, ARENA, 1, 2.6, dark ? 0.8 : 0.95);
+      break;
+    }
+  }
+}
+// 도시 (기존 그림 그대로 — 같은 RNG 순서)
+function renderCity(c, rand, rng, dark) {
   // ① 하늘
   const sky = c.createLinearGradient(0, 0, 0, ARENA);
   sky.addColorStop(0, colors.skyTop);
@@ -1593,7 +2597,6 @@ function renderBackground() {
     }
   }
   c.globalAlpha = 1;
-  bgDirty = false;
 }
 
 // ===== 캔버스 크기 (CSS 크기 × DPR, 논리 600×600) =====
@@ -1622,7 +2625,15 @@ function addParticles(x, y, color, count, speed, life, kind) {
   }
   if (particles.length > PARTICLE_MAX) particles.splice(0, particles.length - PARTICLE_MAX);
 }
+// 도형 파티클: ring = { x, y, r0 → r1 반경 변화 }, line = { x, y → x2, y2 }
+function addFx(p) {
+  particles.push(Object.assign({ vx: 0, vy: 0, max: p.life }, p));
+  if (particles.length > PARTICLE_MAX) particles.splice(0, particles.length - PARTICLE_MAX);
+}
+// 투사체·효과 색: 빙결은 공 색 대신 효과색
+const fxColor = key => (key === 'frost' ? colors.frostFx : colors[key] || colors.shooter);
 function drainEvents(sim) {
+  const sc = sim.scale;
   for (const ev of sim.events) {
     if (ev.k === 'heal' || ev.k === 'shoot') {
       const w = weaponOf(ev.id);
@@ -1632,6 +2643,21 @@ function drainEvents(sim) {
     else if (ev.k === 'heal') addParticles(ev.x, ev.y, colors.heal, 8, 60, 0.8, 'plus');
     else if (ev.k === 'clone') addParticles(ev.x, ev.y, colors.twin, 6, 80, 0.4, 'spark');
     else if (ev.k === 'out') addParticles(ev.x, ev.y, colors[ev.type], 20, 200, 0.7, 'spark');
+    else if (ev.k === 'burst') {
+      addFx({ kind: 'ring', x: ev.x, y: ev.y, r0: 10 * sc, r1: 90 * sc, life: 0.45, color: fxColor(ev.type) });
+      addParticles(ev.x, ev.y, fxColor(ev.type), 8, 180, 0.4, 'spark');
+    } else if (ev.k === 'blink') {
+      addFx({ kind: 'ring', x: ev.x, y: ev.y, r0: 26 * sc, r1: 4 * sc, life: 0.3, color: colors.blink });
+      addParticles(ev.x, ev.y, colors.blink, 6, 90, 0.35, 'spark');
+    } else if (ev.k === 'swap') {
+      addFx({ kind: 'line', x: ev.x1, y: ev.y1, x2: ev.x2, y2: ev.y2, life: 0.4, color: colors.swapper });
+      addFx({ kind: 'ring', x: ev.x1, y: ev.y1, r0: 4, r1: 24 * sc, life: 0.35, color: colors.swapper });
+      addFx({ kind: 'ring', x: ev.x2, y: ev.y2, r0: 4, r1: 24 * sc, life: 0.35, color: colors.swapper });
+    } else if (ev.k === 'pull') {
+      // 자석: 반경 R에서 안쪽으로 조여드는 파동
+      addFx({ kind: 'ring', x: ev.x, y: ev.y, r0: ev.r, r1: 20 * sc, life: 0.5, color: colors.magnet });
+    } else if (ev.k === 'drain') addParticles(ev.x, ev.y, colors.vampire, 3, 50, 0.5, 'plus');
+    else if (ev.k === 'reflect') addFx({ kind: 'ring', x: ev.x, y: ev.y, r0: 3, r1: 14, life: 0.25, color: colors.mirror });
   }
   sim.events.length = 0;
 }
@@ -1656,12 +2682,23 @@ function weaponOf(id) {
   if (!w) { w = { ang: null, heal: 0, shoot: 0, side: HAND_SIDE }; weapons.set(id, w); }
   return w;
 }
-// 무기가 향할 각도: 사수·돌격은 가장 가까운 적, 돌진 중엔 진행 방향, 나머지는 진행 방향
+// 무기가 향할 각도: 사수·돌격·마법·빙결·독·저격은 가장 가까운 적, 교환은 가장 먼 적,
+// 돌진 중엔 진행 방향, 나머지는 진행 방향
+const AIM_NEAREST = new Set(['shooter', 'charger', 'mage', 'frost', 'poison', 'sniper']);
 function weaponTarget(sim, b) {
   if (b.type === 'charger' && b.dashT > 0) return Math.atan2(b.vy, b.vx);
-  if (!b.isClone && (b.type === 'shooter' || b.type === 'charger')) {
+  if (!b.isClone && AIM_NEAREST.has(b.type)) {
     const e = nearestEnemy(sim, b);
     if (e) return Math.atan2(e.y - b.y, e.x - b.x);
+  }
+  if (!b.isClone && b.type === 'swapper') {
+    let far = null, fd = -1;
+    for (const o of sim.balls) {
+      if (o.team === b.team || o.isClone || o.phaseT > 0) continue;
+      const d = (o.x - b.x) ** 2 + (o.y - b.y) ** 2;
+      if (d > fd) { fd = d; far = o; }
+    }
+    if (far) return Math.atan2(far.y - b.y, far.x - b.x);
   }
   return Math.atan2(b.vy, b.vx);
 }
@@ -1769,17 +2806,172 @@ function drawWeaponShape(b, kind, u, w) {
       ctx.shadowBlur = 0;
       break;
     }
+    case 'wand': {
+      // 마법: 짧은 지팡이 + 구슬, 발사 순간 빛남
+      wRect(-u * 0.2, -u * 0.05, u * 0.95, u * 0.1, colors.wWood);
+      const glow = w.shoot > 0 ? w.shoot / BOW_DRAW : 0;
+      if (glow) { ctx.shadowColor = colors.mage; ctx.shadowBlur = 12 * glow; }
+      wCircle(u * 0.85, 0, u * (0.15 + 0.04 * glow), colors.mage);
+      ctx.shadowBlur = 0;
+      break;
+    }
+    case 'bomb': {
+      // 폭탄: 둥근 몸체 + 꼭지 + 심지(끝에 불꽃)
+      const cx = u * 0.42, br = u * 0.3;
+      wCircle(cx, 0, br, colors.wDark);
+      wRect(cx + br * 0.75, -u * 0.08, u * 0.12, u * 0.16, colors.wMetal);
+      ctx.beginPath();
+      ctx.moveTo(cx + br * 0.75 + u * 0.12, 0);
+      ctx.quadraticCurveTo(cx + br + u * 0.25, -u * 0.2, cx + br + u * 0.32, -u * 0.05);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = colors.wString; ctx.stroke();
+      wCircle(cx + br + u * 0.32, -u * 0.05, u * 0.06, colors.danger);
+      break;
+    }
+    case 'scythe': {
+      // 흡혈: 긴 자루 + 끝의 휘어진 날 (흡혈 중엔 날이 공 색으로 빛남)
+      wRect(-u * 0.4, -u * 0.05, u * 1.45, u * 0.1, colors.wWood);
+      const on = b.drainT > 0;
+      ctx.beginPath();
+      ctx.moveTo(u * 1.0, -u * 0.05);
+      ctx.quadraticCurveTo(u * 0.95, -u * 0.6, u * 0.45, -u * 0.72);
+      ctx.quadraticCurveTo(u * 0.8, -u * 0.45, u * 0.88, -u * 0.05);
+      ctx.closePath();
+      if (on) { ctx.shadowColor = colors.vampire; ctx.shadowBlur = 10; }
+      wPath(on ? colors.vampire : colors.wMetal);
+      ctx.shadowBlur = 0;
+      break;
+    }
+    case 'icestaff': {
+      // 빙결: 지팡이 + 끝의 마름모 결정(효과색)
+      wRect(-u * 0.45, -u * 0.05, u * 1.35, u * 0.1, colors.wWood);
+      const glow = w.shoot > 0 ? w.shoot / BOW_DRAW : 0;
+      if (glow) { ctx.shadowColor = colors.frostFx; ctx.shadowBlur = 12 * glow; }
+      ctx.beginPath();
+      ctx.moveTo(u * 0.82, 0); ctx.lineTo(u * 1.05, -u * 0.2); ctx.lineTo(u * 1.32, 0); ctx.lineTo(u * 1.05, u * 0.2);
+      ctx.closePath();
+      wPath(colors.frostFx);
+      ctx.shadowBlur = 0;
+      break;
+    }
+    case 'magnet': {
+      // 자석: U자 (끝 두 칸은 밝은 금속)
+      const R = u * 0.3, cx = u * 0.35, th = u * 0.14;
+      ctx.beginPath();
+      ctx.arc(cx, 0, R, Math.PI / 2, -Math.PI / 2, false); // 왼쪽으로 돌아 위로 (U자 바닥 = 손 쪽)
+      ctx.lineTo(cx + u * 0.35, -R);
+      ctx.lineTo(cx + u * 0.35, -R + th);
+      ctx.lineTo(cx, -R + th);
+      ctx.arc(cx, 0, R - th, -Math.PI / 2, Math.PI / 2, true);
+      ctx.lineTo(cx + u * 0.35, R - th);
+      ctx.lineTo(cx + u * 0.35, R);
+      ctx.closePath();
+      wPath(colors.danger);
+      wRect(cx + u * 0.22, -R, u * 0.13, th, colors.wMetal);
+      wRect(cx + u * 0.22, R - th, u * 0.13, th, colors.wMetal);
+      break;
+    }
+    case 'club': {
+      // 거인: 크고 두꺼운 몽둥이 (거대화 중엔 r이 커져 자동으로 커짐)
+      ctx.beginPath();
+      ctx.moveTo(-u * 0.15, -u * 0.08);
+      ctx.lineTo(u * 0.9, -u * 0.24);
+      ctx.quadraticCurveTo(u * 1.12, 0, u * 0.9, u * 0.24);
+      ctx.lineTo(-u * 0.15, u * 0.08);
+      ctx.closePath();
+      wPath(colors.wWood);
+      wCircle(u * 0.6, -u * 0.08, u * 0.04, colors.wDark);
+      wCircle(u * 0.8, u * 0.1, u * 0.04, colors.wDark);
+      break;
+    }
+    case 'flask': {
+      // 독: 둥근 플라스크(독 색) + 목 + 마개
+      wCircle(u * 0.45, 0, u * 0.24, colors.poison);
+      wRect(u * 0.62, -u * 0.08, u * 0.2, u * 0.16, colors.poison);
+      wRect(u * 0.8, -u * 0.1, u * 0.08, u * 0.2, colors.wWood);
+      break;
+    }
+    case 'rod': {
+      // 번개: 막대 끝 번개 모양
+      wRect(-u * 0.35, -u * 0.05, u * 1.0, u * 0.1, colors.wMetal);
+      ctx.beginPath();
+      ctx.moveTo(u * 0.62, -u * 0.08); ctx.lineTo(u * 0.98, -u * 0.32); ctx.lineTo(u * 0.88, -u * 0.04);
+      ctx.lineTo(u * 1.12, -u * 0.06); ctx.lineTo(u * 0.74, u * 0.3); ctx.lineTo(u * 0.84, u * 0.04);
+      ctx.closePath();
+      wPath(colors.storm);
+      break;
+    }
+    case 'axe': {
+      // 광전사: 손도끼 (광폭화 중엔 날이 위험색)
+      wRect(-u * 0.1, -u * 0.05, u * 0.8, u * 0.1, colors.wWood);
+      ctx.beginPath();
+      ctx.moveTo(u * 0.5, -u * 0.05);
+      ctx.lineTo(u * 0.55, -u * 0.32);
+      ctx.quadraticCurveTo(u * 0.85, -u * 0.25, u * 0.82, u * 0.02);
+      ctx.lineTo(u * 0.68, u * 0.05);
+      ctx.closePath();
+      wPath(b.rageT > 0 ? colors.danger : colors.wMetal);
+      break;
+    }
+    case 'lantern': {
+      // 유령: 손잡이 고리 + 등불(공 색 불빛)
+      ctx.beginPath(); ctx.arc(u * 0.35, -u * 0.2, u * 0.1, Math.PI, 0);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = colors.wDark; ctx.stroke();
+      wRect(u * 0.18, -u * 0.2, u * 0.34, u * 0.06, colors.wDark);
+      ctx.shadowColor = colors.ghost; ctx.shadowBlur = 8;
+      wRect(u * 0.22, -u * 0.14, u * 0.26, u * 0.3, colors.ghost);
+      ctx.shadowBlur = 0;
+      wRect(u * 0.18, u * 0.16, u * 0.34, u * 0.06, colors.wDark);
+      break;
+    }
+    case 'mirror': {
+      // 반사: 손잡이 + 원형 거울 (반사막 중 테두리 강조)
+      wRect(-u * 0.05, -u * 0.05, u * 0.4, u * 0.1, colors.wWood);
+      const on = b.reflectT > 0;
+      ctx.beginPath(); ctx.arc(u * 0.6, 0, u * 0.26, 0, Math.PI * 2);
+      ctx.fillStyle = colors.mirror; ctx.fill();
+      if (on) { ctx.shadowColor = colors.mirror; ctx.shadowBlur = 10; }
+      ctx.lineWidth = on ? 3 : 1.5; ctx.strokeStyle = colors.wMetal; ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.beginPath(); ctx.moveTo(u * 0.5, -u * 0.12); ctx.lineTo(u * 0.64, -u * 0.16);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = colors.wString; ctx.stroke();
+      break;
+    }
+    case 'rifle': {
+      // 저격: 긴 총열 + 개머리 + 조준경, 발사 시 뒤로 반동
+      const kick = w.shoot > 0 ? -u * 0.22 * (w.shoot / BOW_DRAW) : 0;
+      ctx.translate(kick, 0);
+      wRect(-u * 0.45, -u * 0.1, u * 0.5, u * 0.2, colors.wWood);
+      wRect(0, -u * 0.06, u * 1.55, u * 0.1, colors.wDark);
+      wRect(u * 0.2, -u * 0.22, u * 0.45, u * 0.1, colors.wMetal);
+      break;
+    }
+    case 'ring': {
+      // 교환: 손가락 고리 + 보석
+      ctx.beginPath(); ctx.arc(u * 0.35, 0, u * 0.18, 0, Math.PI * 2);
+      ctx.lineWidth = u * 0.08 + 2; ctx.strokeStyle = colors.wOutline; ctx.stroke();
+      ctx.lineWidth = u * 0.08; ctx.strokeStyle = colors.swapper; ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(u * 0.53, 0); ctx.lineTo(u * 0.65, -u * 0.1); ctx.lineTo(u * 0.77, 0); ctx.lineTo(u * 0.65, u * 0.1);
+      ctx.closePath();
+      wPath(colors.wMetal);
+      break;
+    }
   }
 }
 // 종류별 [무기, 손 위치(+1 = +40°, -1 = -40°)]
 const WEAPON_HANDS = {
   charger: [['lance', 1]], spike: [['mace', 1]], healer: [['staff', 1]],
   twin: [['dagger', 1], ['dagger', -1]], shooter: [['bow', 1]], guardian: [['sword', 1], ['shield', -0.8]],
+  mage: [['wand', 1]], bomber: [['bomb', 1]], vampire: [['scythe', 1]], frost: [['icestaff', 1]],
+  blink: [['dagger', 1]], magnet: [['magnet', 1]], giant: [['club', 1]], poison: [['flask', 1]],
+  storm: [['rod', 1]], berserker: [['axe', 1], ['axe', -1]], ghost: [['lantern', 1]], mirror: [['mirror', 1]],
+  sniper: [['rifle', 0.6]], swapper: [['ring', 1]],
 };
 function drawWeapons(b, col) {
   const w = weaponOf(b.id);
   const ang = w.ang === null ? Math.atan2(b.vy, b.vx) : w.ang;
-  for (const [kind, sideSign] of WEAPON_HANDS[b.type]) {
+  // 정의 없는 종류가 섞여도 나머지 그리기가 멈추지 않도록 방어
+  for (const [kind, sideSign] of WEAPON_HANDS[b.type] || []) {
     const ha = ang + w.side * sideSign;
     ctx.save();
     ctx.translate(b.x + Math.cos(ha) * b.r, b.y + Math.sin(ha) * b.r);
@@ -1848,19 +3040,30 @@ function drawAim() {
 function drawBall(b, isMine) {
   const col = colors[b.type];
   const reduced = reduceMQ.matches;
+  const now = reduced ? 0 : performance.now() / 1000;
+  // 기본 투명도: 분신 0.8, 유령화 중 PHASE_ALPHA
+  const baseA = (b.isClone ? CLONE_ALPHA : 1) * (b.phaseT > 0 ? PHASE_ALPHA : 1);
   ctx.save();
-  if (b.isClone) ctx.globalAlpha = CLONE_ALPHA;
-  // 돌진 잔상
-  if (b.dashT > 0 && !reduced) {
+  ctx.globalAlpha = baseA;
+  // 돌진 잔상 / 섬광 직후 잔상
+  if ((b.dashT > 0 || b.blinkT > 0) && !reduced) {
     const sp = Math.hypot(b.vx, b.vy) || 1;
+    const fade = b.dashT > 0 ? 1 : b.blinkT;
     for (let k = 3; k >= 1; k--) {
-      ctx.globalAlpha = 0.12 * (4 - k);
-      ctx.fillStyle = col;
+      ctx.globalAlpha = 0.12 * (4 - k) * fade * baseA;
+      ctx.fillStyle = b.dashT > 0 ? col : colors.blink;
       ctx.beginPath();
       ctx.arc(b.x - (b.vx / sp) * k * b.r * 0.5, b.y - (b.vy / sp) * k * b.r * 0.5, b.r, 0, Math.PI * 2);
       ctx.fill();
     }
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = baseA;
+  }
+  // 흡혈 오라
+  if (b.drainT > 0) {
+    ctx.globalAlpha = (0.22 + 0.08 * Math.sin(now * 8)) * baseA;
+    ctx.fillStyle = colors.vampire;
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 7, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = baseA;
   }
   // 가시
   if (b.spikeT > 0) {
@@ -1875,11 +3078,13 @@ function drawBall(b, isMine) {
     }
     ctx.fill();
   }
-  // 본체
+  // 본체 (광폭화 중엔 위험색 글로우)
   ctx.fillStyle = col;
+  if (b.rageT > 0) { ctx.shadowColor = colors.danger; ctx.shadowBlur = 16; }
   ctx.beginPath();
   ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
   ctx.fill();
+  ctx.shadowBlur = 0;
   // 테두리: 1번째 실선, 2번째 점선, 3번째 이상 이중선
   ctx.strokeStyle = colors.outline;
   const lw = b.isClone ? 2 : 2.5;
@@ -1903,16 +3108,58 @@ function drawBall(b, isMine) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(String(b.slot), b.x, b.y + 1);
-  // 실드
+  // 팀 링 (팀전, r+3)
+  if (state.sim && state.sim.battle === 'team' && colors.team[b.team - 1]) {
+    ctx.strokeStyle = colors.team[b.team - 1];
+    ctx.lineWidth = b.isClone ? 2 : 3;
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 3, 0, Math.PI * 2); ctx.stroke();
+  }
+  // 실드 (r+5)
   if (b.shieldT > 0 && b.shield > 0) {
     ctx.strokeStyle = colors.shield;
-    ctx.lineWidth = 1.5 + (b.shield / SHIELD_AMOUNT) * 3;
-    ctx.globalAlpha = 0.9;
+    ctx.lineWidth = 1.5 + Math.min(1, b.shield / SHIELD_AMOUNT) * 3;
+    ctx.globalAlpha = 0.9 * baseA;
     ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 5, 0, Math.PI * 2); ctx.stroke();
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = baseA;
   }
-  // 체력 막대 + 내 공 표시
+  // 둔화: 효과색 점선 링 (천천히 회전)
+  if (b.slowT > 0) {
+    ctx.strokeStyle = colors.frostFx;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.lineDashOffset = -now * 12;
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 6.5, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.lineDashOffset = 0;
+  }
+  // 반사막: 육각 링 (r+8)
+  if (b.reflectT > 0) {
+    ctx.strokeStyle = colors.mirror;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let k = 0; k <= 6; k++) {
+      const a = (k / 6) * Math.PI * 2 + now * 0.8, R = b.r + 8;
+      if (k === 0) ctx.moveTo(b.x + Math.cos(a) * R, b.y + Math.sin(a) * R);
+      else ctx.lineTo(b.x + Math.cos(a) * R, b.y + Math.sin(a) * R);
+    }
+    ctx.stroke();
+  }
+  // 독: 공 위로 떠오르는 거품 3개
+  if (b.poisonT > 0) {
+    ctx.fillStyle = colors.poison;
+    ctx.strokeStyle = colors.outline;
+    ctx.lineWidth = 1;
+    for (let k = 0; k < 3; k++) {
+      const ph = (now * 0.9 + k / 3) % 1;
+      const x = b.x + (k - 1) * b.r * 0.55, y = b.y - b.r * 0.4 - ph * b.r * 0.9;
+      ctx.globalAlpha = (reduced ? 0.9 : 1 - ph) * baseA;
+      ctx.beginPath(); ctx.arc(x, y, 2.5 + k * 0.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    }
+    ctx.globalAlpha = baseA;
+  }
+  // 체력 막대 + 내 공 표시 (유령화 중에도 읽을 수 있게 불투명)
   if (!b.isClone) {
+    ctx.globalAlpha = 1;
     // HP 숫자: 화면에서 11px 이상
     const fs = Math.max(minFont(11), Math.min(13, Math.round(13 * state.sim.scale)));
     const w = b.r * 2;
@@ -1958,7 +3205,7 @@ function draw() {
     ctx.strokeRect(3, 3, ARENA - 6, ARENA - 6);
   }
   for (const p of s.projectiles) {
-    ctx.fillStyle = colors.shooter;
+    ctx.fillStyle = fxColor(p.col);
     ctx.strokeStyle = colors.outline;
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -1977,6 +3224,17 @@ function draw() {
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x - 4, p.y - 1.25, 8, 2.5);
       ctx.fillRect(p.x - 1.25, p.y - 4, 2.5, 8);
+    } else if (p.kind === 'ring') {
+      const k = 1 - clamp(p.life / p.max, 0, 1);
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0.5, p.r0 + (p.r1 - p.r0) * k), 0, Math.PI * 2); ctx.stroke();
+    } else if (p.kind === 'line') {
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x2, p.y2); ctx.stroke();
+      ctx.setLineDash([]);
     } else {
       ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2); ctx.fill();
@@ -2010,7 +3268,20 @@ function renderLineup(focusIndex) {
     del.textContent = '×';
     del.setAttribute('aria-label', tf('del', { name: '#' + (i + 1) + ' ' + name }));
     del.disabled = !editable();
-    li.append(num, dot, nm, del);
+    li.append(num, dot, nm);
+    // 팀 칩 (팀전): 누르면 다음 팀으로 순환
+    if (state.battle === 'team') {
+      const tm = state.teams[i] || 0;
+      const chip = document.createElement('button');
+      chip.className = 'li-team t-' + TEAM_LETTERS[tm].toLowerCase();
+      chip.type = 'button';
+      chip.dataset.i = i;
+      chip.textContent = TEAM_LETTERS[tm];
+      chip.setAttribute('aria-label', tf('teamLabel', { name: '#' + (i + 1) + ' ' + name, team: teamName(tm) }));
+      chip.disabled = !editable();
+      li.appendChild(chip);
+    }
+    li.appendChild(del);
     ul.appendChild(li);
   });
   // 삭제 후 포커스 유지
@@ -2043,12 +3314,40 @@ function renderMySelect() {
 
 // ===== 체력 목록 =====
 let hpRows = new Map(); // id → { row, fill, val, cd, name }
+let teamHeads = new Map(); // 팀(1..4) → { head, alive, fill, members: [본체…] }
 function buildHpRows() {
   const list = $('hpList');
   list.textContent = '';
   hpRows = new Map();
+  teamHeads = new Map();
   const s = state.sim;
   if (!s) return;
+  // 팀전: 팀 헤더 (.team-head.t-x > .team-dot, .team-name, .team-alive, .team-bar > .team-fill)
+  if (s.battle === 'team') {
+    for (const b of s.bodies) {
+      if (!teamHeads.has(b.team)) teamHeads.set(b.team, { members: [] });
+      teamHeads.get(b.team).members.push(b);
+    }
+    teamHeads = new Map(Array.from(teamHeads).sort((a, b) => a[0] - b[0]));
+    for (const [tm, th] of teamHeads) {
+      const head = document.createElement('div');
+      head.className = 'team-head t-' + TEAM_LETTERS[tm - 1].toLowerCase();
+      const dot = document.createElement('span');
+      dot.className = 'team-dot';
+      const name = document.createElement('span');
+      name.className = 'team-name';
+      name.textContent = teamName(tm - 1);
+      const alive = document.createElement('span');
+      alive.className = 'team-alive';
+      const bar = document.createElement('div');
+      bar.className = 'team-bar';
+      const fill = document.createElement('div');
+      fill.className = 'team-fill';
+      bar.appendChild(fill);
+      head.append(dot, name, alive, bar);
+      Object.assign(th, { head, alive, fill });
+    }
+  }
   for (const b of s.bodies) {
     const row = document.createElement('div');
     row.className = 'hp-row';
@@ -2101,10 +3400,27 @@ function renderHp() {
   if (order.length < s.bodies.length) {
     for (let g = s.eliminations.length - 1; g >= 0; g--) order.push(...s.eliminations[g]);
   }
+  // 표시 순서(요소): 개인전은 행만, 팀전은 팀 헤더 아래에 같은 순서로 팀원 행
+  let els;
+  if (teamHeads.size) {
+    els = [];
+    for (const [tm, th] of teamHeads) {
+      const alive = th.members.filter(b => b.alive);
+      let hp = 0, max = 0;
+      for (const b of th.members) { hp += Math.max(0, b.hp); max += b.maxHp; }
+      th.fill.style.width = (max ? clamp(hp / max, 0, 1) * 100 : 0).toFixed(1) + '%';
+      setText(th.alive, tf('alive', { a: alive.length, n: th.members.length }));
+      th.head.classList.toggle('out', !alive.length);
+      els.push(th.head);
+      for (const id of order) if (s.bodies[id - 1].team === tm) els.push(hpRows.get(id).row);
+    }
+  } else {
+    els = order.map(id => hpRows.get(id).row);
+  }
   const list = $('hpList');
-  const cur = Array.from(list.children);
-  if (order.some((id, k) => cur[k] !== hpRows.get(id).row)) {
-    for (const id of order) list.appendChild(hpRows.get(id).row);
+  const cur = list.children;
+  if (cur.length !== els.length || els.some((el, k) => cur[k] !== el)) {
+    for (const el of els) list.appendChild(el);
   }
 }
 
@@ -2113,16 +3429,21 @@ function fmtTime(sec) {
   const s = Math.floor(sec);
   return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 }
+// 결과 제목: 팀전 "A팀 승리!", 개인전 "{이름} 승리!", 아니면 무승부
+function resultTitle(s) {
+  if (s.battle === 'team') return s.result.winnerTeam ? tf('teamWin', { team: teamName(s.result.winnerTeam - 1) }) : t('draw');
+  return s.result.winnerId ? tf('win', { name: fullName(s.bodies[s.result.winnerId - 1]) }) : t('draw');
+}
 function renderStatus() {
   const s = state.sim, st = $('status'), sub = $('statusSub');
   let main = '', minor = '', danger = false;
   if (state.phase === 'select') {
-    main = state.lineup.length < MIN_BALLS ? t('needTwo') : t('pressStart');
+    main = state.lineup.length < MIN_BALLS ? t('needTwo') : !canStart() ? t('needTwoTeams') : t('pressStart');
     minor = state.mode === 'play' ? t('playHint') : '';
   } else {
     const alive = s.bodies.filter(b => b.alive).length;
     if (state.phase === 'over') {
-      main = s.result.winnerId ? tf('win', { name: fullName(s.bodies[s.result.winnerId - 1]) }) : t('draw');
+      main = resultTitle(s);
     } else {
       main = tf('alive', { a: alive, n: s.total });
       if (state.phase === 'paused') main = t('paused') + ' · ' + main;
@@ -2170,10 +3491,10 @@ function renderSkill() {
 function renderControls() {
   const n = state.lineup.length, ed = editable();
   setText($('lineupCount'), n + ' / ' + MAX_BALLS);
-  setText($('lineupHint'), n < MIN_BALLS ? t('needTwo') : n >= MAX_BALLS ? t('maxReached') : '');
+  setText($('lineupHint'), n < MIN_BALLS ? t('needTwo') : !canStart() ? t('needTwoTeams') : n >= MAX_BALLS ? tf('maxReached', { n: MAX_BALLS }) : '');
   $('addBar').querySelectorAll('.add-btn').forEach(b => { b.disabled = !ed || n >= MAX_BALLS; });
   $('clearBtn').disabled = !ed || !n;
-  $('lineup').querySelectorAll('.li-del').forEach(b => { b.disabled = !ed; });
+  $('lineup').querySelectorAll('.li-del, .li-team').forEach(b => { b.disabled = !ed; });
 
   const modeSeg = $('modeSeg');
   modeSeg.classList.toggle('disabled', inBattle());
@@ -2181,46 +3502,82 @@ function renderControls() {
     b.classList.toggle('on', b.dataset.v === state.mode);
     b.disabled = inBattle();
   });
+  // 전투 방식 / 팀 수 (전투 중엔 잠금)
+  const team = state.battle === 'team';
+  for (const [id, cur] of [['battleSeg', state.battle], ['teamCountSeg', String(state.teamCount)]]) {
+    const seg = $(id);
+    seg.classList.toggle('disabled', inBattle());
+    seg.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('on', b.dataset.v === cur);
+      b.setAttribute('aria-pressed', b.dataset.v === cur ? 'true' : 'false');
+      b.disabled = inBattle();
+    });
+  }
+  $('teamField').classList.toggle('hidden', !team);
+  $('autoTeamBtn').classList.toggle('hidden', !team);
+  $('autoTeamBtn').disabled = !ed || !n;
   $('speedSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', parseFloat(b.dataset.v) === state.speed));
   $('mySelect').classList.toggle('hidden', state.mode !== 'play');
   $('myField').classList.toggle('hidden', state.mode !== 'play');
   renderMySelect();
 
-  $('startBtn').disabled = state.phase !== 'select' || n < MIN_BALLS;
+  $('startBtn').disabled = state.phase !== 'select' || !canStart();
   $('pauseBtn').disabled = !inBattle();
   $('skipBtn').disabled = !inBattle();
   setText($('pauseBtn'), state.phase === 'paused' ? t('resume') : t('pause'));
-  $('restartBtn').disabled = state.phase === 'select' || n < MIN_BALLS;
-  $('ovRestart').disabled = n < MIN_BALLS;
+  $('restartBtn').disabled = state.phase === 'select' || !canStart();
+  $('ovRestart').disabled = !canStart();
 }
 
 function renderOverlay() {
   const ov = $('overlay');
   if (state.phase !== 'over') { ov.classList.remove('show'); return; }
   const s = state.sim;
-  setText($('ovTitle'), s.result.winnerId ? tf('win', { name: fullName(s.bodies[s.result.winnerId - 1]) }) : t('draw'));
+  setText($('ovTitle'), resultTitle(s));
   const ol = $('ovRank');
   ol.textContent = '';
-  for (const { b, rank } of standings(s)) {
+  const ballLi = (b, rankText, cls) => {
     const li = document.createElement('li');
+    if (cls) li.className = cls;
     const rk = document.createElement('span');
     rk.className = 'rk';
-    rk.textContent = tf('rank', { n: rank });
+    rk.textContent = rankText;
     const dot = document.createElement('span');
     dot.className = 'li-dot' + (b.dupIndex === 2 ? ' dup2' : b.dupIndex >= 3 ? ' dup3' : '');
     dot.style.background = 'var(--c-' + b.type + ')';
     const nm = document.createElement('span');
     nm.textContent = fullName(b);
     li.append(rk, dot, nm);
-    ol.appendChild(li);
+    return li;
+  };
+  if (s.battle === 'team') {
+    // li.rank-team.t-x(.rk, .team-dot, .rank-team-name) 다음에 li.rank-member(팀원, 빈 .rk로 들여쓰기)
+    for (const { team, rank, members } of teamStandings(s)) {
+      const li = document.createElement('li');
+      li.className = 'rank-team t-' + TEAM_LETTERS[team - 1].toLowerCase();
+      const rk = document.createElement('span');
+      rk.className = 'rk';
+      rk.textContent = tf('rank', { n: rank });
+      const dot = document.createElement('span');
+      dot.className = 'team-dot';
+      const nm = document.createElement('span');
+      nm.className = 'rank-team-name';
+      nm.textContent = teamName(team - 1);
+      li.append(rk, dot, nm);
+      ol.appendChild(li);
+      for (const b of members) ol.appendChild(ballLi(b, '', 'rank-member' + (b.alive ? '' : ' out')));
+    }
+  } else {
+    for (const { b, rank } of standings(s)) ol.appendChild(ballLi(b, tf('rank', { n: rank })));
   }
   ov.classList.add('show');
 }
 
 function updateUI() {
-  // 모바일 하단 도크 CSS용
+  // CSS용: 버튼 줄 높이(--dock-h), 전투 중 잠긴 설정 숨김, 캔버스 touch-action
   document.body.classList.toggle('in-battle', inBattle());
   document.body.classList.toggle('mode-play', state.mode === 'play');
+  document.body.classList.toggle('paused', state.phase === 'paused');
   renderControls();
   renderStatus();
   renderHp();
@@ -2230,21 +3587,24 @@ function updateUI() {
 }
 
 // ===== 단계 전환 =====
+// 개인전이면 undefined → createBattle이 team = i+1 (기존 시드 결과 그대로)
+const battleTeams = () => (state.battle === 'team' ? state.teams.slice() : undefined);
 function makePreview() {
   weapons = new Map();
-  state.sim = state.lineup.length ? createBattle(state.lineup, urlSeed !== null ? urlSeed : PREVIEW_SEED) : null;
+  state.sim = state.lineup.length ? createBattle(state.lineup, urlSeed !== null ? urlSeed : PREVIEW_SEED, battleTeams()) : null;
   particles = [];
   buildHpRows();
 }
 function toSelect() {
   state.phase = 'select';
+  clearInput();
   makePreview();
   updateUI();
 }
 function startBattle() {
-  if (state.lineup.length < MIN_BALLS) return;
+  if (!canStart()) return;
   state.seed = urlSeed !== null ? urlSeed : (Math.random() * 4294967296) >>> 0;
-  state.sim = createBattle(state.lineup, state.seed);
+  state.sim = createBattle(state.lineup, state.seed, battleTeams());
   state.sim.manualId = state.mode === 'play' && state.myIndex >= 0 ? state.myIndex + 1 : 0;
   state.phase = 'running';
   particles = [];
@@ -2256,7 +3616,7 @@ function startBattle() {
   updateUI();
 }
 function togglePause() {
-  if (state.phase === 'running') state.phase = 'paused';
+  if (state.phase === 'running') { state.phase = 'paused'; clearInput(); }
   else if (state.phase === 'paused') { state.phase = 'running'; lastTs = null; }
   else return;
   updateUI();
@@ -2292,6 +3652,7 @@ function afterEdit(focusIndex) {
 }
 function addBall(type) {
   if (!editable() || state.lineup.length >= MAX_BALLS || !TYPES[type]) return;
+  state.teams.push(smallestTeam()); // 새 공은 인원이 가장 적은 팀으로
   state.lineup.push(type);
   if (state.myIndex < 0) state.myIndex = 0;
   const fromAdd = document.activeElement && document.activeElement.classList.contains('add-btn');
@@ -2305,6 +3666,7 @@ function addBall(type) {
 function removeBall(i) {
   if (!editable() || i < 0 || i >= state.lineup.length) return;
   state.lineup.splice(i, 1);
+  state.teams.splice(i, 1);
   if (!state.lineup.length) state.myIndex = -1;
   else if (i === state.myIndex) state.myIndex = 0;
   else if (i < state.myIndex) state.myIndex--;
@@ -2313,7 +3675,29 @@ function removeBall(i) {
 function clearAll() {
   if (!editable() || !state.lineup.length) return;
   state.lineup = [];
+  state.teams = [];
   state.myIndex = -1;
+  afterEdit();
+}
+// 팀 칩: 다음 팀으로 순환 (포커스는 같은 칩에 유지)
+function cycleTeam(i) {
+  if (!editable() || i < 0 || i >= state.lineup.length) return;
+  state.teams[i] = ((state.teams[i] || 0) + 1) % state.teamCount;
+  afterEdit();
+  const chip = $('lineup').querySelector('.li-team[data-i="' + i + '"]');
+  if (chip) chip.focus();
+}
+function setBattle(v) {
+  if (inBattle() || !['ffa', 'team'].includes(v) || v === state.battle) return;
+  state.battle = v;
+  afterEdit();
+}
+// 팀 수 변경: 범위를 벗어난 공만 인원이 가장 적은 팀으로 다시 배정
+function setTeamCount(c) {
+  if (inBattle() || ![2, 3, 4].includes(c) || c === state.teamCount) return;
+  state.teamCount = c;
+  state.teams.forEach((v, i) => { if (v >= c) state.teams[i] = -1; });
+  state.teams.forEach((v, i) => { if (v < 0) state.teams[i] = smallestTeam(); });
   afterEdit();
 }
 function useMySkill() {
@@ -2358,9 +3742,103 @@ $('addBar').addEventListener('click', e => {
 });
 $('lineup').addEventListener('click', e => {
   const b = e.target.closest('.li-del');
-  if (b && !b.disabled) removeBall(+b.dataset.i);
+  if (b && !b.disabled) { removeBall(+b.dataset.i); return; }
+  const chip = e.target.closest('.li-team');
+  if (chip && !chip.disabled) cycleTeam(+chip.dataset.i);
 });
 $('clearBtn').addEventListener('click', clearAll);
+$('battleSeg').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b && !b.disabled) setBattle(b.dataset.v);
+});
+$('teamCountSeg').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b && !b.disabled) setTeamCount(+b.dataset.v);
+});
+$('autoTeamBtn').addEventListener('click', () => {
+  if (!editable() || !state.lineup.length) return;
+  autoTeams();
+  afterEdit();
+});
+
+// ===== 페이지 배경색 =====
+// sRGB 상대 휘도 / 대비비 (WCAG)
+const hexRgb = h => { const v = parseInt(h.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; };
+function relLum(rgb) {
+  const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+}
+const contrastRatio = (l1, l2) => (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+// 배경 위 글자색(회색 계열): 흰/검 중 대비가 큰 쪽 끝에서 배경 쪽으로 다가가며 목표 대비를 지키는 가장 부드러운 회색.
+// 끝값조차 목표에 못 미치면 끝값(흰/검 중 큰 쪽은 항상 4.5:1 이상)
+function onPageColors(hex) {
+  const L = relLum(hexRgb(hex));
+  const light = contrastRatio(1, L) >= contrastRatio(0, L);
+  const pick = target => {
+    let best = light ? 255 : 0;
+    for (let k = 1; k <= 255; k++) {
+      const v = light ? 255 - k : k;
+      if (contrastRatio(relLum([v, v, v]), L) < target) break;
+      best = v;
+    }
+    return 'rgb(' + best + ', ' + best + ', ' + best + ')';
+  };
+  return { main: pick(12), muted: pick(4.6) };
+}
+// state.pageBg를 문서와 UI(.on / aria-pressed)에 반영. 기본('')이면 인라인 속성을 지워 테마를 따름
+function applyPageBg() {
+  const st = document.documentElement.style;
+  if (!state.pageBg) {
+    for (const p of ['--page-bg', '--on-page', '--on-page-muted']) st.removeProperty(p);
+  } else {
+    const c = onPageColors(state.pageBg);
+    st.setProperty('--page-bg', state.pageBg);
+    st.setProperty('--on-page', c.main);
+    st.setProperty('--on-page-muted', c.muted);
+  }
+  let matched = false;
+  $('bgSwatches').querySelectorAll('.swatch').forEach(b => {
+    const on = (b.dataset.color || '').toLowerCase() === state.pageBg;
+    if (on) matched = true;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  $('bgCustom').classList.toggle('on', !matched);
+  if (!matched) $('bgColorInput').value = state.pageBg;
+  $('bgResetBtn').disabled = !state.pageBg;
+}
+function setPageBg(v) {
+  v = (v || '').toLowerCase();
+  if (v && !HEX_RE.test(v)) return;
+  state.pageBg = v;
+  applyPageBg();
+  saveSettings();
+}
+$('bgSwatches').addEventListener('click', e => {
+  const b = e.target.closest('.swatch');
+  if (b) setPageBg(b.dataset.color);
+});
+$('bgColorInput').addEventListener('input', e => setPageBg(e.target.value));
+$('bgColorInput').addEventListener('change', e => setPageBg(e.target.value));
+$('bgResetBtn').addEventListener('click', () => setPageBg(''));
+
+// ===== 아레나 배경 테마 =====
+function applyArenaTheme() {
+  $('arenaThemes').querySelectorAll('.theme-btn').forEach(b => {
+    const on = b.dataset.v === state.arenaTheme;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  bgDirty = true;
+  dirty = true;
+}
+$('arenaThemes').addEventListener('click', e => {
+  const b = e.target.closest('.theme-btn');
+  if (!b || !ARENA_THEMES.includes(b.dataset.v) || b.dataset.v === state.arenaTheme) return;
+  state.arenaTheme = b.dataset.v;
+  applyArenaTheme();
+  saveSettings();
+});
 $('modeSeg').addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b || b.disabled || inBattle() || b.dataset.v === state.mode) return;
@@ -2389,23 +3867,98 @@ $('skipBtn').addEventListener('click', skipToResult);
 $('restartBtn').addEventListener('click', () => { if (state.phase !== 'select') startBattle(); });
 $('ovRestart').addEventListener('click', startBattle);
 $('ovSelect').addEventListener('click', toSelect);
-$('skillBtn').addEventListener('click', useMySkill);
+// 터치/펜은 pointerdown에서 이미 발동 → 그 뒤 오는 click 한 번만 무시. 마우스·키보드(Enter/Space) click은 그대로
+$('skillBtn').addEventListener('click', () => { if (skipSkillClick) { skipSkillClick = false; return; } useMySkill(); });
+
+// ===== 화면 배치 (html[data-layout] = mobile|pc, 사이트 공통 키 'games-layout') =====
+const app = document.querySelector('.app');
+const isMobileLayout = () => document.documentElement.dataset.layout !== 'pc';
+function syncLayoutSeg() {
+  const cur = isMobileLayout() ? 'mobile' : 'pc';
+  $('layoutSeg').querySelectorAll('button[data-v]').forEach(b => {
+    const on = b.dataset.v === cur;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+$('layoutSeg').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]');
+  if (!b || !['mobile', 'pc'].includes(b.dataset.v)) return;
+  document.documentElement.dataset.layout = b.dataset.v;
+  try { localStorage.setItem('games-layout', b.dataset.v); } catch (err) {}
+  if (window.applyLayoutViewport) window.applyLayoutViewport(b.dataset.v); // 좁은 기기 PC 배치 → width=1280 (head 스크립트)
+  closePanel(false);
+  clearInput();
+  syncLayoutSeg();
+  resizeCanvas(); // viewport 변경은 resize 이벤트로도 다시 잡힘. ResizeObserver 없는 환경 대비
+});
+
+// ===== 모바일 패널 (.app[data-open] = 열린 패널 id, 한 번에 하나. PC 배치에선 무효) =====
+let panelOpener = null; // 패널을 연 도구 버튼 → 닫을 때 포커스 복귀
+function syncTools() {
+  const open = app.dataset.open || '';
+  document.querySelectorAll('.tool[data-panel]').forEach(b => b.setAttribute('aria-expanded', b.dataset.panel === open ? 'true' : 'false'));
+}
+function openPanel(id, opener) {
+  const panel = document.querySelector('[data-panel-id="' + id + '"]');
+  if (!isMobileLayout() || !panel) return;
+  app.dataset.open = id;
+  panelOpener = opener || document.querySelector('.tool[data-panel="' + id + '"]');
+  if (id === 'bg') $('bgSettings').open = true;
+  syncTools();
+  const f = panel.querySelector('.panel-close') || panel.querySelector('button:not([disabled]), select, input');
+  // preventScroll: 전투 중 패널을 열어도 아레나가 화면 밖으로 밀리지 않게
+  if (f) f.focus({ preventScroll: true });
+}
+function closePanel(restoreFocus) {
+  const o = panelOpener;
+  panelOpener = null;
+  if (!app.hasAttribute('data-open')) return;
+  app.removeAttribute('data-open');
+  syncTools();
+  if (restoreFocus && o && isMobileLayout()) o.focus({ preventScroll: true });
+}
+document.querySelector('.tool-group').addEventListener('click', e => {
+  const b = e.target.closest('.tool[data-panel]');
+  if (!b) return;
+  if (app.dataset.open === b.dataset.panel) closePanel(true);
+  else openPanel(b.dataset.panel, b);
+});
+document.querySelectorAll('[data-panel-id] .panel-close').forEach(b => b.addEventListener('click', () => closePanel(true)));
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || !app.hasAttribute('data-open')) return;
+  if (!$('customOverlay').classList.contains('hidden')) return; // 꾸미기 모달이 Esc를 먼저 쓴다
+  e.preventDefault();
+  closePanel(true);
+});
+// 패널·도구 막대 바깥 탭 → 닫기. 꾸미기 모달 안, 조작 줄(스킬 등), 직접 모드 전투 중 아레나 탭(조향/스킬)은 제외
+document.addEventListener('pointerdown', e => {
+  if (!app.hasAttribute('data-open') || !e.target.closest) return;
+  if (e.target.closest('[data-panel-id], .tool-group, .action-dock, #customOverlay')) return;
+  if (e.target === canvas && state.mode === 'play' && inBattle()) return;
+  closePanel(false);
+});
 // ===== 직접 이동 입력 (sim 밖에서 보관 → 스텝마다 sim.steer로 전달) =====
 const TAP_MS = 200, TAP_MOVE = 10;   // 짧은 탭 판정: 200ms 미만, 10px 미만 이동
 const keysDown = new Set();
 const STEER_KEYS = { KeyW: [0, -1], KeyA: [-1, 0], KeyS: [0, 1], KeyD: [1, 0], ArrowUp: [0, -1], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowRight: [1, 0] };
 const pointers = new Map();          // pointerId → { x0, y0, t0, x, y, steer }
 let steerPointerId = null;           // 조향 중인 포인터 (첫 손가락)
+const joyEl = $('joystick');
+const JOY_DEAD = 0.15;               // 조이스틱 데드존 (반지름 대비)
+const joy = { id: null, cx: 0, cy: 0, r: 54, x: 0, y: 0 }; // 추적 중인 pointerId, 바탕 중심·반지름(px), 벡터(-1~1, 길이 ≤ 1)
 const playActive = () => state.phase === 'running' && state.mode === 'play';
 // 화면 좌표 → 논리 좌표
 function toArena(e) {
   const r = canvas.getBoundingClientRect();
   return { x: ((e.clientX - r.left) / r.width) * ARENA, y: ((e.clientY - r.top) / r.height) * ARENA };
 }
-// 현재 입력 방향: 포인터 조향(공 → 포인터 위치)이 우선, 없으면 키보드
+// 현재 입력 방향: 조이스틱(데드존 밖) > 아레나 포인터 조향(공 → 포인터 위치) > 키보드
+// 엔진은 방향만 쓰므로(STEER_RATE 고정 회전) 조이스틱 크기는 데드존 판정에만 쓴다
 function steerInput(sim) {
   const me = sim && sim.manualId ? sim.bodies[sim.manualId - 1] : null;
   if (!me || !me.alive) return null;
+  if (joy.id !== null && Math.hypot(joy.x, joy.y) >= JOY_DEAD) return { dx: joy.x, dy: joy.y };
   const p = steerPointerId !== null ? pointers.get(steerPointerId) : null;
   if (p && p.steer) {
     const a = toArenaXY(p.x, p.y), dx = a.x - me.x, dy = a.y - me.y;
@@ -2421,6 +3974,7 @@ function clearInput() {
   keysDown.clear();
   pointers.clear();
   steerPointerId = null;
+  resetJoystick();
 }
 canvas.addEventListener('pointerdown', e => {
   if (!playActive()) return;
@@ -2450,6 +4004,59 @@ canvas.addEventListener('pointerup', e => endPointer(e, false));
 canvas.addEventListener('pointercancel', e => endPointer(e, true));
 // 터치 드래그 중 페이지 스크롤 방지 (직접 모드 전투 중에만)
 canvas.addEventListener('touchmove', e => { if (playActive() && e.cancelable) e.preventDefault(); }, { passive: false });
+// ===== 가상 조이스틱 (#joystick, 한 손가락만 추적. 다른 손가락은 스킬 버튼 등에 자유) =====
+function setJoyVec(x, y) {
+  joy.x = x; joy.y = y;
+  joyEl.style.setProperty('--jx', x.toFixed(3));
+  joyEl.style.setProperty('--jy', y.toFixed(3));
+}
+function resetJoystick() {
+  const id = joy.id;
+  joy.id = null;
+  setJoyVec(0, 0);
+  joyEl.classList.remove('active');
+  if (id !== null) { try { if (joyEl.hasPointerCapture(id)) joyEl.releasePointerCapture(id); } catch (err) {} }
+}
+function moveJoy(e) {
+  let x = (e.clientX - joy.cx) / joy.r, y = (e.clientY - joy.cy) / joy.r;
+  const m = Math.hypot(x, y);
+  if (m > 1) { x /= m; y /= m; }
+  setJoyVec(x, y);
+}
+joyEl.addEventListener('pointerdown', e => {
+  if (!playActive() || joy.id !== null) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  e.preventDefault();
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+  const r = joyEl.querySelector('.joy-base').getBoundingClientRect();
+  joy.cx = r.left + r.width / 2; joy.cy = r.top + r.height / 2;
+  joy.r = r.width / 2 || 54;
+  joy.id = e.pointerId;
+  try { joyEl.setPointerCapture(e.pointerId); } catch (err) {}
+  joyEl.classList.add('active');
+  moveJoy(e);
+});
+joyEl.addEventListener('pointermove', e => {
+  if (e.pointerId !== joy.id) return;
+  if (!playActive()) { resetJoystick(); return; }
+  moveJoy(e);
+});
+const endJoy = e => { if (e.pointerId === joy.id) resetJoystick(); };
+joyEl.addEventListener('pointerup', endJoy);
+joyEl.addEventListener('pointercancel', endJoy);
+joyEl.addEventListener('lostpointercapture', endJoy);
+joyEl.addEventListener('touchmove', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });
+joyEl.addEventListener('contextmenu', e => e.preventDefault());
+// 스킬 버튼: 터치는 pointerdown에서 바로 발동 (다른 손가락이 조이스틱을 잡고 있어도 click이 안 올 수 있음). 뒤따르는 click은 무시
+let skipSkillClick = false;
+$('skillBtn').addEventListener('pointerdown', e => {
+  // 마우스 pointerdown은 플래그를 지워, 앞선 터치에서 click이 안 왔어도 다음 마우스 click이 먹히지 않게 한다
+  skipSkillClick = e.pointerType === 'touch' || e.pointerType === 'pen';
+  if (!skipSkillClick || !playActive()) { skipSkillClick = false; return; }
+  useMySkill();
+});
+// 터치 뒤 click이 안 온 경우(손가락이 버튼 밖에서 떨어짐 등) 다음 키보드 click이 먹히지 않게
+$('skillBtn').addEventListener('keydown', () => { skipSkillClick = false; });
 // 누르고 있으면(200ms 이상) 움직이지 않아도 조향 시작
 function holdCheck() {
   const p = steerPointerId !== null ? pointers.get(steerPointerId) : null;
@@ -2500,11 +4107,15 @@ if (darkMQ.addEventListener) darkMQ.addEventListener('change', onScheme);
 else if (darkMQ.addListener) darkMQ.addListener(onScheme);
 new MutationObserver(loadColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 if (window.ResizeObserver) new ResizeObserver(resizeCanvas).observe(canvas);
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize', () => { resizeCanvas(); resetJoystick(); }); // 회전·배치 변경 시 조이스틱 기준점이 바뀌므로 초기화
 
 loadColors();
+applyPageBg();
+applyArenaTheme();
 resizeCanvas();
 applyLang();
+syncLayoutSeg();
+syncTools();
 renderLineup();
 toSelect();
 requestAnimationFrame(frame);

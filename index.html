@@ -2,8 +2,47 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1">
 <title>게임 모음</title>
+<script>/* 화면 배치(모바일/PC)를 첫 렌더 전에 정함 — 사이트 공통 키 games-layout
+   PC 모드 + 기기 화면 폭 < 1024px 이면 viewport 를 width=1280 (데스크톱 사이트)으로 바꾸고,
+   축소 배율을 --vp-zoom 으로 넘겨 화면 배치 버튼만 손가락 크기로 키운다.
+   applyLayout(l) 는 본문 스크립트(화면 배치 버튼·storage 이벤트)에서도 그대로 다시 쓴다. */
+window.applyLayout=function(l){var d=document.documentElement,w=0,vp=document.getElementById('vp');
+d.dataset.layout=l;
+try{w=screen.width}catch(e){}
+if(l==='pc'&&w&&w<1024){vp.setAttribute('content','width=1280');d.style.setProperty('--vp-zoom',String(Math.min(1280/w,3)))}
+else{vp.setAttribute('content','width=device-width, initial-scale=1');d.style.removeProperty('--vp-zoom')}
+};
+(function(){var l;
+try{l=localStorage.getItem('games-layout')}catch(e){}
+if(l!=='mobile'&&l!=='pc'){try{l=(matchMedia('(max-width: 820px)').matches||(matchMedia('(pointer: coarse)').matches&&Math.min(screen.width,screen.height)<=820))?'mobile':'pc'}catch(e){l='pc'}}
+applyLayout(l);
+})();
+/* 허브 배경색 — 허브 전용 키 games-hub-bg (공 배틀과 공유 안 함). 첫 렌더 전에 저장값을 적용해 깜빡임 방지.
+   applyPageBg(hex) 는 본문 스크립트(스와치·storage 이벤트)에서도 다시 씀. '' 이면 인라인 값을 지워 테마를 따름.
+   글자색은 배경 휘도로 계산 (공 배틀 onPageColors 와 같은 방식) */
+window.HUB_BG_RE=/^#[0-9a-f]{6}$/i;
+window.onPageColors=function(hex){
+var v=parseInt(hex.slice(1),16);
+function lum(r,g,b){function f(c){c/=255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b)}
+function cr(a,b){return (Math.max(a,b)+0.05)/(Math.min(a,b)+0.05)}
+var L=lum((v>>16)&255,(v>>8)&255,v&255),light=cr(1,L)>=cr(0,L);
+/* 흰/검 중 대비가 큰 쪽 끝에서 배경 쪽으로 다가가며 목표 대비를 지키는 가장 부드러운 회색 */
+function pick(target){var best=light?255:0;
+for(var k=1;k<=255;k++){var g=light?255-k:k;if(cr(lum(g,g,g),L)<target)break;best=g}
+return 'rgb('+best+', '+best+', '+best+')'}
+return {main:pick(12),muted:pick(4.6)};
+};
+window.applyPageBg=function(hex){var st=document.documentElement.style;
+if(!hex||!HUB_BG_RE.test(hex)){st.removeProperty('--page-bg');st.removeProperty('--on-page');st.removeProperty('--on-page-muted');return}
+var c=onPageColors(hex);
+st.setProperty('--page-bg',hex);st.setProperty('--on-page',c.main);st.setProperty('--on-page-muted',c.muted);
+};
+(function(){var b=null;
+try{b=localStorage.getItem('games-hub-bg')}catch(e){}
+try{applyPageBg(b&&HUB_BG_RE.test(b)?b.toLowerCase():'')}catch(e){}
+})();</script>
 <style>
   :root {
     --bg: #f4f1ea;
@@ -44,6 +83,9 @@
     --title-from: #d9531a; --title-to: #8b5e34; --title-edge: #5e3d1f;
     --gold: #b86e00; --gold-hi: #f2b632; --gold-lo: #7a4100; --ray: rgba(242, 182, 50, .30);
     --row-alt: rgba(139, 94, 52, .07);
+    /* 사용자 배경색: --page-bg 는 페이지 바탕, --on-page / --on-page-muted 는 바탕 위에 직접 놓이는 것(카드·헤더 패널 밖).
+       JS 가 사용자 색을 고르면 documentElement.style 에 세 값을 덮어씀 (글자색은 배경 휘도로 계산) */
+    --page-bg: var(--bg); --on-page: var(--text); --on-page-muted: var(--muted);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -65,6 +107,7 @@
       --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
       --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
       --row-alt: rgba(255, 255, 255, .04);
+      --page-bg: var(--bg); --on-page: var(--text); --on-page-muted: var(--muted);
     }
   }
   :root[data-theme="dark"] {
@@ -86,11 +129,12 @@
     --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
     --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
     --row-alt: rgba(255, 255, 255, .04);
+    --page-bg: var(--bg); --on-page: var(--text); --on-page-muted: var(--muted);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
-    background-color: var(--bg);
+    background-color: var(--page-bg);
     background-image:
       radial-gradient(ellipse at 50% 0%, transparent 45%, var(--vignette) 100%),
       radial-gradient(var(--pattern) 1.5px, transparent 2px);
@@ -98,6 +142,14 @@
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
     min-height: 100vh;
+    /* 좁은 폭 규칙은 @container 로 body 폭을 기준으로 적용 → 모바일 모드에서 body 폭을 줄이면 같은 규칙이 그대로 적용됨 */
+    container-type: inline-size;
+  }
+  /* 화면 배치: 모바일 모드는 화면 폭과 관계없이 폭 480px 세로 배치, 가운데 정렬 */
+  :root[data-layout="mobile"] body { max-width: 480px; margin: 0 auto; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
   }
   :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
   :focus:not(:focus-visible) { outline: none; }
@@ -123,9 +175,9 @@
   .top::before { top: 7px; }
   .top::after { bottom: 7px; animation-direction: reverse; }
   @keyframes gx-marquee { to { background-position: 16px 50%; } }
-  .brand { min-width: 0; flex: 1 1 220px; }
+  .brand { min-width: 0; flex: 1 1 auto; }   /* 기준 폭 = 제목 길이 → 긴 제목(de)은 잘리지 않고 버튼 줄이 아래로 내려감 */
   h1 {
-    font-size: clamp(32px, 8vw, 46px); margin: 0; font-weight: 900; letter-spacing: .02em; line-height: 1.1;
+    font-size: clamp(32px, 8cqw, 46px); margin: 0; font-weight: 900; letter-spacing: .02em; line-height: 1.1;
     color: var(--title-to);
     filter: drop-shadow(0 3px 0 var(--title-edge)) drop-shadow(0 6px 8px var(--shadow));
   }
@@ -142,6 +194,7 @@
   .top-actions {
     margin-left: auto; display: flex; align-items: center; justify-content: flex-end;
     gap: 8px; flex-wrap: wrap; min-width: 0;
+    position: relative; /* 배경색 팝오버 기준 (오른쪽 끝에 맞춤 → 좁은 화면에서도 안 넘침) */
   }
   select.lang {
     font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
@@ -149,6 +202,109 @@
     border: 2px solid var(--btn-edge); border-radius: 10px; padding: 8px 8px; min-height: 44px;
     box-shadow: 0 3px 0 var(--btn-edge); cursor: pointer;
   }
+  /* 화면 배치 세그먼트 (언어 선택과 같은 버튼 모양) */
+  .seg {
+    display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    background: var(--btn); border: 2px solid var(--btn-edge); border-radius: 10px;
+    padding: 0; gap: 2px; box-shadow: 0 3px 0 var(--btn-edge); overflow: hidden;
+  }
+  .seg button {
+    font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
+    background: transparent; border: 0; border-radius: 0;
+    min-height: 44px; min-width: 52px; padding: 4px 10px; cursor: pointer; white-space: nowrap;
+  }
+  @media (hover: hover) { .seg button:hover { background: var(--btn-hi); } }
+  /* 폰에서 PC 모드(viewport 1280 축소)일 때만 --vp-zoom 이 있음 → 실제 손가락 크기 유지 */
+  :root[data-layout="pc"] .seg button {
+    min-height: calc(44px * var(--vp-zoom, 1)); min-width: calc(52px * var(--vp-zoom, 1));
+    font-size: calc(13px * min(var(--vp-zoom, 1), 2.8));
+  }
+  .seg button:focus-visible { outline-offset: -3px; } /* .seg 의 overflow 에 잘리지 않게 안쪽으로 */
+  /* 선택 표시는 html[data-layout] 기준 (JS 연결 전에도 맞게 보임) */
+  :root[data-layout="mobile"] .seg button[data-v="mobile"],
+  :root[data-layout="pc"] .seg button[data-v="pc"] {
+    background: linear-gradient(180deg, var(--primary-hi), var(--primary) 55%); color: var(--primary-text);
+  }
+
+  /* ===== 배경색 버튼 + 팝오버 (언어 선택 옆) ===== */
+  /* 언어 선택과 같은 버튼 모양. 폰 PC 모드(--vp-zoom)에서도 손가락 크기 유지 */
+  .hub-btn {
+    font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
+    background: linear-gradient(180deg, var(--btn-hi), var(--btn));
+    border: 2px solid var(--btn-edge); border-radius: 10px; min-height: 44px; padding: 4px 12px;
+    box-shadow: 0 3px 0 var(--btn-edge); cursor: pointer;
+  }
+  .hub-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--btn-edge); }
+  .hub-btn:disabled { opacity: .5; cursor: default; transform: none; box-shadow: 0 3px 0 var(--btn-edge); }
+  @media (hover: hover) { .hub-btn:not(:disabled):hover { background: var(--btn-hi); } }
+  .hub-btn.icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; padding: 0;
+  }
+  .hub-btn.icon svg { width: 24px; height: 24px; display: block; }
+  .hub-btn[aria-expanded="true"] { border-color: var(--primary); box-shadow: 0 3px 0 var(--primary-lo); }
+  :root[data-layout="pc"] .hub-btn.icon {
+    width: calc(44px * var(--vp-zoom, 1)); height: calc(44px * var(--vp-zoom, 1));
+  }
+  :root[data-layout="pc"] .hub-btn.icon svg { width: calc(24px * var(--vp-zoom, 1)); height: calc(24px * var(--vp-zoom, 1)); }
+  .bg-pop {
+    --hub-sw: 44px;
+    position: absolute; top: calc(100% + 10px); right: 0; z-index: 20;
+    width: calc(var(--hub-sw) * 5 + 8px * 4 + 28px); max-width: calc(100vw - 32px);
+    padding: 12px; color: var(--text);
+    background: var(--panel); border: 2px solid var(--frame); border-radius: 14px;
+    box-shadow: inset 0 1px 0 var(--frame-hi), 0 4px 0 var(--frame), 0 14px 28px var(--shadow);
+  }
+  .bg-pop[hidden] { display: none; }
+  :root[data-layout="pc"] .bg-pop { --hub-sw: calc(44px * var(--vp-zoom, 1)); }
+  .bg-pop-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px;
+  }
+  .bg-pop-title { font-size: 14px; font-weight: 800; }
+  :root[data-layout="pc"] .bg-pop-title,
+  :root[data-layout="pc"] .bg-pop .hub-btn { font-size: calc(13px * min(var(--vp-zoom, 1), 2.8)); min-height: calc(44px * var(--vp-zoom, 1)); }
+  .bg-pop .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bg-pop .swatch, .bg-pop .swatch-custom {
+    flex: none; width: var(--hub-sw); height: var(--hub-sw); padding: 0; margin: 0; border-radius: 50%;
+    border: 1px solid var(--border); cursor: pointer; position: relative;
+  }
+  .bg-pop .swatch { background: var(--sw, var(--bg)); font: inherit; }
+  /* 기본 스와치: 테마 배경 + 대각선 */
+  .bg-pop .swatch.default {
+    background:
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--muted) calc(50% - 1px), var(--muted) calc(50% + 1px), transparent calc(50% + 1px)),
+      var(--bg);
+  }
+  .bg-pop .swatch[aria-pressed="true"], .bg-pop .swatch.on, .bg-pop .swatch-custom.on {
+    box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--primary);
+  }
+  .bg-pop .swatch:focus-visible { outline-offset: 4px; }
+  .bg-pop .swatch:active, .bg-pop .swatch-custom:active { transform: scale(.92); }
+  @media (hover: hover) {
+    .bg-pop .swatch:hover, .bg-pop .swatch-custom:hover { box-shadow: 0 0 0 2px var(--btn-edge); }
+    .bg-pop .swatch[aria-pressed="true"]:hover, .bg-pop .swatch.on:hover, .bg-pop .swatch-custom.on:hover {
+      box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--primary);
+    }
+  }
+  /* 사용자 지정: 원형 color input + "+" 표식 */
+  .bg-pop .swatch-custom { display: inline-block; overflow: hidden; background: var(--btn); }
+  .bg-pop .swatch-custom:focus-within { outline: 3px solid var(--focus); outline-offset: 4px; }
+  .bg-pop .swatch-custom:has(input:focus:not(:focus-visible)) { outline: none; }
+  .bg-pop .swatch-custom input[type="color"] {
+    position: absolute; inset: -6px; width: calc(100% + 12px); height: calc(100% + 12px);
+    padding: 0; border: 0; background: none; cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+  }
+  .bg-pop .swatch-custom input[type="color"]:focus-visible { outline: none; }
+  .bg-pop .swatch-custom input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .bg-pop .swatch-custom input[type="color"]::-webkit-color-swatch { border: 0; }
+  .bg-pop .swatch-custom input[type="color"]::-moz-color-swatch { border: 0; }
+  .bg-pop .swatch-custom::after {
+    content: "+"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; line-height: 1; color: var(--text);
+    pointer-events: none; text-shadow: 0 0 3px var(--panel), 0 0 2px var(--panel);
+  }
+  .bg-pop .swatch-custom.on::after { content: none; }
 
   /* ===== 게임 선택 카드 ===== */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px 18px; }
@@ -179,7 +335,8 @@
     a.card:hover .play { filter: brightness(1.08); }
   }
   a.card:active { transform: translateY(-2px); }
-  a.card:focus-visible { outline: 3px solid var(--focus); outline-offset: 6px; }
+  /* 카드 포커스 링은 카드 밖(페이지 바탕 위)에 그려지므로 --on-page 를 씀 → 사용자 배경색에서도 보임 */
+  a.card:focus-visible { outline: 3px solid var(--on-page); outline-offset: 6px; }
   .thumb {
     aspect-ratio: 16 / 9; display: block; width: 100%;
     border-bottom: 3px solid var(--frame);
@@ -211,7 +368,8 @@
     border-left: 11px solid currentColor; border-top: 7px solid transparent; border-bottom: 7px solid transparent;
   }
   a.card:active .play { transform: translateY(3px); box-shadow: inset 0 1px 0 var(--frame-hi), 0 1px 0 var(--primary-lo); }
-  @media (max-width: 520px) {
+  /* body 폭 기준 (모바일 모드면 body 가 480px 이라 항상 적용) */
+  @container (max-width: 520px) {
     .wrap { padding: 20px 16px 32px; }
     .top { padding: 26px 16px 22px; border-radius: 18px; }
   }
@@ -230,43 +388,43 @@
     </div>
     <div class="top-actions">
       <select class="lang" id="lang" aria-label="언어"></select>
+      <button type="button" class="hub-btn icon" id="hubBgBtn" aria-expanded="false" aria-controls="hubBgPop"
+              aria-label="배경색" data-i18n-aria="bgColor">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3z"
+                style="fill: var(--page-bg); stroke: currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <circle cx="7.5" cy="11" r="1.5" style="fill: var(--c-charger)"/>
+          <circle cx="10" cy="7" r="1.5" style="fill: var(--c-shooter)"/>
+          <circle cx="14.5" cy="7" r="1.5" style="fill: var(--c-healer)"/>
+          <circle cx="17.5" cy="10.5" r="1.5" style="fill: var(--c-guardian)"/>
+        </svg>
+      </button>
+      <div class="bg-pop" id="hubBgPop" role="group" aria-labelledby="hubBgTitle" hidden>
+        <div class="bg-pop-head">
+          <span class="bg-pop-title" id="hubBgTitle" data-i18n="bgColor">배경색</span>
+          <button type="button" class="hub-btn" id="hubBgReset" data-i18n="reset" disabled>초기화</button>
+        </div>
+        <div class="swatches" id="hubBgSwatches" role="group" aria-labelledby="hubBgTitle">
+          <button type="button" class="swatch default" data-color="" aria-pressed="true" aria-label="기본" data-i18n-aria="swDefault"></button>
+          <button type="button" class="swatch" data-color="#1f2a44" style="--sw:#1f2a44" aria-pressed="false" aria-label="남색" data-i18n-aria="swNavy"></button>
+          <button type="button" class="swatch" data-color="#2f4a3a" style="--sw:#2f4a3a" aria-pressed="false" aria-label="숲색" data-i18n-aria="swForest"></button>
+          <button type="button" class="swatch" data-color="#4a2f45" style="--sw:#4a2f45" aria-pressed="false" aria-label="자두색" data-i18n-aria="swPlum"></button>
+          <button type="button" class="swatch" data-color="#2a2a2e" style="--sw:#2a2a2e" aria-pressed="false" aria-label="숯색" data-i18n-aria="swCharcoal"></button>
+          <button type="button" class="swatch" data-color="#e8dcc2" style="--sw:#e8dcc2" aria-pressed="false" aria-label="모래색" data-i18n-aria="swSand"></button>
+          <button type="button" class="swatch" data-color="#cfe3f2" style="--sw:#cfe3f2" aria-pressed="false" aria-label="하늘색" data-i18n-aria="swSky"></button>
+          <button type="button" class="swatch" data-color="#f2d4d7" style="--sw:#f2d4d7" aria-pressed="false" aria-label="장미색" data-i18n-aria="swRose"></button>
+          <label class="swatch-custom" id="hubBgCustom"><input type="color" id="hubBgInput" value="#3a5a78" aria-label="사용자 지정 색" data-i18n-aria="swCustom"></label>
+        </div>
+      </div>
+      <span class="sr-only" id="layoutLbl" data-i18n="layout">화면 배치</span>
+      <div class="seg" id="layoutSeg" role="group" aria-labelledby="layoutLbl">
+        <button type="button" data-v="mobile" data-i18n="layoutMobile" aria-pressed="false">모바일</button>
+        <button type="button" data-v="pc" data-i18n="layoutPc" aria-pressed="false">PC</button>
+      </div>
     </div>
   </header>
 
   <main class="grid">
-    <a class="card" href="chess.html" aria-labelledby="chess-name" aria-describedby="chess-desc">
-      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true">
-        <defs>
-          <pattern id="chk" width="40" height="40" patternUnits="userSpaceOnUse">
-            <rect width="40" height="40" style="fill: var(--light)"/>
-            <rect width="20" height="20" style="fill: var(--dark)"/>
-            <rect x="20" y="20" width="20" height="20" style="fill: var(--dark)"/>
-          </pattern>
-        </defs>
-        <rect width="320" height="180" fill="url(#chk)"/>
-        <text x="118" y="128" font-size="96" text-anchor="middle" style="fill: var(--piece-dark)"
-              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265A;</text>
-        <text x="204" y="132" font-size="96" text-anchor="middle" style="fill: var(--piece-light); stroke: var(--piece-edge)" stroke-width="1.5"
-              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265E;</text>
-      </svg>
-      <div class="body">
-        <div class="name" id="chess-name" data-i18n="chess">체스</div>
-        <div class="desc" id="chess-desc" data-i18n="chessDesc">상대 킹을 체크메이트하면 승리하는 전략 보드게임. AI 4단계.</div>
-        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
-      </div>
-    </a>
-
-    <a class="card" href="gomoku.html" aria-labelledby="gomoku-name" aria-describedby="gomoku-desc">
-      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true" id="gomokuThumb">
-        <rect width="320" height="180" style="fill: var(--wood)"/>
-      </svg>
-      <div class="body">
-        <div class="name" id="gomoku-name" data-i18n="gomoku">오목</div>
-        <div class="desc" id="gomoku-desc" data-i18n="gomokuDesc">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.</div>
-        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
-      </div>
-    </a>
-
     <a class="card" href="ball-battle.html" aria-labelledby="ball-battle-name" aria-describedby="ball-battle-desc">
       <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true">
         <rect width="320" height="180" style="fill: var(--arena)"/>
@@ -311,43 +469,90 @@
       </svg>
       <div class="body">
         <div class="name" id="ball-battle-name" data-i18n="ballBattle">공 배틀</div>
-        <div class="desc" id="ball-battle-desc" data-i18n="ballBattleDesc">12가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 10개까지 넣고 관전하거나 직접 스킬을 써 보세요.</div>
+        <div class="desc" id="ball-battle-desc" data-i18n="ballBattleDesc">20가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 20개까지 넣고 개인전이나 팀전으로 관전하거나 직접 스킬을 써 보세요. 배경 테마도 고를 수 있어요.</div>
         <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
       </div>
     </a>
+    <a class="card" href="chess.html" aria-labelledby="chess-name" aria-describedby="chess-desc">
+      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true">
+        <defs>
+          <pattern id="chk" width="40" height="40" patternUnits="userSpaceOnUse">
+            <rect width="40" height="40" style="fill: var(--light)"/>
+            <rect width="20" height="20" style="fill: var(--dark)"/>
+            <rect x="20" y="20" width="20" height="20" style="fill: var(--dark)"/>
+          </pattern>
+        </defs>
+        <rect width="320" height="180" fill="url(#chk)"/>
+        <text x="118" y="128" font-size="96" text-anchor="middle" style="fill: var(--piece-dark)"
+              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265A;</text>
+        <text x="204" y="132" font-size="96" text-anchor="middle" style="fill: var(--piece-light); stroke: var(--piece-edge)" stroke-width="1.5"
+              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265E;</text>
+      </svg>
+      <div class="body">
+        <div class="name" id="chess-name" data-i18n="chess">체스</div>
+        <div class="desc" id="chess-desc" data-i18n="chessDesc">상대 킹을 체크메이트하면 승리하는 전략 보드게임. AI 4단계.</div>
+        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+      </div>
+    </a>
+
+    <a class="card" href="gomoku.html" aria-labelledby="gomoku-name" aria-describedby="gomoku-desc">
+      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true" id="gomokuThumb">
+        <rect width="320" height="180" style="fill: var(--wood)"/>
+      </svg>
+      <div class="body">
+        <div class="name" id="gomoku-name" data-i18n="gomoku">오목</div>
+        <div class="desc" id="gomoku-desc" data-i18n="gomokuDesc">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.</div>
+        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+      </div>
+    </a>
+
   </main>
 </div>
 
 <script>
 const I18N = {
-  ko: { name: '한국어', langLabel: '언어', title: '게임 모음', sub: '하고 싶은 게임을 골라 보세요', play: '플레이',
+  ko: { name: '한국어', langLabel: '언어', layout: '화면 배치', layoutMobile: '모바일', layoutPc: 'PC', title: '게임 모음', sub: '하고 싶은 게임을 골라 보세요', play: '플레이',
         chess: '체스', chessDesc: '상대 킹을 체크메이트하면 승리하는 전략 보드게임. AI 4단계.',
         gomoku: '오목', gomokuDesc: '가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.',
-        ballBattle: '공 배틀', ballBattleDesc: '12가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 10개까지 넣고 관전하거나 직접 스킬을 써 보세요.' },
-  en: { name: 'English', langLabel: 'Language', title: 'Game Room', sub: 'Pick a game to play', play: 'Play',
+        ballBattle: '공 배틀', ballBattleDesc: '20가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 20개까지 넣고 개인전이나 팀전으로 관전하거나 직접 스킬을 써 보세요. 배경 테마도 고를 수 있어요.',
+        bgColor: '배경색', reset: '초기화', swDefault: '기본', swNavy: '남색', swForest: '숲색', swPlum: '자두색',
+        swCharcoal: '숯색', swSand: '모래색', swSky: '하늘색', swRose: '장미색', swCustom: '사용자 지정 색' },
+  en: { name: 'English', langLabel: 'Language', layout: 'Layout', layoutMobile: 'Mobile', layoutPc: 'PC', title: 'Game Room', sub: 'Pick a game to play', play: 'Play',
         chess: 'Chess', chessDesc: 'The classic strategy game — checkmate the king. 4 AI levels.',
         gomoku: 'Gomoku', gomokuDesc: 'Get five stones in a row before your opponent. 4 AI levels.',
-        ballBattle: 'Ball Battle', ballBattleDesc: 'An auto-battler where balls of 12 classes bounce, clash and use skills. Add up to 10 balls, then watch or use a skill yourself.' },
-  ja: { name: '日本語', langLabel: '言語', title: 'ゲームルーム', sub: '遊びたいゲームを選んでください', play: 'プレイ',
+        ballBattle: 'Ball Battle', ballBattleDesc: 'An auto-battler where balls of 20 classes bounce, clash and use skills. Add up to 20 balls, play free-for-all or in teams, then watch or use a skill yourself. Background themes included.',
+        bgColor: 'Background', reset: 'Reset', swDefault: 'Default', swNavy: 'Navy', swForest: 'Forest', swPlum: 'Plum',
+        swCharcoal: 'Charcoal', swSand: 'Sand', swSky: 'Sky', swRose: 'Rose', swCustom: 'Custom color' },
+  ja: { name: '日本語', langLabel: '言語', layout: '画面レイアウト', layoutMobile: 'モバイル', layoutPc: 'PC', title: 'ゲームルーム', sub: '遊びたいゲームを選んでください', play: 'プレイ',
         chess: 'チェス', chessDesc: 'キングをチェックメイトすれば勝ちの戦略ボードゲーム。AIは4段階。',
         gomoku: '五目並べ', gomokuDesc: '縦・横・斜めに石を5つ先に並べたら勝ち。AIは4段階。',
-        ballBattle: 'ボールバトル', ballBattleDesc: '12種類の職業のボールがスキルを使い、跳ね回って戦うオートバトル。ボールを最大10個入れて観戦するか、自分でスキルを使ってみよう。' },
-  zh: { name: '中文', langLabel: '语言', title: '游戏厅', sub: '选择想玩的游戏', play: '开始',
+        ballBattle: 'ボールバトル', ballBattleDesc: '20種類の職業のボールがスキルを使い、跳ね回って戦うオートバトル。ボールを最大20個入れて、個人戦かチーム戦で観戦するか、自分でスキルを使ってみよう。背景テーマも選べます。',
+        bgColor: '背景色', reset: 'リセット', swDefault: 'デフォルト', swNavy: '紺', swForest: '深緑', swPlum: 'プラム',
+        swCharcoal: '炭色', swSand: '砂色', swSky: '空色', swRose: 'ローズ', swCustom: 'カスタム色' },
+  zh: { name: '中文', langLabel: '语言', layout: '界面布局', layoutMobile: '手机', layoutPc: '电脑', title: '游戏厅', sub: '选择想玩的游戏', play: '开始',
         chess: '国际象棋', chessDesc: '将死对方的王即可获胜的经典策略棋类游戏。AI 共4级。',
         gomoku: '五子棋', gomokuDesc: '横、竖、斜先连成五子者获胜。AI 共4级。',
-        ballBattle: '弹球大战', ballBattleDesc: '12种职业的小球施放技能、互相弹撞的自动战斗。最多放入10个球，可以观战，也可以亲自释放技能。' },
-  es: { name: 'Español', langLabel: 'Idioma', title: 'Sala de juegos', sub: 'Elige un juego', play: 'Jugar',
+        ballBattle: '弹球大战', ballBattleDesc: '20种职业的小球施放技能、互相弹撞的自动战斗。最多放入20个球，支持个人战和团队战，可以观战，也可以亲自释放技能。还可选择背景主题。',
+        bgColor: '背景色', reset: '重置', swDefault: '默认', swNavy: '藏青', swForest: '森林绿', swPlum: '梅紫',
+        swCharcoal: '炭灰', swSand: '沙色', swSky: '天蓝', swRose: '玫瑰', swCustom: '自定义颜色' },
+  es: { name: 'Español', langLabel: 'Idioma', layout: 'Diseño', layoutMobile: 'Móvil', layoutPc: 'PC', title: 'Sala de juegos', sub: 'Elige un juego', play: 'Jugar',
         chess: 'Ajedrez', chessDesc: 'El clásico de estrategia: da jaque mate al rey. 4 niveles de IA.',
         gomoku: 'Gomoku', gomokuDesc: 'Gana quien alinee cinco piedras primero. 4 niveles de IA.',
-        ballBattle: 'Batalla de bolas', ballBattleDesc: 'Combate automático de bolas de 12 clases que usan habilidades, rebotan y chocan. Añade hasta 10 bolas y mira la partida o usa tú mismo una habilidad.' },
-  fr: { name: 'Français', langLabel: 'Langue', title: 'Salle de jeux', sub: 'Choisissez un jeu', play: 'Jouer',
+        ballBattle: 'Batalla de bolas', ballBattleDesc: 'Combate automático de bolas de 20 clases que usan habilidades, rebotan y chocan. Añade hasta 20 bolas, juega todos contra todos o por equipos, y mira la partida o usa tú mismo una habilidad. Incluye temas de fondo.',
+        bgColor: 'Color de fondo', reset: 'Restablecer', swDefault: 'Predeterminado', swNavy: 'Marino', swForest: 'Bosque', swPlum: 'Ciruela',
+        swCharcoal: 'Carbón', swSand: 'Arena', swSky: 'Cielo', swRose: 'Rosa', swCustom: 'Color personalizado' },
+  fr: { name: 'Français', langLabel: 'Langue', layout: 'Affichage', layoutMobile: 'Mobile', layoutPc: 'PC', title: 'Salle de jeux', sub: 'Choisissez un jeu', play: 'Jouer',
         chess: 'Échecs', chessDesc: 'Le grand classique de stratégie : mettez le roi échec et mat. 4 niveaux d’IA.',
         gomoku: 'Gomoku', gomokuDesc: 'Alignez cinq pierres avant l’adversaire. 4 niveaux d’IA.',
-        ballBattle: 'Bataille de boules', ballBattleDesc: 'Un combat automatique où des boules de 12 classes utilisent leurs compétences, rebondissent et s’affrontent. Ajoutez jusqu’à 10 boules, puis regardez ou utilisez vous-même une compétence.' },
-  de: { name: 'Deutsch', langLabel: 'Sprache', title: 'Spielezimmer', sub: 'Wähle ein Spiel', play: 'Spielen',
+        ballBattle: 'Bataille de boules', ballBattleDesc: 'Un combat automatique où des boules de 20 classes utilisent leurs compétences, rebondissent et s’affrontent. Ajoutez jusqu’à 20 boules, en mode chacun pour soi ou par équipes, puis regardez ou utilisez vous-même une compétence. Thèmes de fond inclus.',
+        bgColor: 'Couleur de fond', reset: 'Réinitialiser', swDefault: 'Par défaut', swNavy: 'Marine', swForest: 'Forêt', swPlum: 'Prune',
+        swCharcoal: 'Anthracite', swSand: 'Sable', swSky: 'Ciel', swRose: 'Rose', swCustom: 'Couleur personnalisée' },
+  de: { name: 'Deutsch', langLabel: 'Sprache', layout: 'Ansicht', layoutMobile: 'Mobil', layoutPc: 'PC', title: 'Spielesammlung', sub: 'Wähle ein Spiel', play: 'Spielen',
         chess: 'Schach', chessDesc: 'Der Strategieklassiker – setze den König matt. 4 KI-Stufen.',
         gomoku: 'Gomoku', gomokuDesc: 'Wer zuerst fünf Steine in einer Reihe hat, gewinnt. 4 KI-Stufen.',
-        ballBattle: 'Ballkampf', ballBattleDesc: 'Automatischer Kampf, in dem Bälle aus 12 Klassen Fähigkeiten einsetzen, abprallen und zusammenstoßen. Bis zu 10 Bälle hinzufügen, dann zuschauen oder selbst eine Fähigkeit einsetzen.' },
+        ballBattle: 'Ballkampf', ballBattleDesc: 'Automatischer Kampf, in dem Bälle aus 20 Klassen Fähigkeiten einsetzen, abprallen und zusammenstoßen. Bis zu 20 Bälle hinzufügen, jeder gegen jeden oder im Team, dann zuschauen oder selbst eine Fähigkeit einsetzen. Mit Hintergrundthemen.',
+        bgColor: 'Hintergrundfarbe', reset: 'Zurücksetzen', swDefault: 'Standard', swNavy: 'Marineblau', swForest: 'Waldgrün', swPlum: 'Pflaume',
+        swCharcoal: 'Anthrazit', swSand: 'Sand', swSky: 'Himmelblau', swRose: 'Rosé', swCustom: 'Eigene Farbe' },
 };
 
 function detectLang() {
@@ -366,6 +571,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.title = t('title');
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
   sel.setAttribute('aria-label', t('langLabel'));
   sel.value = lang;
 }
@@ -397,6 +603,116 @@ sel.addEventListener('change', () => {
   for (const [c, r] of B) mk('circle', { cx: ox + c * g, cy: oy + r * g, r: 10.5, style: 'fill: var(--stone-black)' });
   mk('line', { x1: ox + 3 * g, y1: oy + 2 * g, x2: ox + 7 * g, y2: oy + 6 * g, style: 'stroke: var(--win-line)', 'stroke-width': 4, 'stroke-linecap': 'round', opacity: .85 });
 })();
+
+// 화면 배치(모바일/PC): 상태는 html[data-layout], 저장은 사이트 공통 키 games-layout
+function syncLayoutSeg() {
+  document.querySelectorAll('#layoutSeg button').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.v === document.documentElement.dataset.layout));
+  });
+}
+document.getElementById('layoutSeg').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  applyLayout(b.dataset.v);
+  try { localStorage.setItem('games-layout', b.dataset.v); } catch (err) {}
+  syncLayoutSeg();
+});
+// 다른 탭에서 바꾸면 따라감
+window.addEventListener('storage', e => {
+  if (e.key === 'games-layout' && (e.newValue === 'mobile' || e.newValue === 'pc')) {
+    applyLayout(e.newValue);
+    syncLayoutSeg();
+  }
+  // 다른 탭에서 저장소를 모두 지움 → 첫 방문 기본값(head 스크립트와 같은 식)으로 다시 판정
+  if (e.key === null) {
+    let l = 'pc';
+    try { l = (matchMedia('(max-width: 820px)').matches || (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 820)) ? 'mobile' : 'pc'; } catch (err) {}
+    applyLayout(l);
+    syncLayoutSeg();
+  }
+  if (e.key === 'games-hub-bg' || e.key === null) {
+    const v = e.key === null ? '' : (e.newValue || '');
+    hubBg = HUB_BG_RE.test(v) ? v.toLowerCase() : '';
+    syncHubBg();
+  }
+});
+syncLayoutSeg();
+
+// 허브 배경색: 상태는 hubBg ('' = 테마 기본), 문서 반영은 head 의 applyPageBg, 저장은 허브 전용 키 games-hub-bg
+const bgBtn = document.getElementById('hubBgBtn');
+const bgPop = document.getElementById('hubBgPop');
+const bgSwatches = document.getElementById('hubBgSwatches');
+const bgInput = document.getElementById('hubBgInput');
+let hubBg = '';
+try { const v = localStorage.getItem('games-hub-bg'); if (v && HUB_BG_RE.test(v)) hubBg = v.toLowerCase(); } catch (e) {}
+
+// hubBg 를 문서와 UI(.on / aria-pressed / 초기화 버튼)에 반영
+function syncHubBg() {
+  applyPageBg(hubBg);
+  let matched = false;
+  bgSwatches.querySelectorAll('.swatch').forEach(b => {
+    const on = (b.dataset.color || '').toLowerCase() === hubBg;
+    if (on) matched = true;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  document.getElementById('hubBgCustom').classList.toggle('on', !matched);
+  if (!matched) bgInput.value = hubBg;
+  document.getElementById('hubBgReset').disabled = !hubBg;
+}
+// save=false 는 색 고르는 중 미리보기 (저장은 change 때)
+function setHubBg(v, save = true) {
+  v = (v || '').toLowerCase();
+  if (v && !HUB_BG_RE.test(v)) return;
+  hubBg = v;
+  syncHubBg();
+  if (!save) return;
+  try { if (v) localStorage.setItem('games-hub-bg', v); else localStorage.removeItem('games-hub-bg'); } catch (e) {}
+}
+bgSwatches.addEventListener('click', e => {
+  const b = e.target.closest('.swatch');
+  if (b) setHubBg(b.dataset.color);
+});
+bgInput.addEventListener('input', e => setHubBg(e.target.value, false));
+bgInput.addEventListener('change', e => setHubBg(e.target.value));
+document.getElementById('hubBgReset').addEventListener('click', () => {
+  setHubBg('');
+  bgSwatches.querySelector('.swatch').focus(); // disabled 가 된 초기화 버튼에서 포커스가 사라지지 않게
+});
+
+// 팝오버 열기/닫기: hidden + aria-expanded. 바깥 클릭·Esc 로 닫음
+function openBgPop() {
+  bgPop.hidden = false;
+  bgBtn.setAttribute('aria-expanded', 'true');
+  (bgSwatches.querySelector('.swatch[aria-pressed="true"]') ||
+   (document.getElementById('hubBgCustom').classList.contains('on') ? bgInput : null) ||
+   bgSwatches.querySelector('.swatch')).focus();
+}
+function closeBgPop(refocus) {
+  if (bgPop.hidden) return;
+  bgPop.hidden = true;
+  bgBtn.setAttribute('aria-expanded', 'false');
+  if (refocus) bgBtn.focus();
+}
+bgBtn.addEventListener('click', () => { if (bgPop.hidden) openBgPop(); else closeBgPop(true); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !bgPop.hidden) { e.preventDefault(); closeBgPop(true); }
+});
+// 바깥 클릭: 다른 컨트롤을 누른 경우엔 그쪽 포커스를 뺏지 않고, 팝오버 안에 포커스가 있었을 때만 버튼으로 돌려줌
+document.addEventListener('pointerdown', e => {
+  if (bgPop.hidden || bgPop.contains(e.target) || bgBtn.contains(e.target)) return;
+  const inside = bgPop.contains(document.activeElement);
+  closeBgPop(false);
+  // 포커스 이동(mousedown 기본 동작)이 끝난 뒤, 포커스 갈 곳 없는 바탕을 눌렀을 때만
+  if (inside) setTimeout(() => {
+    if (!document.activeElement || document.activeElement === document.body) bgBtn.focus({ preventScroll: true });
+  }, 0);
+});
+// 키보드로 Tab 해서 팝오버 밖으로 나가면 닫음
+bgPop.addEventListener('focusout', e => {
+  if (e.relatedTarget && !bgPop.contains(e.relatedTarget) && e.relatedTarget !== bgBtn) closeBgPop(false);
+});
+syncHubBg();
 
 applyLang();
 </script>
