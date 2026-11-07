@@ -1,1 +1,404 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>게임 모음</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --panel: #fffdf8;
+    --text: #2b2620;
+    --muted: #7a7064;
+    --border: #e2dacb;
+    --accent: #8b5e34;
+    --accent-text: #fff;
+    --btn: #f0e9dc;
+    --light: #efe3c8;
+    --dark: #b58863;
+    --wood: #dcb35c;
+    --wood-line: #5a4220;
+    /* 공 배틀 */
+    --arena: #e9e3d6;
+    --arena-line: #cfc6b4;
+    --ball-label: #15120e;
+    --ball-outline: #2b2620;
+    --shield: #2f80ed;
+    --c-charger: #ef5350;
+    --c-spike: #a97be6;
+    --c-healer: #4caf50;
+    --c-twin: #4fc3f7;
+    --c-shooter: #ffa726;
+    --c-guardian: #5c8df6;
+    /* 썸네일 말·돌 */
+    --piece-dark: #1d1a17; --piece-light: #fffaf0; --piece-edge: #000;
+    --stone-black: #1a1a1a; --stone-white: #f5f2ea; --stone-edge: #9c968b; --win-line: #e03a3a;
+    /* 허브 타이틀 화면 UI 토큰 (게임 페이지와 값이 다를 수 있음) */
+    --primary: #b93a0a; --primary-hi: #c94a10; --primary-lo: #7a2606; --primary-text: #fff;
+    --accent-hi: #a3703f; --accent-lo: #5e3d1f;
+    --btn-hi: #fffaf0; --btn-edge: #c9b99c;
+    --panel-hi: #ffffff; --frame: #d8c9ad; --frame-hi: rgba(255, 255, 255, .8);
+    --shadow: rgba(0, 0, 0, .18); --scrim: rgba(0, 0, 0, .45);
+    --pattern: rgba(139, 94, 52, .09); --vignette: rgba(90, 60, 30, .10);
+    --focus: #1d4ed8; --glow: rgba(217, 83, 26, .35);
+    --title-from: #d9531a; --title-to: #8b5e34; --title-edge: #5e3d1f;
+    --gold: #b86e00; --gold-hi: #f2b632; --gold-lo: #7a4100; --ray: rgba(242, 182, 50, .30);
+    --row-alt: rgba(139, 94, 52, .07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1a17; --panel: #26231f; --text: #ece6dc; --muted: #a59c90; --border: #3a352e;
+      --accent: #c48a52; --accent-text: #1c1a17; --btn: #332f29;
+      --light: #d9c7a3; --dark: #9a6f4c; --wood: #c99d4a; --wood-line: #4a3518;
+      --arena: #15130f; --arena-line: #3a352e; --ball-label: #15120e; --ball-outline: #f4efe6; --shield: #7fb2ff;
+      --c-charger: #f26b6b; --c-spike: #b994ee; --c-healer: #66c46a;
+      --c-twin: #74d1fa; --c-shooter: #ffb74d; --c-guardian: #7aa3f8;
+      --piece-dark: #15120e; --piece-light: #f4efe6; --piece-edge: #15120e;
+      --stone-black: #111010; --stone-white: #ece6dc; --stone-edge: #6e6658; --win-line: #ff5a5a;
+      --primary: #ff8a3d; --primary-hi: #ffa766; --primary-lo: #a8460f; --primary-text: #1c1a17;
+      --accent-hi: #d9a06a; --accent-lo: #7a4f27;
+      --btn-hi: #3d3831; --btn-edge: #15130f;
+      --panel-hi: #2d2924; --frame: #4a4339; --frame-hi: rgba(255, 255, 255, .07);
+      --shadow: rgba(0, 0, 0, .45); --scrim: rgba(0, 0, 0, .6);
+      --pattern: rgba(255, 235, 205, .045); --vignette: rgba(0, 0, 0, .35);
+      --focus: #8ab4ff; --glow: rgba(255, 138, 61, .35);
+      --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
+      --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
+      --row-alt: rgba(255, 255, 255, .04);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1a17; --panel: #26231f; --text: #ece6dc; --muted: #a59c90; --border: #3a352e;
+    --accent: #c48a52; --accent-text: #1c1a17; --btn: #332f29;
+    --light: #d9c7a3; --dark: #9a6f4c; --wood: #c99d4a; --wood-line: #4a3518;
+    --arena: #15130f; --arena-line: #3a352e; --ball-label: #15120e; --ball-outline: #f4efe6; --shield: #7fb2ff;
+    --c-charger: #f26b6b; --c-spike: #b994ee; --c-healer: #66c46a;
+    --c-twin: #74d1fa; --c-shooter: #ffb74d; --c-guardian: #7aa3f8;
+    --piece-dark: #15120e; --piece-light: #f4efe6; --piece-edge: #15120e;
+    --stone-black: #111010; --stone-white: #ece6dc; --stone-edge: #6e6658; --win-line: #ff5a5a;
+    --primary: #ff8a3d; --primary-hi: #ffa766; --primary-lo: #a8460f; --primary-text: #1c1a17;
+    --accent-hi: #d9a06a; --accent-lo: #7a4f27;
+    --btn-hi: #3d3831; --btn-edge: #15130f;
+    --panel-hi: #2d2924; --frame: #4a4339; --frame-hi: rgba(255, 255, 255, .07);
+    --shadow: rgba(0, 0, 0, .45); --scrim: rgba(0, 0, 0, .6);
+    --pattern: rgba(255, 235, 205, .045); --vignette: rgba(0, 0, 0, .35);
+    --focus: #8ab4ff; --glow: rgba(255, 138, 61, .35);
+    --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
+    --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
+    --row-alt: rgba(255, 255, 255, .04);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 50% 0%, transparent 45%, var(--vignette) 100%),
+      radial-gradient(var(--pattern) 1.5px, transparent 2px);
+    background-size: 100% 100%, 22px 22px;
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    min-height: 100vh;
+  }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  :focus:not(:focus-visible) { outline: none; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 28px 16px 48px; }
 
+  /* ===== 타이틀 화면 헤더 ===== */
+  .top {
+    position: relative; display: flex; align-items: center; gap: 14px 16px; flex-wrap: wrap;
+    margin-bottom: 30px; padding: 30px 22px 26px;
+    border: 3px solid var(--frame); border-radius: 22px;
+    background:
+      radial-gradient(ellipse at 15% 0%, var(--panel-hi), transparent 65%),
+      repeating-linear-gradient(135deg, var(--pattern) 0 10px, transparent 10px 20px),
+      var(--panel);
+    box-shadow: inset 0 1px 0 var(--frame-hi), 0 6px 0 var(--frame), 0 16px 32px var(--shadow);
+  }
+  /* 아케이드 마키 전구 (위·아래) */
+  .top::before, .top::after {
+    content: ""; position: absolute; left: 18px; right: 18px; height: 10px; pointer-events: none;
+    background: radial-gradient(circle, var(--gold-hi) 0 2.5px, var(--gold) 2.5px 3.5px, transparent 4px) 0 50% / 16px 10px repeat-x;
+    animation: gx-marquee 1.2s steps(2) infinite;
+  }
+  .top::before { top: 7px; }
+  .top::after { bottom: 7px; animation-direction: reverse; }
+  @keyframes gx-marquee { to { background-position: 16px 50%; } }
+  .brand { min-width: 0; flex: 1 1 220px; }
+  h1 {
+    font-size: clamp(32px, 8vw, 46px); margin: 0; font-weight: 900; letter-spacing: .02em; line-height: 1.1;
+    color: var(--title-to);
+    filter: drop-shadow(0 3px 0 var(--title-edge)) drop-shadow(0 6px 8px var(--shadow));
+  }
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    h1 {
+      background: linear-gradient(180deg, var(--title-from) 20%, var(--title-to) 85%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+  @media (forced-colors: active) { h1 { -webkit-text-fill-color: CanvasText; background: none; filter: none; } }
+  .sub { color: var(--muted); margin: 10px 0 0; font-size: 15px; font-weight: 600; }
+  /* 오른쪽 액션 영역: 언어 선택 + (예정) 로그인 프로필 칩 */
+  .top-actions {
+    margin-left: auto; display: flex; align-items: center; justify-content: flex-end;
+    gap: 8px; flex-wrap: wrap; min-width: 0;
+  }
+  select.lang {
+    font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
+    background: linear-gradient(180deg, var(--btn-hi), var(--btn));
+    border: 2px solid var(--btn-edge); border-radius: 10px; padding: 8px 8px; min-height: 44px;
+    box-shadow: 0 3px 0 var(--btn-edge); cursor: pointer;
+  }
+
+  /* ===== 게임 선택 카드 ===== */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px 18px; }
+  a.card {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--panel-hi), var(--panel) 40%);
+    border: 3px solid var(--frame);
+    border-radius: 18px;
+    overflow: hidden;
+    color: inherit;
+    text-decoration: none;
+    box-shadow: inset 0 1px 0 var(--frame-hi), 0 5px 0 var(--frame), 0 12px 24px var(--shadow);
+    transition: transform .2s cubic-bezier(.2, 1.4, .4, 1), box-shadow .2s ease, border-color .2s ease;
+  }
+  a.card:focus-visible {
+    transform: translateY(-6px);
+    border-color: var(--primary);
+    box-shadow: inset 0 1px 0 var(--frame-hi), 0 9px 0 var(--primary-lo), 0 0 0 5px var(--glow), 0 24px 38px var(--shadow);
+  }
+  @media (hover: hover) {
+    a.card:hover {
+      transform: translateY(-6px);
+      border-color: var(--primary);
+      box-shadow: inset 0 1px 0 var(--frame-hi), 0 9px 0 var(--primary-lo), 0 0 0 5px var(--glow), 0 24px 38px var(--shadow);
+    }
+    a.card:hover .thumb { transform: scale(1.04); }
+    a.card:hover .play { filter: brightness(1.08); }
+  }
+  a.card:active { transform: translateY(-2px); }
+  a.card:focus-visible { outline: 3px solid var(--focus); outline-offset: 6px; }
+  .thumb {
+    aspect-ratio: 16 / 9; display: block; width: 100%;
+    border-bottom: 3px solid var(--frame);
+    transition: transform .3s ease;
+  }
+  .body { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; position: relative; background: inherit; }
+  .name { font-size: 21px; font-weight: 900; letter-spacing: .01em; }
+  .desc { color: var(--muted); font-size: 14px; line-height: 1.45; flex: 1; }
+  /* PLAY 버튼 (카드 전체가 링크, 이건 시각 표시) */
+  .play {
+    align-self: stretch;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-top: 10px;
+    min-height: 46px;
+    padding: 8px 16px;
+    background: linear-gradient(180deg, var(--primary-hi), var(--primary) 55%);
+    color: var(--primary-text);
+    border: 2px solid var(--primary-lo);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 var(--frame-hi), 0 4px 0 var(--primary-lo);
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    transition: transform .08s ease, box-shadow .08s ease, filter .12s ease;
+  }
+  .play::before {
+    content: ""; width: 0; height: 0;
+    border-left: 11px solid currentColor; border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+  }
+  a.card:active .play { transform: translateY(3px); box-shadow: inset 0 1px 0 var(--frame-hi), 0 1px 0 var(--primary-lo); }
+  @media (max-width: 520px) {
+    .wrap { padding: 20px 16px 32px; }
+    .top { padding: 26px 16px 22px; border-radius: 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    a.card:hover, a.card:focus-visible, a.card:active, a.card:hover .thumb { transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1 data-i18n="title">게임 모음</h1>
+      <p class="sub" data-i18n="sub">하고 싶은 게임을 골라 보세요</p>
+    </div>
+    <div class="top-actions">
+      <select class="lang" id="lang" aria-label="언어"></select>
+    </div>
+  </header>
+
+  <main class="grid">
+    <a class="card" href="chess.html" aria-labelledby="chess-name" aria-describedby="chess-desc">
+      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true">
+        <defs>
+          <pattern id="chk" width="40" height="40" patternUnits="userSpaceOnUse">
+            <rect width="40" height="40" style="fill: var(--light)"/>
+            <rect width="20" height="20" style="fill: var(--dark)"/>
+            <rect x="20" y="20" width="20" height="20" style="fill: var(--dark)"/>
+          </pattern>
+        </defs>
+        <rect width="320" height="180" fill="url(#chk)"/>
+        <text x="118" y="128" font-size="96" text-anchor="middle" style="fill: var(--piece-dark)"
+              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265A;</text>
+        <text x="204" y="132" font-size="96" text-anchor="middle" style="fill: var(--piece-light); stroke: var(--piece-edge)" stroke-width="1.5"
+              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265E;</text>
+      </svg>
+      <div class="body">
+        <div class="name" id="chess-name" data-i18n="chess">체스</div>
+        <div class="desc" id="chess-desc" data-i18n="chessDesc">상대 킹을 체크메이트하면 승리하는 전략 보드게임. AI 4단계.</div>
+        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+      </div>
+    </a>
+
+    <a class="card" href="gomoku.html" aria-labelledby="gomoku-name" aria-describedby="gomoku-desc">
+      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true" id="gomokuThumb">
+        <rect width="320" height="180" style="fill: var(--wood)"/>
+      </svg>
+      <div class="body">
+        <div class="name" id="gomoku-name" data-i18n="gomoku">오목</div>
+        <div class="desc" id="gomoku-desc" data-i18n="gomokuDesc">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.</div>
+        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+      </div>
+    </a>
+
+    <a class="card" href="ball-battle.html" aria-labelledby="ball-battle-name" aria-describedby="ball-battle-desc">
+      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true">
+        <rect width="320" height="180" style="fill: var(--arena)"/>
+        <rect x="8" y="8" width="304" height="164" rx="10" style="fill: none; stroke: var(--arena-line)" stroke-width="2"/>
+        <circle cx="160" cy="90" r="34" style="fill: none; stroke: var(--arena-line)" stroke-width="1.5"/>
+        <!-- 돌진 궤적 -->
+        <g style="stroke: var(--c-charger)" stroke-width="3" stroke-linecap="round" opacity=".45">
+          <line x1="56" y1="122" x2="84" y2="112"/>
+          <line x1="62" y1="136" x2="88" y2="126"/>
+          <line x1="70" y1="108" x2="90" y2="101"/>
+        </g>
+        <!-- 투사체 -->
+        <circle cx="214" cy="52" r="5" style="fill: var(--c-shooter); stroke: var(--ball-outline)" stroke-width="1"/>
+        <circle cx="196" cy="58" r="3" style="fill: var(--c-shooter)" opacity=".5"/>
+        <!-- 실드 링 -->
+        <circle cx="244" cy="118" r="35" style="fill: none; stroke: var(--shield)" stroke-width="3" stroke-dasharray="7 5" opacity=".9"/>
+        <circle cx="244" cy="118" r="30" style="fill: var(--shield)" opacity=".12"/>
+        <!-- 공 -->
+        <g stroke-width="1.5" style="stroke: var(--ball-outline)">
+          <circle cx="114" cy="104" r="24" style="fill: var(--c-charger)"/>
+          <circle cx="160" cy="84" r="24" style="fill: var(--c-spike)"/>
+          <circle cx="244" cy="118" r="24" style="fill: var(--c-guardian)"/>
+          <circle cx="252" cy="42" r="19" style="fill: var(--c-shooter)"/>
+          <circle cx="58" cy="48" r="19" style="fill: var(--c-healer)"/>
+        </g>
+        <!-- 충돌 스파크 -->
+        <g style="stroke: var(--c-shooter)" stroke-width="3" stroke-linecap="round">
+          <line x1="137" y1="58" x2="133" y2="46"/>
+          <line x1="146" y1="64" x2="156" y2="54"/>
+          <line x1="128" y1="66" x2="117" y2="60"/>
+          <line x1="146" y1="122" x2="152" y2="132"/>
+          <line x1="138" y1="124" x2="136" y2="136"/>
+        </g>
+        <g font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central"
+           font-family="system-ui, -apple-system, Segoe UI, sans-serif" style="fill: var(--ball-label)">
+          <text x="114" y="104">1</text>
+          <text x="160" y="84">2</text>
+          <text x="58" y="48" font-size="16">3</text>
+          <text x="252" y="42" font-size="16">4</text>
+          <text x="244" y="118">5</text>
+        </g>
+      </svg>
+      <div class="body">
+        <div class="name" id="ball-battle-name" data-i18n="ballBattle">공 배틀</div>
+        <div class="desc" id="ball-battle-desc" data-i18n="ballBattleDesc">12가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 10개까지 넣고 관전하거나 직접 스킬을 써 보세요.</div>
+        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+      </div>
+    </a>
+  </main>
+</div>
+
+<script>
+const I18N = {
+  ko: { name: '한국어', langLabel: '언어', title: '게임 모음', sub: '하고 싶은 게임을 골라 보세요', play: '플레이',
+        chess: '체스', chessDesc: '상대 킹을 체크메이트하면 승리하는 전략 보드게임. AI 4단계.',
+        gomoku: '오목', gomokuDesc: '가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.',
+        ballBattle: '공 배틀', ballBattleDesc: '12가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 10개까지 넣고 관전하거나 직접 스킬을 써 보세요.' },
+  en: { name: 'English', langLabel: 'Language', title: 'Game Room', sub: 'Pick a game to play', play: 'Play',
+        chess: 'Chess', chessDesc: 'The classic strategy game — checkmate the king. 4 AI levels.',
+        gomoku: 'Gomoku', gomokuDesc: 'Get five stones in a row before your opponent. 4 AI levels.',
+        ballBattle: 'Ball Battle', ballBattleDesc: 'An auto-battler where balls of 12 classes bounce, clash and use skills. Add up to 10 balls, then watch or use a skill yourself.' },
+  ja: { name: '日本語', langLabel: '言語', title: 'ゲームルーム', sub: '遊びたいゲームを選んでください', play: 'プレイ',
+        chess: 'チェス', chessDesc: 'キングをチェックメイトすれば勝ちの戦略ボードゲーム。AIは4段階。',
+        gomoku: '五目並べ', gomokuDesc: '縦・横・斜めに石を5つ先に並べたら勝ち。AIは4段階。',
+        ballBattle: 'ボールバトル', ballBattleDesc: '12種類の職業のボールがスキルを使い、跳ね回って戦うオートバトル。ボールを最大10個入れて観戦するか、自分でスキルを使ってみよう。' },
+  zh: { name: '中文', langLabel: '语言', title: '游戏厅', sub: '选择想玩的游戏', play: '开始',
+        chess: '国际象棋', chessDesc: '将死对方的王即可获胜的经典策略棋类游戏。AI 共4级。',
+        gomoku: '五子棋', gomokuDesc: '横、竖、斜先连成五子者获胜。AI 共4级。',
+        ballBattle: '弹球大战', ballBattleDesc: '12种职业的小球施放技能、互相弹撞的自动战斗。最多放入10个球，可以观战，也可以亲自释放技能。' },
+  es: { name: 'Español', langLabel: 'Idioma', title: 'Sala de juegos', sub: 'Elige un juego', play: 'Jugar',
+        chess: 'Ajedrez', chessDesc: 'El clásico de estrategia: da jaque mate al rey. 4 niveles de IA.',
+        gomoku: 'Gomoku', gomokuDesc: 'Gana quien alinee cinco piedras primero. 4 niveles de IA.',
+        ballBattle: 'Batalla de bolas', ballBattleDesc: 'Combate automático de bolas de 12 clases que usan habilidades, rebotan y chocan. Añade hasta 10 bolas y mira la partida o usa tú mismo una habilidad.' },
+  fr: { name: 'Français', langLabel: 'Langue', title: 'Salle de jeux', sub: 'Choisissez un jeu', play: 'Jouer',
+        chess: 'Échecs', chessDesc: 'Le grand classique de stratégie : mettez le roi échec et mat. 4 niveaux d’IA.',
+        gomoku: 'Gomoku', gomokuDesc: 'Alignez cinq pierres avant l’adversaire. 4 niveaux d’IA.',
+        ballBattle: 'Bataille de boules', ballBattleDesc: 'Un combat automatique où des boules de 12 classes utilisent leurs compétences, rebondissent et s’affrontent. Ajoutez jusqu’à 10 boules, puis regardez ou utilisez vous-même une compétence.' },
+  de: { name: 'Deutsch', langLabel: 'Sprache', title: 'Spielezimmer', sub: 'Wähle ein Spiel', play: 'Spielen',
+        chess: 'Schach', chessDesc: 'Der Strategieklassiker – setze den König matt. 4 KI-Stufen.',
+        gomoku: 'Gomoku', gomokuDesc: 'Wer zuerst fünf Steine in einer Reihe hat, gewinnt. 4 KI-Stufen.',
+        ballBattle: 'Ballkampf', ballBattleDesc: 'Automatischer Kampf, in dem Bälle aus 12 Klassen Fähigkeiten einsetzen, abprallen und zusammenstoßen. Bis zu 10 Bälle hinzufügen, dann zuschauen oder selbst eine Fähigkeit einsetzen.' },
+};
+
+function detectLang() {
+  const list = navigator.languages && navigator.languages.length ? navigator.languages : (navigator.language ? [navigator.language] : []);
+  for (const l of list) {
+    const code = String(l).toLowerCase().slice(0, 2);
+    if (I18N[code]) return code;
+  }
+  return 'ko';
+}
+let lang = detectLang();
+try { const gl = localStorage.getItem('games-lang'); if (I18N[gl]) lang = gl; } catch (e) {}
+const t = k => (I18N[lang] && I18N[lang][k]) || I18N.ko[k] || k;
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = t('title');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  sel.setAttribute('aria-label', t('langLabel'));
+  sel.value = lang;
+}
+
+const sel = document.getElementById('lang');
+for (const code of Object.keys(I18N)) {
+  const o = document.createElement('option');
+  o.value = code;
+  o.textContent = I18N[code].name;
+  sel.appendChild(o);
+}
+sel.addEventListener('change', () => {
+  lang = sel.value;
+  try { localStorage.setItem('games-lang', lang); } catch (e) {}
+  applyLang();
+});
+
+// 오목 썸네일: 격자 + 돌 몇 개
+(function () {
+  const svg = document.getElementById('gomokuThumb');
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
+  const g = 24, ox = 16, oy = 18;
+  for (let i = 0; i < 13; i++) mk('line', { x1: ox + i * g, y1: oy, x2: ox + i * g, y2: oy + 6 * g, style: 'stroke: var(--wood-line)', 'stroke-width': 1 });
+  for (let j = 0; j < 7; j++) mk('line', { x1: ox, y1: oy + j * g, x2: ox + 12 * g, y2: oy + j * g, style: 'stroke: var(--wood-line)', 'stroke-width': 1 });
+  const B = [[3, 2], [4, 3], [5, 4], [6, 5], [7, 6], [8, 2]];
+  const W = [[4, 2], [5, 3], [6, 3], [7, 4], [8, 4], [5, 5]];
+  for (const [c, r] of W) mk('circle', { cx: ox + c * g, cy: oy + r * g, r: 10.5, style: 'fill: var(--stone-white); stroke: var(--stone-edge)' });
+  for (const [c, r] of B) mk('circle', { cx: ox + c * g, cy: oy + r * g, r: 10.5, style: 'fill: var(--stone-black)' });
+  mk('line', { x1: ox + 3 * g, y1: oy + 2 * g, x2: ox + 7 * g, y2: oy + 6 * g, style: 'stroke: var(--win-line)', 'stroke-width': 4, 'stroke-linecap': 'round', opacity: .85 });
+})();
+
+applyLang();
+</script>
+</body>
+</html>
