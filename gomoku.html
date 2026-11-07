@@ -17,18 +17,36 @@
     --accent-text: #fff;
     --btn: #f0e9dc;
     --btn-hover: #e6dcc9;
+    --stone-b-hi: #6b6b6b;      /* 흑돌 그라데이션 밝은 쪽 */
+    --stone-b-lo: #0d0d0d;      /* 흑돌 그라데이션 어두운 쪽 */
+    --stone-w-hi: #ffffff;
+    --stone-w-lo: #cfcac0;
+    --stone-b-edge: #000;
+    --stone-w-edge: #9c968b;
+    --dot-w: #fffaf0;           /* 차례 표시 점 */
+    --dot-b: #1d1a17;
+    --mark: #e03a3a;            /* 마지막 수, 승리선, 키보드 커서 */
+    --overlay: rgba(0, 0, 0, .4);
+    --shadow: rgba(0, 0, 0, .18);
+    --shadow-strong: rgba(0, 0, 0, .3);
+    --focus: #1d1a17;
+    --focus-halo: #fffaf0;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #1c1a17; --panel: #26231f; --text: #ece6dc; --muted: #a59c90; --border: #3a352e;
       --wood: #c99d4a; --wood-line: #4a3518; --accent: #c48a52; --accent-text: #1c1a17;
       --btn: #332f29; --btn-hover: #3e3932;
+      --overlay: rgba(0, 0, 0, .55); --shadow: rgba(0, 0, 0, .4); --shadow-strong: rgba(0, 0, 0, .5);
+      --focus: #fffaf0; --focus-halo: #1d1a17;
     }
   }
   :root[data-theme="dark"] {
     --bg: #1c1a17; --panel: #26231f; --text: #ece6dc; --muted: #a59c90; --border: #3a352e;
     --wood: #c99d4a; --wood-line: #4a3518; --accent: #c48a52; --accent-text: #1c1a17;
     --btn: #332f29; --btn-hover: #3e3932;
+    --overlay: rgba(0, 0, 0, .55); --shadow: rgba(0, 0, 0, .4); --shadow-strong: rgba(0, 0, 0, .5);
+    --focus: #fffaf0; --focus-halo: #1d1a17;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -60,7 +78,8 @@
   .back:hover { color: var(--text); }
   .board-wrap {
     grid-area: board;
-    --bw: min(calc(100vw - 32px), 80vh, 600px);
+    /* 2열: 화면폭 - 좌우 패딩 32 - 사이드 최소 280 - 열 간격 24 - 스크롤바 여유 20 */
+    --bw: min(calc(100vw - 32px - 280px - 24px - 20px), 80vh, 600px);
     width: var(--bw);
     position: relative;
   }
@@ -69,18 +88,26 @@
     width: var(--bw);
     height: var(--bw);
     border-radius: 6px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+    box-shadow: 0 10px 30px var(--shadow);
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
+  svg.board:focus { outline: none; }
+  svg.board:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 3px var(--focus-halo), 0 10px 30px var(--shadow);
+  }
+  /* 키보드 커서 테두리 (SVG 속성 대신 CSS 로 색·굵기 지정) */
+  svg.board .kbd-cursor { fill: none; stroke: var(--mark); stroke-width: 2.5; }
   .side { grid-area: side; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
   .status { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
   .turn-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
-  .turn-dot.w { background: #fffaf0; }
-  .turn-dot.b { background: #1d1a17; }
+  .turn-dot.w { background: var(--dot-w); }
+  .turn-dot.b { background: var(--dot-b); }
   .status-sub { color: var(--muted); font-size: 13px; margin-top: 4px; min-height: 1em; }
   .field-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
   .seg {
@@ -103,6 +130,13 @@
   button.btn.primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
   button.btn.primary:hover { filter: brightness(1.08); }
   button.btn:disabled { opacity: .5; cursor: default; }
+  button.btn:focus-visible,
+  .seg button:focus-visible,
+  select.lang:focus-visible,
+  .back:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
   select.lang {
     font: inherit; font-size: 13px; color: var(--text); background: var(--btn);
     border: 1px solid var(--border); border-radius: 8px; padding: 5px 6px; min-height: 34px; margin-left: auto;
@@ -118,12 +152,12 @@
 
   .overlay {
     position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-    background: rgba(0, 0, 0, .4); border-radius: 6px; z-index: 5;
+    background: var(--overlay); border-radius: 6px; z-index: 5;
   }
   .overlay.show { display: flex; }
   .dialog {
     background: var(--panel); color: var(--text); border-radius: 12px; padding: 20px 22px;
-    text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.3); max-width: 90%;
+    text-align: center; box-shadow: 0 10px 30px var(--shadow-strong); max-width: 90%;
   }
   .dialog h2 { margin: 0 0 6px; font-size: 20px; }
   .dialog p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
@@ -563,11 +597,11 @@ function drawBoard() {
   svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
   const defs = el('defs', {}, svg);
   const gb = el('radialGradient', { id: 'gb', cx: '35%', cy: '30%', r: '70%' }, defs);
-  el('stop', { offset: '0%', 'stop-color': '#6b6b6b' }, gb);
-  el('stop', { offset: '100%', 'stop-color': '#0d0d0d' }, gb);
+  el('stop', { offset: '0%', style: 'stop-color: var(--stone-b-hi)' }, gb);
+  el('stop', { offset: '100%', style: 'stop-color: var(--stone-b-lo)' }, gb);
   const gw = el('radialGradient', { id: 'gw', cx: '35%', cy: '30%', r: '75%' }, defs);
-  el('stop', { offset: '0%', 'stop-color': '#ffffff' }, gw);
-  el('stop', { offset: '100%', 'stop-color': '#cfcac0' }, gw);
+  el('stop', { offset: '0%', style: 'stop-color: var(--stone-w-hi)' }, gw);
+  el('stop', { offset: '100%', style: 'stop-color: var(--stone-w-lo)' }, gw);
   // CSS 변수는 SVG 속성에서 안 먹으므로 style 로 지정
   el('rect', { x: 0, y: 0, width: SIZE, height: SIZE, style: 'fill: var(--wood)' }, svg);
   const lines = el('g', { style: 'stroke: var(--wood-line)', 'stroke-width': 1.2 }, svg);
@@ -588,7 +622,7 @@ function stone(i, color, extra) {
   return el('circle', Object.assign({
     cx: x, cy: y, r: G * 0.45,
     fill: color === BLACK ? 'url(#gb)' : 'url(#gw)',
-    stroke: color === BLACK ? '#000' : '#9c968b', 'stroke-width': 1,
+    style: color === BLACK ? 'stroke: var(--stone-b-edge)' : 'stroke: var(--stone-w-edge)', 'stroke-width': 1,
   }, extra || {}), stonesLayer);
 }
 
@@ -598,12 +632,12 @@ function render() {
   const last = history[history.length - 1];
   if (last != null && !winLine) {
     const [x, y] = pos(last);
-    el('circle', { cx: x, cy: y, r: 5, fill: '#e03a3a' }, stonesLayer);
+    el('circle', { cx: x, cy: y, r: 5, style: 'fill: var(--mark)' }, stonesLayer);
   }
   if (winLine) {
     const sorted = winLine.slice().sort((a, b) => a - b);
     const [x1, y1] = pos(sorted[0]), [x2, y2] = pos(sorted[sorted.length - 1]);
-    el('line', { x1, y1, x2, y2, stroke: '#e03a3a', 'stroke-width': 6, 'stroke-linecap': 'round', opacity: .85 }, stonesLayer);
+    el('line', { x1, y1, x2, y2, style: 'stroke: var(--mark)', 'stroke-width': 6, 'stroke-linecap': 'round', opacity: .85 }, stonesLayer);
   }
   // 미리보기 돌: 터치 미리보기 > 키보드 커서 > 마우스 호버
   const ghost = preview >= 0 ? preview : kbdOn ? cursor : hover;
@@ -613,7 +647,7 @@ function render() {
   // 키보드 커서 테두리 (돌이 있는 칸에서도 위치가 보이도록)
   if (kbdOn && cursor >= 0) {
     const [x, y] = pos(cursor);
-    el('circle', { class: 'kbd-cursor', cx: x, cy: y, r: G * 0.5, fill: 'none', stroke: '#e03a3a', 'stroke-width': 2.5 }, stonesLayer);
+    el('circle', { class: 'kbd-cursor', cx: x, cy: y, r: G * 0.5 }, stonesLayer);
   }
 
   // 상태 표시

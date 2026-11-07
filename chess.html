@@ -20,6 +20,21 @@
     --accent-text: #fff;
     --btn: #f0e9dc;
     --btn-hover: #e6dcc9;
+    --coord-on-light: #b58863;   /* 밝은 칸 위 좌표 글자 */
+    --coord-on-dark: #efe3c8;    /* 어두운 칸 위 좌표 글자 */
+    --piece-w: #fffaf0;
+    --piece-b: #1d1a17;
+    --piece-w-edge: #000;
+    --piece-b-edge: rgba(255, 255, 255, .5);
+    --piece-w-shadow: rgba(0, 0, 0, .45);
+    --piece-b-shadow: rgba(0, 0, 0, .35);
+    --check: rgba(230, 40, 40, .95);
+    --check-soft: rgba(230, 40, 40, .45);
+    --overlay: rgba(0, 0, 0, .45);
+    --shadow: rgba(0, 0, 0, .18);
+    --shadow-strong: rgba(0, 0, 0, .3);
+    --focus: #1d1a17;            /* 포커스 링 */
+    --focus-halo: #fffaf0;       /* 포커스 링 안쪽 테 (판 위에서 대비 확보) */
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -34,12 +49,22 @@
       --accent-text: #1c1a17;
       --btn: #332f29;
       --btn-hover: #3e3932;
+      --coord-on-light: #6b4a2e;
+      --coord-on-dark: #fffaf0;
+      --overlay: rgba(0, 0, 0, .55);
+      --shadow: rgba(0, 0, 0, .4);
+      --shadow-strong: rgba(0, 0, 0, .5);
+      --focus: #fffaf0;
+      --focus-halo: #1d1a17;
     }
   }
   :root[data-theme="dark"] {
     --bg: #1c1a17; --panel: #26231f; --text: #ece6dc; --muted: #a59c90; --border: #3a352e;
     --light: #d9c7a3; --dark: #9a6f4c; --accent: #c48a52; --accent-text: #1c1a17;
     --btn: #332f29; --btn-hover: #3e3932;
+    --coord-on-light: #6b4a2e; --coord-on-dark: #fffaf0;
+    --overlay: rgba(0, 0, 0, .55); --shadow: rgba(0, 0, 0, .4); --shadow-strong: rgba(0, 0, 0, .5);
+    --focus: #fffaf0; --focus-halo: #1d1a17;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -71,7 +96,8 @@
   .back:hover { color: var(--text); }
   .board-wrap {
     grid-area: board;
-    --bw: min(calc(100vw - 32px), 80vh, 580px);
+    /* 2열: 화면폭 - 좌우 패딩 32 - 사이드 최소 280 - 열 간격 24 - 스크롤바 여유 20 */
+    --bw: min(calc(100vw - 32px - 280px - 24px - 20px), 80vh, 580px);
     width: var(--bw);
     position: relative;
   }
@@ -117,7 +143,7 @@
     grid-template-rows: repeat(8, 1fr);
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+    box-shadow: 0 10px 30px var(--shadow);
     touch-action: manipulation;
   }
   /* 스크린리더용 행(role="row") 래퍼 — 레이아웃에는 영향 없음 */
@@ -133,9 +159,18 @@
   }
   .sq.l { background: var(--light); }
   .sq.d { background: var(--dark); }
-  .sq.last { box-shadow: inset 0 0 0 999px var(--last); }
-  .sq.sel { box-shadow: inset 0 0 0 999px var(--sel); }
-  .sq.check { background-image: radial-gradient(circle, rgba(230,40,40,.95) 0%, rgba(230,40,40,.45) 45%, transparent 72%); }
+  /* 칸 강조색은 --tint 로 모아 포커스 링과 함께 그릴 수 있게 함 */
+  .sq.last { --tint: var(--last); }
+  .sq.sel { --tint: var(--sel); }
+  .sq.last, .sq.sel { box-shadow: inset 0 0 0 999px var(--tint); }
+  .sq.check { background-image: radial-gradient(circle, var(--check) 0%, var(--check-soft) 45%, transparent 72%); }
+  /* 판에 overflow:hidden 이 있어 안쪽으로 그림: 바깥 3px 링 + 안쪽 2px 테 + 기존 강조색 */
+  .sq:focus { outline: none; }
+  .sq:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+    box-shadow: inset 0 0 0 5px var(--focus-halo), inset 0 0 0 999px var(--tint, transparent);
+  }
   .sq.target::after {
     content: "";
     position: absolute;
@@ -160,8 +195,8 @@
   }
   .coord.r { top: 4%; left: 5%; }
   .coord.f { bottom: 4%; right: 6%; }
-  .sq.l .coord { color: #b58863; }
-  .sq.d .coord { color: #efe3c8; }
+  .sq.l .coord { color: var(--coord-on-light); }
+  .sq.d .coord { color: var(--coord-on-dark); }
 
   .piece {
     font-family: "Segoe UI Symbol", "DejaVu Sans", "Noto Sans Symbols 2", "Arial Unicode MS", serif;
@@ -173,12 +208,12 @@
     transform: translateY(-2%);
   }
   .piece.w {
-    color: #fffaf0;
-    text-shadow: 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 2px 3px rgba(0,0,0,.45);
+    color: var(--piece-w);
+    text-shadow: 0 0 1px var(--piece-w-edge), 0 0 1px var(--piece-w-edge), 0 0 1px var(--piece-w-edge), 0 2px 3px var(--piece-w-shadow);
   }
   .piece.b {
-    color: #1d1a17;
-    text-shadow: 0 0 1px rgba(255,255,255,.5), 0 2px 3px rgba(0,0,0,.35);
+    color: var(--piece-b);
+    text-shadow: 0 0 1px var(--piece-b-edge), 0 2px 3px var(--piece-b-shadow);
   }
 
   .overlay {
@@ -187,7 +222,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, .45);
+    background: var(--overlay);
     border-radius: 6px;
     z-index: 5;
   }
@@ -198,7 +233,7 @@
     border-radius: 12px;
     padding: 20px 22px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    box-shadow: 0 10px 30px var(--shadow-strong);
     max-width: 90%;
   }
   .dialog h2 { margin: 0 0 6px; font-size: 20px; }
@@ -219,7 +254,15 @@
     padding: 0;
   }
   .promo-row button:hover { background: var(--dark); }
+  .promo-row button:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--focus-halo);
+  }
   .promo-row .piece { font-size: calc(var(--bw) / 8 * .72); }
+  /* 승진 취소: 기물 버튼 줄 아래 가운데, 기물 버튼 4개 폭을 넘지 않게 */
+  .promo-cancel { margin-top: 14px; justify-content: center; }
+  .promo-cancel .btn { flex: 0 1 auto; min-width: 120px; }
 
   .side {
     grid-area: side;
@@ -246,8 +289,8 @@
     border: 2px solid var(--muted);
     flex: none;
   }
-  .turn-dot.w { background: #fffaf0; }
-  .turn-dot.b { background: #1d1a17; }
+  .turn-dot.w { background: var(--piece-w); }
+  .turn-dot.b { background: var(--piece-b); }
   .status-sub { color: var(--muted); font-size: 13px; margin-top: 4px; min-height: 1em; }
 
   label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); flex: 1; min-width: 0; }
@@ -278,6 +321,13 @@
   button.btn.primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
   button.btn.primary:hover { filter: brightness(1.08); }
   button.btn:disabled { opacity: .5; cursor: default; }
+  button.btn:focus-visible,
+  .seg button:focus-visible,
+  select:focus-visible,
+  .back:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
 
   .captured { display: flex; flex-direction: column; gap: 6px; }
   .cap-line { display: flex; align-items: center; gap: 6px; min-height: 26px; font-size: 13px; color: var(--muted); }
