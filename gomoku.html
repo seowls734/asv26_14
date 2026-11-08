@@ -18,8 +18,18 @@ else{vp.setAttribute('content','width=device-width, initial-scale=1');d.style.re
 try{l=localStorage.getItem('games-layout')}catch(e){}
 if(l!=='mobile'&&l!=='pc'){try{l=(matchMedia('(max-width: 820px)').matches||(matchMedia('(pointer: coarse)').matches&&Math.min(screen.width,screen.height)<=820))?'mobile':'pc'}catch(e){l='pc'}}
 applyLayout(l);
-})();</script>
+})();
+// ===== [공유] UI 테마 head 시작 =====
+// 첫 렌더 전에 html[data-ui] 적용(깜빡임 방지). 사이트 공통 키 games-ui-theme = classic|gameboy|neon|famicom
+(function(){var v;try{v=localStorage.getItem('games-ui-theme')}catch(e){}
+document.documentElement.setAttribute('data-ui',(v==='gameboy'||v==='neon'||v==='famicom')?v:'classic');
+})();
+// ===== [공유] UI 테마 head 끝 =====
+// 페이지 진입 와이프(html.gx-enter) — 본문 스크립트의 GxUI.enter() 가 300ms 뒤에 걷음
+document.documentElement.classList.add('gx-enter');
+</script>
 <style>
+  /* ===== 색 토큰 (라이트) — 다크는 아래 2곳에 같은 값 ===== */
   :root {
     --bg: #f4f1ea;
     --panel: #fffdf8;
@@ -46,6 +56,38 @@ applyLayout(l);
     --shadow-strong: rgba(0, 0, 0, .3);
     --focus: #1d1a17;
     --focus-halo: #fffaf0;
+    /* 허브(index.html)와 같은 값 */
+    --primary: #b93a0a; --primary-hi: #c94a10; --primary-lo: #7a2606; --primary-text: #fff;
+    --btn-hi: #fffaf0; --btn-edge: #c9b99c;
+    --panel-hi: #ffffff; --frame: #d8c9ad; --frame-hi: rgba(255, 255, 255, .8);
+    --scrim: rgba(0, 0, 0, .45);
+    --pattern: rgba(139, 94, 52, .09); --vignette: rgba(90, 60, 30, .10);
+    --glow: rgba(217, 83, 26, .35);
+    --title-from: #d9531a; --title-to: #8b5e34; --title-edge: #5e3d1f;
+    --gold: #b86e00; --gold-hi: #f2b632; --gold-lo: #7a4100; --ray: rgba(242, 182, 50, .30);
+    /* 픽셀 공통 토큰 */
+    --px: 4px;
+    --ink: #1b1622;
+    --hud-bg: #2b2238; --hud-text: #f4ead2; --hud-muted: #b9ab90; --hud-edge: #0f0b14;
+    --win: #2f8f3c; --lose: #c8323c; --draw: #6e6452;
+    --scanline: rgba(0, 0, 0, .05);
+    /* K1 프로필 아바타 색 · K4 오목판 테마(wood = 기존 --wood) · K2 UI 테마 스와치 미리보기 */
+    --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+    --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+    --gb-bamboo: #d8c47a; --gb-bamboo-line: #5a5020; --gb-slate: #5a6470; --gb-slate-line: #c8d0d8;
+    --gb-retro: #9bbc0f; --gb-retro-line: #0f380f;
+    --sw-classic-a: #2b2238; --sw-classic-b: #b93a0a; --sw-gameboy-a: #0f380f; --sw-gameboy-b: #8bac0f;
+    --sw-neon-a: #1a0b2e; --sw-neon-b: #00e5ff; --sw-famicom-a: #3a3a3a; --sw-famicom-b: #b21f2d;
+
+    /* 색이 아닌 공통 값 (테마별로 바꿀 필요 없음: var 는 :root 에서 테마 값으로 풀림) */
+    --pxbox: 0 calc(-1 * var(--px)) 0 0 var(--ink), 0 var(--px) 0 0 var(--ink),
+             calc(-1 * var(--px)) 0 0 0 var(--ink), var(--px) 0 0 0 var(--ink);
+    --pxdrop: 0 calc(2 * var(--px)) 0 0 var(--ink);
+    --px-round: polygon(25% 0, 75% 0, 75% 12.5%, 87.5% 12.5%, 87.5% 25%, 100% 25%, 100% 75%, 87.5% 75%,
+                87.5% 87.5%, 75% 87.5%, 75% 100%, 25% 100%, 25% 87.5%, 12.5% 87.5%, 12.5% 75%, 0 75%,
+                0 25%, 12.5% 25%, 12.5% 12.5%, 25% 12.5%);
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "D2Coding", monospace;
+    --z: 1;   /* 폰에서 PC 배치일 때만 손가락 크기 배율 */
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -54,6 +96,24 @@ applyLayout(l);
       --btn: #332f29; --btn-hover: #3e3932;
       --overlay: rgba(0, 0, 0, .55); --shadow: rgba(0, 0, 0, .4); --shadow-strong: rgba(0, 0, 0, .5);
       --focus: #fffaf0; --focus-halo: #1d1a17;
+      --primary: #ff8a3d; --primary-hi: #ffa766; --primary-lo: #a8460f; --primary-text: #1c1a17;
+      --btn-hi: #3d3831; --btn-edge: #15130f;
+      --panel-hi: #2d2924; --frame: #4a4339; --frame-hi: rgba(255, 255, 255, .07);
+      --scrim: rgba(0, 0, 0, .6);
+      --pattern: rgba(255, 235, 205, .045); --vignette: rgba(0, 0, 0, .35);
+      --glow: rgba(255, 138, 61, .35);
+      --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
+      --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
+      --ink: #0b0910;
+      --hud-bg: #17121f; --hud-text: #f4ead2; --hud-muted: #a89c86; --hud-edge: #000000;
+      --win: #5fd46d; --lose: #ff5a64; --draw: #b8ad96;
+      --scanline: rgba(0, 0, 0, .18);
+      --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+      --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+      --gb-bamboo: #d8c47a; --gb-bamboo-line: #5a5020; --gb-slate: #5a6470; --gb-slate-line: #c8d0d8;
+      --gb-retro: #9bbc0f; --gb-retro-line: #0f380f;
+      --sw-classic-a: #2b2238; --sw-classic-b: #b93a0a; --sw-gameboy-a: #0f380f; --sw-gameboy-b: #8bac0f;
+      --sw-neon-a: #1a0b2e; --sw-neon-b: #00e5ff; --sw-famicom-a: #3a3a3a; --sw-famicom-b: #b21f2d;
     }
   }
   :root[data-theme="dark"] {
@@ -62,497 +122,1518 @@ applyLayout(l);
     --btn: #332f29; --btn-hover: #3e3932;
     --overlay: rgba(0, 0, 0, .55); --shadow: rgba(0, 0, 0, .4); --shadow-strong: rgba(0, 0, 0, .5);
     --focus: #fffaf0; --focus-halo: #1d1a17;
+    --primary: #ff8a3d; --primary-hi: #ffa766; --primary-lo: #a8460f; --primary-text: #1c1a17;
+    --btn-hi: #3d3831; --btn-edge: #15130f;
+    --panel-hi: #2d2924; --frame: #4a4339; --frame-hi: rgba(255, 255, 255, .07);
+    --scrim: rgba(0, 0, 0, .6);
+    --pattern: rgba(255, 235, 205, .045); --vignette: rgba(0, 0, 0, .35);
+    --glow: rgba(255, 138, 61, .35);
+    --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
+    --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
+    --ink: #0b0910;
+    --hud-bg: #17121f; --hud-text: #f4ead2; --hud-muted: #a89c86; --hud-edge: #000000;
+    --win: #5fd46d; --lose: #ff5a64; --draw: #b8ad96;
+    --scanline: rgba(0, 0, 0, .18);
+    --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+    --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+    --gb-bamboo: #d8c47a; --gb-bamboo-line: #5a5020; --gb-slate: #5a6470; --gb-slate-line: #c8d0d8;
+    --gb-retro: #9bbc0f; --gb-retro-line: #0f380f;
+    --sw-classic-a: #2b2238; --sw-classic-b: #b93a0a; --sw-gameboy-a: #0f380f; --sw-gameboy-b: #8bac0f;
+    --sw-neon-a: #1a0b2e; --sw-neon-b: #00e5ff; --sw-famicom-a: #3a3a3a; --sw-famicom-b: #b21f2d;
   }
+
+  /* ===== UI 테마 팔레트 (K2): html[data-ui] 가 UI 토큰만 덮어씀. classic = 위 기본값 =====
+     라이트 블록은 기본 다크 블록 뒤에 둠(같은 우선순위 → 나중 것이 이김) → 다크에서도 먼저 적용되고,
+     다크에서 바뀌는 값만 아래 다크 2곳(우선순위 더 높음)이 다시 덮어씀. */
+  :root[data-ui="gameboy"] {
+    --primary: #306230; --primary-hi: #4a7f3a; --primary-lo: #0f380f; --primary-text: #e0f8d0;
+    --hud-bg: #0f380f; --hud-text: #e0f8d0; --hud-muted: #9bbc0f; --hud-edge: #071c07;
+    --frame: #8bac0f; --glow: rgba(139, 172, 15, .45);
+    --title-from: #9bbc0f; --title-to: #306230; --title-edge: #0f380f;
+  }
+  :root[data-ui="neon"] {
+    --primary: #7b2ff7; --primary-hi: #9a5cff; --primary-lo: #4a10a8; --primary-text: #ffffff;
+    --hud-bg: #1a0b2e; --hud-text: #f0e6ff; --hud-muted: #c3a6ff; --hud-edge: #0a0414;
+    --frame: #c3a6ff; --glow: rgba(0, 229, 255, .40);
+    --title-from: #00b8d4; --title-to: #7b2ff7; --title-edge: #2a0a5e;
+  }
+  :root[data-ui="famicom"] {
+    --primary: #b21f2d; --primary-hi: #d23a46; --primary-lo: #6e0f18; --primary-text: #ffffff;
+    --hud-bg: #3a3a3a; --hud-text: #f2ead8; --hud-muted: #c8bea8; --hud-edge: #1a1a1a;
+    --frame: #c8bea8; --glow: rgba(178, 31, 45, .35);
+    --title-from: #d23a46; --title-to: #8a1420; --title-edge: #3a0a0f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-ui="gameboy"]:not([data-theme="light"]) {
+      --primary: #8bac0f; --primary-hi: #9bbc0f; --primary-lo: #306230; --primary-text: #0f380f;
+      --title-from: #e0f8d0; --title-to: #9bbc0f;
+    }
+    :root[data-ui="neon"]:not([data-theme="light"]) {
+      --primary: #00e5ff; --primary-hi: #6ff6ff; --primary-lo: #008ba3; --primary-text: #0a0414;
+      --hud-bg: #12061f; --frame: #4a2a7a; --title-from: #6ff6ff; --title-to: #ff4fd8;
+    }
+    :root[data-ui="famicom"]:not([data-theme="light"]) {
+      --primary: #ff5a66; --primary-hi: #ff8a92; --primary-lo: #a8202c; --primary-text: #1a1a1a;
+      --hud-bg: #222222; --frame: #4a4440; --title-from: #ffd27a; --title-to: #ff5a66;
+    }
+  }
+  :root[data-ui="gameboy"][data-theme="dark"] {
+    --primary: #8bac0f; --primary-hi: #9bbc0f; --primary-lo: #306230; --primary-text: #0f380f;
+    --title-from: #e0f8d0; --title-to: #9bbc0f;
+  }
+  :root[data-ui="neon"][data-theme="dark"] {
+    --primary: #00e5ff; --primary-hi: #6ff6ff; --primary-lo: #008ba3; --primary-text: #0a0414;
+    --hud-bg: #12061f; --frame: #4a2a7a; --title-from: #6ff6ff; --title-to: #ff4fd8;
+  }
+  :root[data-ui="famicom"][data-theme="dark"] {
+    --primary: #ff5a66; --primary-hi: #ff8a92; --primary-lo: #a8202c; --primary-text: #1a1a1a;
+    --hud-bg: #222222; --frame: #4a4440; --title-from: #ffd27a; --title-to: #ff5a66;
+  }
+  /* 폰에서 PC 배치(viewport 1280 축소) → 버튼·글자를 손가락 크기로 */
+  :root[data-layout="pc"] { --z: min(var(--vp-zoom, 1), 2.8); }
+
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
   body {
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--pattern) 0 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-    min-height: 100vh;
     touch-action: manipulation;
     /* 좁은 폭 규칙은 @container 로 body 폭 기준 적용 → 모바일 모드에서 body 를 480px 로 줄이면 같은 규칙이 적용됨 */
     container-type: inline-size;
+    position: relative;
+  }
+  /* 얇은 스캔라인 (가독성 해치지 않게 약하게) */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 90;
+    background: repeating-linear-gradient(0deg, var(--scanline) 0 1px, transparent 1px 3px);
   }
   /* 화면 배치: 모바일 모드는 화면 폭과 관계없이 폭 480px 세로 배치, 가운데 정렬 */
   :root[data-layout="mobile"] body { max-width: 480px; margin: 0 auto; }
-  h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
-  .sub { color: var(--muted); font-size: 13px; margin: 0; }
-
-  .app {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 24px 16px 40px;
-    display: grid;
-    grid-template-columns: auto minmax(280px, 360px);
-    grid-template-areas: "board head" "board side";
-    grid-template-rows: auto 1fr;
-    gap: 14px 24px;
-    justify-content: center;
-    align-items: start;
-  }
-  .head { grid-area: head; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .title-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  .back { color: var(--muted); font-size: 14px; text-decoration: none; align-self: flex-start; padding: 4px 0; }
-  .back:hover { color: var(--text); }
-  .board-wrap {
-    grid-area: board;
-    /* 2열: 화면폭 - 좌우 패딩 32 - 사이드 최소 280 - 열 간격 24 - 스크롤바 여유 20 */
-    --bw: min(calc(100vw - 32px - 280px - 24px - 20px), 80vh, 600px);
-    width: var(--bw);
-    position: relative;
-  }
-  svg.board {
-    display: block;
-    width: var(--bw);
-    height: var(--bw);
-    border-radius: 6px;
-    box-shadow: 0 10px 30px var(--shadow);
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-  svg.board:focus { outline: none; }
-  svg.board:focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: 3px;
-    box-shadow: 0 0 0 3px var(--focus-halo), 0 10px 30px var(--shadow);
-  }
-  /* 키보드 커서 테두리 (SVG 속성 대신 CSS 로 색·굵기 지정) */
-  svg.board .kbd-cursor { fill: none; stroke: var(--mark); stroke-width: 2.5; }
-  .side { grid-area: side; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-  .status { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-  .turn-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
-  .turn-dot.w { background: var(--dot-w); }
-  .turn-dot.b { background: var(--dot-b); }
-  .status-sub { color: var(--muted); font-size: 13px; margin-top: 4px; min-height: 1em; }
-  .field-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-  .seg {
-    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
-    background: var(--btn); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px;
-  }
-  .seg button {
-    font: inherit; font-size: 14px; border: 0; border-radius: 7px; background: transparent; color: var(--text);
-    padding: 9px 4px; min-height: 40px; cursor: pointer; white-space: normal; line-height: 1.2;
-  }
-  .seg button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
-  .seg button:disabled { opacity: .45; cursor: default; }
-  .seg.disabled button.on { background: var(--btn-hover); color: var(--muted); }
-  /* 헤더 오른쪽: 언어 + 화면 배치 (nav.tools = 모바일 도구 막대와 구분) */
-  .head-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
-  .head-tools select.lang { margin-left: 0; }
-  .seg.layout-seg { display: inline-grid; }
-  .layout-seg button { min-height: 44px; min-width: 52px; padding: 4px 10px; font-size: 13px; white-space: nowrap; }
-  /* 폰에서 PC 모드(viewport 1280 축소)일 때만 --vp-zoom 이 있음 → 실제 손가락 크기 유지 */
-  :root[data-layout="pc"] .layout-seg button {
-    min-height: calc(44px * var(--vp-zoom, 1)); min-width: calc(52px * var(--vp-zoom, 1));
-    font-size: calc(13px * min(var(--vp-zoom, 1), 2.8));
-  }
-  .layout-seg button:hover { background: var(--btn-hover); }
-  /* 선택 표시는 html[data-layout] 기준 (JS 연결 전에도 맞게 보임) */
-  :root[data-layout="mobile"] .layout-seg button[data-v="mobile"],
-  :root[data-layout="pc"] .layout-seg button[data-v="pc"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  button.btn {
-    font: inherit; font-size: 14px; flex: 1; padding: 9px 10px; min-height: 44px; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--btn); color: var(--text); cursor: pointer;
-  }
-  button.btn:hover { background: var(--btn-hover); }
-  button.btn.primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-  button.btn.primary:hover { filter: brightness(1.08); }
-  button.btn:disabled { opacity: .5; cursor: default; }
-  button.btn:focus-visible,
-  .seg button:focus-visible,
-  select.lang:focus-visible,
-  .back:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 2px;
-  }
-  select.lang {
-    font: inherit; font-size: 13px; color: var(--text); background: var(--btn);
-    border: 1px solid var(--border); border-radius: 8px; padding: 5px 6px; min-height: 34px; margin-left: auto;
-  }
-  .stats { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
-  .stats b { color: var(--text); font-variant-numeric: tabular-nums; }
 
   /* 화면에는 안 보이고 스크린리더만 읽는 안내 영역 */
   .sr-only {
     position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
     overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
   }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
-  .overlay {
-    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-    background: var(--overlay); border-radius: 6px; z-index: 5;
+  /* ===== 한 화면 배치 (기본 = 1열: HUD / 위 패널 / 판 / 아래 패널 / 도크) ===== */
+  .app {
+    height: 100vh;
+    margin: 0 auto;
+    max-width: 760px;
+    padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "hud" "top" "board" "bottom" "dock";
+    gap: 6px;
   }
-  .overlay.show { display: flex; }
-  .dialog {
-    background: var(--panel); color: var(--text); border-radius: 12px; padding: 20px 22px;
-    text-align: center; box-shadow: 0 10px 30px var(--shadow-strong); max-width: 90%;
-  }
-  .dialog h2 { margin: 0 0 6px; font-size: 20px; }
-  .dialog p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+  @supports (height: 100dvh) { .app { height: 100dvh; } }
 
-  /* 모바일 세로 배치: body 폭 기준 (좁은 화면이거나 모바일 모드(body 480px)면 적용) */
-  @container (max-width: 820px) {
-    .app {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "head" "board" "side";
-      grid-template-rows: auto;
-      padding: 12px 8px 28px;
-      gap: 10px;
-    }
-    .board-wrap { --bw: min(calc(100cqw - 16px), 70vh, 600px); justify-self: center; }
-    .head { gap: 8px; }
-    h1 { font-size: 19px; }
-    .card { padding: 12px; }
-    .status { font-size: 16px; }
-    .seg button, button.btn { font-size: 13px; }
-    svg.board { border-radius: 4px; }
+  /* ===== 픽셀 버튼 ===== */
+  .gx-btn {
+    font: inherit; font-weight: 900; letter-spacing: .06em; line-height: 1.2;
+    font-size: calc(15px * var(--z));
+    min-height: calc(44px * var(--z)); padding: 8px 16px; margin: var(--px) var(--px) calc(2 * var(--px));
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 0; border-radius: 0; cursor: pointer; position: relative;
+    color: var(--text); background: var(--btn);
+    box-shadow: var(--pxbox), var(--pxdrop),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--btn-edge), inset 0 var(--px) 0 0 var(--btn-hi);
+    -webkit-tap-highlight-color: transparent;
   }
-
-  /* ===== 도구 막대 / 패널 / 조작 줄 (공 배틀과 같은 모양) ===== */
-  .set-card { display: flex; flex-direction: column; gap: 12px; }
-  .set-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .panel-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .panel-head .field-label { margin: 0; }
-  .panel-close {
-    flex: none; width: 44px; height: 44px; margin: -10px -8px -10px auto; padding: 0;
-    border: 0; border-radius: 8px; background: transparent; color: var(--muted);
-    font: inherit; font-size: 22px; line-height: 1; cursor: pointer;
+  .gx-btn.primary {
+    background: var(--primary); color: var(--primary-text);
+    text-shadow: 2px 2px 0 var(--primary-lo);
+    box-shadow: var(--pxbox), var(--pxdrop),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
   }
-  .panel-close:active { background: var(--btn-hover); color: var(--text); }
-  .tool {
-    width: 100%; min-height: 48px; padding: 0; display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--border); border-radius: 10px; background: var(--btn); color: var(--text); cursor: pointer;
+  .gx-btn:active:not(:disabled) {
+    transform: translateY(var(--px));
+    box-shadow: var(--pxbox), 0 var(--px) 0 0 var(--ink), inset 0 var(--px) 0 0 var(--btn-edge);
   }
-  .tool svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .tool:active { background: var(--btn-hover); }
-  .tool[aria-expanded="true"] { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-  .tool:focus-visible, .panel-close:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .panel-close:focus-visible { outline-offset: -2px; }
-  .help-card { display: flex; flex-direction: column; gap: 8px; }
-  .help-text { margin: 0; font-size: 14px; line-height: 1.5; }
+  .gx-btn.primary:active:not(:disabled) {
+    box-shadow: var(--pxbox), 0 var(--px) 0 0 var(--ink), inset 0 var(--px) 0 0 var(--primary-lo);
+  }
+  .gx-btn:disabled { opacity: .5; cursor: default; }
   @media (hover: hover) {
-    .tool:hover:not([aria-expanded="true"]), .panel-close:hover { background: var(--btn-hover); color: var(--text); }
+    .gx-btn:hover:not(:disabled) { background: var(--btn-hover); }
+    .gx-btn.primary:hover:not(:disabled) { background: var(--primary-hi); }
   }
 
-  /* PC: 지금 배치 그대로. 도구 막대·닫기·모바일 전용 요소는 숨김, 모든 카드 보임 */
-  :root[data-layout="pc"] nav.tools,
-  :root[data-layout="pc"] .panel-close,
-  :root[data-layout="pc"] .m-only { display: none; }
+  /* 44×44 아이콘 버튼 (HUD 위) */
+  .gx-icon {
+    width: calc(44px * var(--vp-zoom, 1)); height: calc(44px * var(--vp-zoom, 1));
+    margin: var(--px); padding: 0; flex: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 0; cursor: pointer;
+    background: var(--hud-edge); color: var(--hud-text);
+    box-shadow: inset 0 calc(-1 * var(--px)) 0 0 var(--ink), inset 0 var(--px) 0 0 var(--hud-bg);
+    -webkit-tap-highlight-color: transparent;
+  }
+  :root[data-layout="mobile"] .gx-icon { width: 44px; height: 44px; }
+  .gx-icon svg { width: 60%; height: 60%; fill: currentColor; }
+  .gx-icon:active { transform: translateY(2px); }
+  .gx-icon[aria-pressed="false"] { color: var(--hud-muted); }
+  .gx-icon[aria-pressed="true"] .snd-off,
+  .gx-icon[aria-pressed="false"] .snd-on { display: none; }
 
-  /* ===== 모바일 배치 (data-layout="mobile") =====
-     [헤더 2줄(도구 / 제목) + 상태]
-     [오목판 | 도구 막대(52px)]
-     [조작 줄: 새 게임 · 무르기]
-     [열린 패널 1개: .app[data-open] 과 같은 data-panel-id]
-     --bw = min(폭(100cqw = min(화면 폭, 480)) - 여백 32 - 막대 - 8, 화면 높이 - 헤더 - 조작 줄 - 여백) */
-  :root[data-layout="mobile"] .app {
-    --tools-w: 52px;
-    --head-h: 140px;   /* 헤더 줄 52 + 6 + 제목 22 + 6 + 상태 카드 52 (+2 여유) */
-    --dock-h: 44px;    /* 조작 줄 */
-    --pad-y: 20px;
-    --bw-w: calc(100cqw - 32px - var(--tools-w) - 8px);
-    --bw-m: max(160px, min(var(--bw-w), calc(100vh - var(--pad-y) - var(--head-h) - 8px - 8px - var(--dock-h))));
-    max-width: 480px;
-    padding: 10px 16px;
-    grid-template-columns: minmax(0, 1fr) var(--tools-w);
-    grid-template-areas: "head head" "board tools" "dock dock" "panel panel";
-    grid-template-rows: auto;
-    gap: 8px;
-    justify-content: stretch;
+  /* 포커스 링 (픽셀 3px 실선) */
+  .gx-btn:focus-visible, .gx-icon:focus-visible, .seg button:focus-visible, .gx-back:focus-visible {
+    outline: 3px solid var(--focus); outline-offset: 6px;
   }
-  @supports (height: 100dvh) {
-    :root[data-layout="mobile"] .app {
-      --bw-m: max(160px, min(var(--bw-w), calc(100dvh - var(--pad-y) - var(--head-h) - 8px - 8px - var(--dock-h))));
-    }
+  .gx-hud .gx-icon:focus-visible { outline-color: var(--hud-text); outline-offset: 2px; }
+  .seg button:focus-visible { outline-offset: 2px; position: relative; z-index: 1; }
+  :focus:not(:focus-visible) { outline: none; }
+
+  /* 제목 글씨 */
+  .gx-title {
+    margin: 0; font-size: calc(22px * var(--z)); font-weight: 900; letter-spacing: .06em; line-height: 1.2;
+    color: var(--title-from);
+    text-shadow: 2px 2px 0 var(--ink), 4px 4px 0 var(--title-edge);
   }
-  :root[data-layout="mobile"] .board-wrap { --bw: var(--bw-m); justify-self: end; }
-  /* 헤더 2줄: [←][        ][모바일|PC][언어] / [제목(전체 폭)] / [상태 카드] */
-  :root[data-layout="mobile"] .head {
-    display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; gap: 6px;
+
+  /* ===== HUD: [메뉴] [상태] [수] [소리] ===== */
+  .gx-hud {
+    grid-area: hud; min-width: 0;
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 6px;
+    margin: var(--px); padding: 0 4px;
+    background: var(--hud-bg); color: var(--hud-text);
+    box-shadow: var(--pxbox), inset 0 calc(-1 * var(--px)) 0 0 var(--hud-edge);
   }
-  :root[data-layout="mobile"] .title-row,
-  :root[data-layout="mobile"] .head-tools { display: contents; }
-  :root[data-layout="mobile"] .head .sub { display: none; }  /* 도움말 패널로 옮김 */
-  :root[data-layout="mobile"] .back {
-    order: 1; width: 44px; height: 44px; margin: 0; padding: 0; border-radius: 8px;
-    display: inline-flex; align-items: center; justify-content: center; color: var(--muted);
-    font-size: 0; /* 글자는 접근성 이름으로 남기고 화살표만 */
+  .hud-center { min-width: 0; padding: 4px 0; }
+  .status {
+    display: flex; align-items: center; gap: 8px; min-width: 0;
+    font-size: calc(16px * var(--z)); line-height: 20px; font-weight: 900; letter-spacing: .06em;
+    text-shadow: 2px 2px 0 var(--hud-edge);
   }
-  :root[data-layout="mobile"] .back::before { content: "\2190"; font-size: 22px; line-height: 1; }
-  :root[data-layout="mobile"] .back:active { background: var(--btn-hover); color: var(--text); }
-  :root[data-layout="mobile"] #layoutSeg { order: 3; grid-column: 3; }
-  :root[data-layout="mobile"] #layoutSeg button { min-width: 44px; padding: 6px 8px; font-size: 12px; }
-  :root[data-layout="mobile"] select.lang { order: 4; grid-column: 4; margin: 0; max-width: 92px; min-height: 44px; padding: 8px 4px; font-size: 16px; }
-  /* 제목: 둘째 줄 전체 폭(가로 모드 왼쪽 열 260px 에서도 7개 언어 모두 한 줄) */
-  :root[data-layout="mobile"] h1 {
-    order: 5; grid-column: 1 / -1; font-size: 17px; line-height: 22px; margin: 0; min-width: 0;
+  #status { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .status-sub {
+    color: var(--hud-muted); font-size: calc(12px * var(--z)); line-height: 16px; min-height: 16px; margin-top: 2px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  :root[data-layout="mobile"] .head > .card { order: 6; grid-column: 1 / -1; padding: 6px 10px; }
-  /* 상태 2줄은 한 줄씩 고정(넘치면 말줄임, 전체 문장은 aria-live 로 읽힘) → --head-h 가 정확 */
-  :root[data-layout="mobile"] .status { font-size: 15px; line-height: 20px; min-height: 20px; gap: 8px; }
-  :root[data-layout="mobile"] .turn-dot { width: 14px; height: 14px; }
-  :root[data-layout="mobile"] #status { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  :root[data-layout="mobile"] .status-sub { font-size: 13px; line-height: 16px; min-height: 16px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  /* 도구 막대 */
-  :root[data-layout="mobile"] nav.tools { grid-area: tools; min-width: 0; }
-  :root[data-layout="mobile"] .tool-group {
-    display: flex; flex-direction: column; gap: 6px;
-    max-height: var(--bw-m); overflow-y: auto; overscroll-behavior: contain;
+  /* 차례 점: 픽셀 원 */
+  .turn-dot {
+    width: calc(14px * var(--z)); height: calc(14px * var(--z)); flex: none;
+    clip-path: var(--px-round); background: transparent;
+    box-shadow: inset 0 0 0 2px var(--hud-muted);
   }
-  /* 조작 줄: 설정 카드 안에 있지만 모바일에선 판 바로 아래 줄 */
-  :root[data-layout="mobile"] .side,
-  :root[data-layout="mobile"] .set-card { display: contents; }
-  :root[data-layout="mobile"] .ctrl-row { grid-area: dock; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-  :root[data-layout="mobile"] .ctrl-row button.btn { min-width: 0; padding: 6px 4px; font-size: 14px; line-height: 1.2; overflow-wrap: anywhere; }
-  /* 패널 */
-  :root[data-layout="mobile"] [data-panel-id] .seg button { min-height: 44px; }
-  :root[data-layout="mobile"] [data-panel-id] {
-    grid-area: panel; min-width: 0;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
-    box-shadow: 0 6px 20px var(--shadow);
+  .turn-dot.w { background: var(--dot-w); }
+  .turn-dot.b { background: var(--dot-b); }
+  /* 수 카운터 */
+  .hud-count {
+    display: flex; align-items: baseline; gap: 4px; padding: 0 4px;
+    color: var(--hud-muted); font-weight: 900; letter-spacing: .06em; font-size: calc(12px * var(--z));
   }
-  :root[data-layout="mobile"] .panel-head .field-label { font-size: 13px; font-weight: 600; color: var(--text); }
-  :root[data-layout="mobile"] .stats-card { display: flex; flex-direction: column; gap: 10px; }
-  /* 한 번에 하나: .app[data-open] 과 같은 패널만 보인다(속성 없음 = 모두 닫힘) */
-  :root[data-layout="mobile"] .app:not([data-open="controls"]) [data-panel-id="controls"],
-  :root[data-layout="mobile"] .app:not([data-open="stats"]) [data-panel-id="stats"],
-  :root[data-layout="mobile"] .app:not([data-open="help"]) [data-panel-id="help"] { display: none; }
-  /* 판이 작아져도 결과 창이 판 안에 들어가게 */
-  :root[data-layout="mobile"] .dialog { padding: 14px; max-width: 96%; }
-  :root[data-layout="mobile"] .dialog h2 { font-size: 17px; }
-  :root[data-layout="mobile"] .dialog p { margin-bottom: 10px; font-size: 13px; }
+  .hud-count b {
+    color: var(--hud-text); font-size: calc(18px * var(--z)); min-width: 3ch; text-align: right;
+    text-shadow: 2px 2px 0 var(--hud-edge);
+  }
 
-  /* 모바일 가로(높이 ≤500px): [헤더 / 조작 / 패널 | 오목판 | 도구 막대] */
+  /* ===== 플레이어 패널 ===== */
+  .gx-player {
+    grid-area: top; min-width: 0;
+    display: flex; align-items: center; gap: 10px;
+    min-height: calc(36px * var(--z)); margin: var(--px); padding: 4px 12px 4px 28px; position: relative;
+    background: var(--panel); color: var(--text);
+    font-weight: 900; letter-spacing: .06em; font-size: calc(14px * var(--z));
+    box-shadow: var(--pxbox), inset 0 calc(-1 * var(--px)) 0 0 var(--btn-edge);
+  }
+  #plBottom { grid-area: bottom; }
+  .gx-cursor { position: absolute; left: 9px; top: 50%; translate: 0 -50%; font-size: 12px; visibility: hidden; }
+  .gx-stone {
+    width: calc(20px * var(--z)); height: calc(20px * var(--z)); flex: none; position: relative;
+    clip-path: var(--px-round);
+  }
+  .gx-stone::after { content: ""; position: absolute; inset: 2px; clip-path: var(--px-round); }
+  .gx-player[data-color="b"] .gx-stone { background: var(--stone-b-edge); }
+  .gx-player[data-color="b"] .gx-stone::after {
+    background: linear-gradient(135deg, var(--stone-b-hi) 0 30%, var(--stone-b-lo) 30% 100%);
+  }
+  .gx-player[data-color="w"] .gx-stone { background: var(--stone-w-edge); }
+  .gx-player[data-color="w"] .gx-stone::after {
+    background: linear-gradient(135deg, var(--stone-w-hi) 0 60%, var(--stone-w-lo) 60% 100%);
+  }
+  .gx-player-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gx-player-tag {
+    margin-left: auto; flex: none; color: var(--muted); font-size: calc(12px * var(--z));
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;
+  }
+  .gx-player.active {
+    background: var(--hud-bg); color: var(--hud-text);
+    box-shadow: var(--pxbox), inset 0 calc(-1 * var(--px)) 0 0 var(--hud-edge);
+  }
+  .gx-player.active .gx-player-tag { color: var(--hud-muted); }
+  .gx-player.active .gx-cursor { visibility: visible; color: var(--gold-hi); animation: gx-blink 1s steps(2, jump-none) infinite; }
+
+  /* ===== 판 ===== */
+  .board-wrap {
+    grid-area: board; position: relative; min-width: 0; min-height: 0;
+    container-type: size;
+    display: grid; place-items: center;
+  }
+  svg.board {
+    /* 칸 폭·높이 중 작은 쪽 − 픽셀 나무 테두리(사방 12px + 아래 그림자 4px) */
+    --bw: max(120px, min(calc(100cqw - 32px), calc(100cqh - 32px), 640px));
+    display: block;
+    width: var(--bw);
+    height: var(--bw);
+    border-radius: 0;
+    /* 픽셀 나무 프레임: 안쪽 테두리 + 계단 모서리 외곽선 + 딱딱한 그림자 */
+    box-shadow:
+      0 0 0 var(--px) var(--wood-line),
+      0 0 0 calc(2 * var(--px)) var(--wood),
+      0 calc(-1 * var(--px)) 0 calc(2 * var(--px)) var(--ink), 0 var(--px) 0 calc(2 * var(--px)) var(--ink),
+      calc(-1 * var(--px)) 0 0 calc(2 * var(--px)) var(--ink), var(--px) 0 0 calc(2 * var(--px)) var(--ink),
+      0 calc(2 * var(--px)) 0 calc(2 * var(--px)) var(--hud-edge);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  @supports not (width: 1cqh) {
+    svg.board { --bw: max(120px, min(calc(100vw - 64px), calc(100vh - 290px), 640px)); }
+  }
+  svg.board:focus { outline: none; }
+  svg.board:focus-visible { outline: 3px solid var(--focus); outline-offset: 14px; }
+  /* 키보드 커서 테두리 (SVG 속성 대신 CSS 로 색·굵기 지정) */
+  svg.board .kbd-cursor {
+    fill: none; stroke: var(--mark); stroke-width: 3; stroke-dasharray: 6 4;
+    animation: gx-dim 1s steps(2, jump-none) infinite;
+  }
+  /* 판 연출 훅 (JS 가 SVG 요소에 class 를 붙임) */
+  svg.board .stone-new { transform-box: fill-box; transform-origin: center; animation: gx-stone .2s steps(3, end) both; }
+  svg.board .last-mark { transform-box: fill-box; transform-origin: center; animation: gx-pulse 1.2s steps(2, jump-none) infinite; }
+  svg.board .win-line {
+    stroke-linecap: square; stroke-dasharray: 360; stroke-dashoffset: 0;
+    animation: gx-draw .6s steps(10, end) both;
+  }
+  svg.board .win-stone { transform-box: fill-box; transform-origin: center; animation: gx-pulse .8s steps(2, jump-none) 3; }
+
+  /* 보드 위 잠깐 문구 */
+  .gx-toast {
+    position: absolute; inset: 0; margin: auto; width: max-content; height: max-content; max-width: 90%;
+    z-index: 3; pointer-events: none;
+    padding: 10px 18px; background: var(--hud-bg); color: var(--hud-text);
+    font-size: calc(26px * var(--z)); font-weight: 900; letter-spacing: .06em; white-space: nowrap;
+    text-shadow: 2px 2px 0 var(--hud-edge), 4px 4px 0 var(--title-edge);
+    box-shadow: var(--pxbox), var(--pxdrop);
+  }
+  .gx-toast:not(.show) { display: none; }
+  .gx-toast.show { animation: gx-toast 1.2s steps(6, end) both; }
+
+  /* ===== 하단 도크 ===== */
+  .dock { grid-area: dock; display: flex; justify-content: center; gap: 8px; min-width: 0; }
+  .dock .gx-btn { min-width: min(180px, 60%); }
+
+  /* ===== 일시정지 메뉴 + 하위 화면 ===== */
+  .gx-menu {
+    position: fixed; inset: 0; z-index: 50;
+    display: grid; place-items: center; padding: 16px;
+    background: var(--scrim);
+  }
+  .gx-menu-box {
+    width: min(100%, calc(420px * var(--z)));
+    max-height: calc(100vh - 32px);
+    overflow-y: auto; overscroll-behavior: contain;
+    margin: var(--px); padding: 16px 16px 12px;
+    background: var(--panel); color: var(--text);
+    box-shadow: var(--pxbox), var(--pxdrop),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--btn-edge), inset 0 var(--px) 0 0 var(--panel-hi);
+    animation: gx-pop .2s steps(4, end) both;
+  }
+  @supports (height: 100dvh) { .gx-menu-box { max-height: calc(100dvh - 32px); } }
+  .gx-sheet { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .gx-sheet-head { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+  .gx-sheet-head .gx-title { min-width: 0; overflow-wrap: anywhere; }
+  .gx-back {
+    flex: none; width: calc(44px * var(--z)); min-height: calc(44px * var(--z)); padding: 0;
+    font-size: calc(18px * var(--z));
+  }
+  .gx-menu-list { display: flex; flex-direction: column; gap: 4px; }
+  .gx-menu-list .gx-btn {
+    width: calc(100% - 2 * var(--px)); justify-content: flex-start; text-align: left;
+    padding-left: calc(36px * var(--z)); font-size: calc(17px * var(--z)); min-height: calc(48px * var(--z));
+  }
+  /* 선택 커서 ▶ : aria-current 또는 키보드 포커스 */
+  .gx-menu-list .gx-btn::before {
+    content: "\25B6"; position: absolute; left: calc(12px * var(--z)); top: 50%; translate: 0 -50%;
+    font-size: .7em; visibility: hidden;
+  }
+  .gx-menu-list .gx-btn[aria-current="true"],
+  .gx-menu-list .gx-btn:focus-visible {
+    background: var(--primary); color: var(--primary-text); text-shadow: 2px 2px 0 var(--primary-lo);
+    box-shadow: var(--pxbox), var(--pxdrop),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .gx-menu-list .gx-btn[aria-current="true"]::before,
+  .gx-menu-list .gx-btn:focus-visible::before { visibility: visible; animation: gx-nudge .6s steps(2, jump-none) infinite; }
+  .gx-menu-list .gx-btn:focus-visible { outline-offset: 4px; }
+  /* 나가기 2단계 확인 */
+  .gx-confirm {
+    display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; margin: var(--px);
+    background: var(--btn); box-shadow: var(--pxbox);
+  }
+  .gx-confirm p { margin: 0; font-weight: 700; }
+  .gx-row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .gx-row .gx-btn { flex: 1 1 120px; }
+  .gx-sheet-foot { display: flex; flex-direction: column; }
+  .gx-sheet-foot .gx-btn { width: calc(100% - 2 * var(--px)); }
+
+  /* 설정 한 줄: [라벨] [값] */
+  .gx-opt {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 12px;
+    padding: 6px 0; border-bottom: 2px dashed var(--border);
+  }
+  .gx-opt:last-child { border-bottom: 0; }
+  .gx-opt-label { font-weight: 900; letter-spacing: .06em; font-size: calc(15px * var(--z)); min-width: 0; overflow-wrap: anywhere; }
+  .gx-toggle { min-width: calc(76px * var(--z)); }
+  .gx-toggle[aria-pressed="true"] {
+    background: var(--primary); color: var(--primary-text); text-shadow: 2px 2px 0 var(--primary-lo);
+    box-shadow: var(--pxbox), var(--pxdrop),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .gx-toggle[aria-pressed="true"] .v-off,
+  .gx-toggle:not([aria-pressed="true"]) .v-on { display: none; }
+  .gx-cycle { min-width: calc(150px * var(--z)); justify-content: space-between; padding: 8px 10px; }
+  .gx-cycle-arrow { font-size: .75em; color: var(--primary); }
+  .gx-cycle-val { flex: 1; text-align: center; white-space: nowrap; }
+
+  /* 세그먼트 (모드·난이도·화면 배치) */
+  .field-label { font-size: calc(13px * var(--z)); font-weight: 900; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+  .seg {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    gap: var(--px); padding: var(--px); margin: var(--px);
+    background: var(--ink);
+  }
+  .seg button {
+    font: inherit; font-size: calc(13px * var(--z)); font-weight: 700; line-height: 1.2;
+    border: 0; border-radius: 0; background: var(--btn); color: var(--text);
+    padding: 8px 4px; min-height: calc(44px * var(--z)); min-width: 0; cursor: pointer;
+    white-space: normal; overflow-wrap: anywhere;
+    box-shadow: inset 0 calc(-1 * var(--px)) 0 0 var(--btn-edge), inset 0 var(--px) 0 0 var(--btn-hi);
+  }
+  .seg button:active:not(:disabled) { box-shadow: inset 0 var(--px) 0 0 var(--btn-edge); }
+  .seg button.on {
+    background: var(--primary); color: var(--primary-text); font-weight: 900;
+    box-shadow: inset 0 var(--px) 0 0 var(--primary-lo);
+  }
+  .seg button:disabled { opacity: .45; cursor: default; }
+  .seg.disabled button.on { background: var(--btn-hover); color: var(--muted); box-shadow: inset 0 var(--px) 0 0 var(--btn-edge); }
+  @media (hover: hover) { .seg button:hover:not(:disabled):not(.on) { background: var(--btn-hover); } }
+  .seg.layout-seg { display: inline-grid; grid-auto-columns: auto; }
+  .layout-seg button { min-width: calc(52px * var(--z)); padding: 4px 10px; white-space: nowrap; }
+  /* 선택 표시는 html[data-layout] 기준 (JS 연결 전에도 맞게 보임) */
+  :root[data-layout="mobile"] .layout-seg button[data-v="mobile"],
+  :root[data-layout="pc"] .layout-seg button[data-v="pc"] {
+    background: var(--primary); color: var(--primary-text); font-weight: 900;
+    box-shadow: inset 0 var(--px) 0 0 var(--primary-lo);
+  }
+  .set-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .help-card { display: flex; flex-direction: column; gap: 8px; }
+  .help-text { margin: 0; font-size: calc(14px * var(--z)); line-height: 1.5; }
+  .help-text::before { content: "\25B6\00a0"; color: var(--primary); font-size: .75em; }
+
+  /* ===== 프로필 아바타 (K1): JS 가 .gx-avatar 안에 8×8 SVG(rect.av-x / .av-o / .av-w)를 넣음. 비어 있으면 숨김 ===== */
+  .gx-avatar {
+    width: calc(32px * var(--z)); height: calc(32px * var(--z)); flex: none; padding: 2px;
+    background: var(--btn); box-shadow: inset 0 0 0 2px var(--ink);
+    --av-c: var(--av-red);
+  }
+  .gx-avatar:empty { display: none; }
+  .gx-avatar svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
+  .gx-avatar[data-av-color="orange"] { --av-c: var(--av-orange); }
+  .gx-avatar[data-av-color="yellow"] { --av-c: var(--av-yellow); }
+  .gx-avatar[data-av-color="green"]  { --av-c: var(--av-green); }
+  .gx-avatar[data-av-color="cyan"]   { --av-c: var(--av-cyan); }
+  .gx-avatar[data-av-color="blue"]   { --av-c: var(--av-blue); }
+  .gx-avatar[data-av-color="purple"] { --av-c: var(--av-purple); }
+  .gx-avatar[data-av-color="pink"]   { --av-c: var(--av-pink); }
+  .gx-avatar .av-x { fill: var(--av-c); }
+  .gx-avatar .av-o { fill: var(--ink); }
+  .gx-avatar .av-w { fill: var(--av-white); }
+  .gx-player.active .gx-avatar { background: var(--hud-edge); box-shadow: inset 0 0 0 2px var(--hud-muted); }
+
+  /* ===== 오목판 테마 (K4): svg.board[data-board] 가 --wood/--wood-line 을 바꿈 (wood = 기본) ===== */
+  svg.board[data-board="bamboo"] { --wood: var(--gb-bamboo); --wood-line: var(--gb-bamboo-line); }
+  svg.board[data-board="slate"]  { --wood: var(--gb-slate);  --wood-line: var(--gb-slate-line); }
+  svg.board[data-board="retro"]  { --wood: var(--gb-retro);  --wood-line: var(--gb-retro-line); }
+  /* 돌 세트 훅 (K4): classic = 지금 그대로(url(#gb)/url(#gw)).
+     pixel/gem 은 JS 가 돌을 <g class="st st-px"> / <g class="st st-gem"> 안의 도형으로 그리고
+     아래 class 로 색을 받음(.b = 흑, .w = 백). CSS fill 이 SVG fill 속성보다 우선. */
+  svg.board .st-px { shape-rendering: crispEdges; }
+  svg.board .st-edge.b { fill: var(--stone-b-edge); }
+  svg.board .st-edge.w { fill: var(--stone-w-edge); }
+  svg.board .st-body.b { fill: var(--stone-b-lo); }
+  svg.board .st-body.w { fill: var(--stone-w-lo); }
+  svg.board .st-hi.b   { fill: var(--stone-b-hi); }
+  svg.board .st-hi.w   { fill: var(--stone-w-hi); }
+  svg.board .st-shine  { fill: var(--stone-w-hi); }
+  svg.board .st-gem .st-hi { opacity: .85; }
+  svg.board .st-gem .st-shine { opacity: .9; }
+  svg.board .st.ghost { opacity: .45; }
+  svg.board .st { transform-box: fill-box; transform-origin: center; }
+
+  /* ===== 설정 시트: 넓은 줄(라벨 위, 선택지 아래) · UI 테마 스와치 · 꾸미기 ===== */
+  .gx-opt.wide { grid-template-columns: minmax(0, 1fr); }
+  .gx-subhead {
+    margin: 6px 0 0; font-size: calc(16px * var(--z)); font-weight: 900; letter-spacing: .06em;
+    color: var(--title-from); text-shadow: 2px 2px 0 var(--ink);
+  }
+  .gx-swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .gx-swatches .gx-btn {
+    flex-direction: column; gap: 4px; padding: 6px 2px; min-width: 0;
+    font-size: calc(11px * var(--z)); overflow-wrap: anywhere;
+  }
+  .gx-swatches .gx-btn[aria-pressed="true"] { background: var(--btn-hover); outline: 3px solid var(--primary); outline-offset: 2px; }
+  .gx-swatches .gx-btn[aria-pressed="true"]:focus-visible { outline-color: var(--focus); outline-offset: 6px; }
+  .sw-chip { display: block; width: 100%; max-width: 44px; height: calc(18px * var(--z)); box-shadow: inset 0 0 0 2px var(--ink); }
+  .sw-chip[data-v="classic"] { background: linear-gradient(90deg, var(--sw-classic-a) 0 50%, var(--sw-classic-b) 50% 100%); }
+  .sw-chip[data-v="gameboy"] { background: linear-gradient(90deg, var(--sw-gameboy-a) 0 50%, var(--sw-gameboy-b) 50% 100%); }
+  .sw-chip[data-v="neon"]    { background: linear-gradient(90deg, var(--sw-neon-a) 0 50%, var(--sw-neon-b) 50% 100%); }
+  .sw-chip[data-v="famicom"] { background: linear-gradient(90deg, var(--sw-famicom-a) 0 50%, var(--sw-famicom-b) 50% 100%); }
+  /* 꾸미기 세그먼트 안 미리보기 칩 (판 색 / 돌 모양) */
+  .bd-chip, .st-chip { display: block; margin: 0 auto 4px; pointer-events: none; }
+  .bd-chip { width: 24px; height: 12px; box-shadow: inset 0 0 0 2px var(--ink); }
+  .bd-chip[data-v="wood"]   { background: linear-gradient(90deg, var(--wood) 0 70%, var(--wood-line) 70% 100%); }
+  .bd-chip[data-v="bamboo"] { background: linear-gradient(90deg, var(--gb-bamboo) 0 70%, var(--gb-bamboo-line) 70% 100%); }
+  .bd-chip[data-v="slate"]  { background: linear-gradient(90deg, var(--gb-slate) 0 70%, var(--gb-slate-line) 70% 100%); }
+  .bd-chip[data-v="retro"]  { background: linear-gradient(90deg, var(--gb-retro) 0 70%, var(--gb-retro-line) 70% 100%); }
+  .st-chip { width: 14px; height: 14px; }
+  .st-chip[data-v="classic"] { clip-path: circle(50%); background: radial-gradient(circle at 35% 30%, var(--stone-b-hi) 0 25%, var(--stone-b-lo) 25%); }
+  .st-chip[data-v="pixel"]   { clip-path: var(--px-round); background: linear-gradient(135deg, var(--stone-b-hi) 0 30%, var(--stone-b-lo) 30%); }
+  .st-chip[data-v="gem"]     { clip-path: polygon(50% 0, 100% 40%, 50% 100%, 0 40%); background: linear-gradient(135deg, var(--stone-w-hi) 0 20%, var(--stone-b-hi) 20% 45%, var(--stone-b-lo) 45%); }
+
+  /* ===== 결과 화면 ===== */
+  .gx-result {
+    position: fixed; inset: 0; z-index: 40;
+    display: none; place-items: center; padding: 16px; overflow: hidden;
+    background: var(--scrim);
+  }
+  .gx-result.show { display: grid; }
+  .gx-rays {
+    position: absolute; left: 50%; top: 50%; width: 200vmax; height: 200vmax; translate: -50% -50%;
+    background: repeating-conic-gradient(var(--ray) 0 10deg, transparent 10deg 20deg);
+    pointer-events: none; display: none;
+    animation: gx-spin 12s steps(36, end) infinite;
+  }
+  .gx-result[data-outcome="win"] .gx-rays { display: block; }
+  .gx-result-box {
+    position: relative; text-align: center;
+    width: min(100%, calc(440px * var(--z)));
+    margin: var(--px); padding: 22px 18px 14px;
+    background: var(--panel); color: var(--text);
+    box-shadow: var(--pxbox), var(--pxdrop),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--btn-edge), inset 0 var(--px) 0 0 var(--panel-hi);
+  }
+  .gx-stars {
+    position: absolute; left: 50%; top: calc(-28px * var(--z)); translate: -50% 0;
+    width: calc(160px * var(--z)); height: auto; display: none;
+  }
+  .gx-stars rect { fill: var(--gold-hi); }
+  .gx-stars .s2 rect { fill: var(--gold); }
+  .gx-result[data-outcome="win"] .gx-stars { display: block; animation: gx-blink 1s steps(2, jump-none) infinite; }
+  .gx-outcome {
+    margin: 0 0 6px; font-size: calc(40px * var(--z)); font-weight: 900; letter-spacing: .08em; line-height: 1.1;
+    text-shadow: 2px 2px 0 var(--ink), 4px 4px 0 var(--title-edge);
+  }
+  .gx-outcome span { display: none; }
+  .gx-result[data-outcome="win"] .gx-outcome [data-o="win"],
+  .gx-result[data-outcome="lose"] .gx-outcome [data-o="lose"],
+  .gx-result[data-outcome="draw"] .gx-outcome [data-o="draw"] { display: inline; }
+  .gx-result[data-outcome="win"] .gx-outcome { color: var(--win); }
+  .gx-result[data-outcome="lose"] .gx-outcome { color: var(--lose); }
+  .gx-result[data-outcome="draw"] .gx-outcome { color: var(--draw); }
+  .gx-result.show .gx-outcome { animation: gx-banner .4s steps(4, end) both; }
+  .gx-result h2 { margin: 0 0 4px; font-size: calc(20px * var(--z)); font-weight: 900; letter-spacing: .06em; }
+  .gx-result p.gx-result-text { margin: 0 0 12px; color: var(--muted); font-size: calc(14px * var(--z)); }
+  .gx-result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+  .gx-result-actions .gx-btn { flex: 1 1 110px; }
+
+  /* ===== 페이지 진입/퇴장 전환 (블록 와이프) ===== */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
+    background: var(--hud-bg); clip-path: inset(0 0 100% 0);
+  }
+  html.gx-enter body::before { animation: gx-wipe-in .25s steps(5, end) both; }
+  html.gx-leave body::before { animation: gx-wipe-out .25s steps(5, end) both; }
+
+  /* ===== PC 배치 (넓은 화면): [판 | 오른쪽: 위 패널 / 빈칸 / 아래 패널 / 도크] ===== */
+  @container (min-width: 821px) {
+    :root[data-layout="pc"] .app {
+      max-width: calc(1040px * var(--z));
+      padding: 16px 24px;
+      grid-template-columns: minmax(0, 1fr) calc(280px * var(--z));
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+      grid-template-areas: "hud hud" "board top" "board ." "board bottom" "board dock";
+      gap: 12px 24px;
+    }
+    :root[data-layout="pc"] .dock { justify-content: stretch; }
+    :root[data-layout="pc"] .dock .gx-btn { flex: 1; min-width: 0; }
+  }
+
+  /* ===== 모바일 가로(높이 ≤500px): [왼쪽: HUD / 패널 / 도크 | 오목판] ===== */
   @media (orientation: landscape) and (max-height: 500px) {
     :root[data-layout="mobile"] body { max-width: none; }
     :root[data-layout="mobile"] .app {
-      --bw-w: calc(100cqw - 32px - var(--tools-w) - 16px - 260px);
-      --bw-m: max(160px, min(var(--bw-w), calc(100vh - var(--pad-y))));
       max-width: 1000px;
-      grid-template-columns: minmax(260px, 1fr) var(--bw-m) var(--tools-w);
-      grid-template-areas: "head board tools" "dock board tools" "panel board tools";
-      grid-template-rows: auto auto 1fr;
+      padding: 8px 16px;
+      grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+      grid-template-areas: "hud board" "top board" ". board" "bottom board" "dock board";
+      gap: 6px 16px;
     }
-    @supports (height: 100dvh) {
-      :root[data-layout="mobile"] .app { --bw-m: max(160px, min(var(--bw-w), calc(100dvh - var(--pad-y)))); }
-    }
-    /* 왼쪽 열 260px: ← 44 + 배치 버튼 + 언어 92 + 간격 → ja「モバイル」가 들어가도록 칸 폭을 글자에 맞추고 안쪽 여백을 줄임 */
-    :root[data-layout="mobile"] #layoutSeg { grid-auto-columns: auto; }
-    :root[data-layout="mobile"] #layoutSeg button { padding: 6px 4px; }
-    :root[data-layout="mobile"] [data-panel-id] {
-      max-height: max(120px, calc(100dvh - var(--pad-y) - var(--head-h) - var(--dock-h) - 24px));
-      overflow-y: auto; overscroll-behavior: contain;
-    }
+    :root[data-layout="mobile"] .dock .gx-btn { flex: 1; min-width: 0; }
+    :root[data-layout="mobile"] .hud-count { padding: 0; }
+  }
+
+  /* ===== 애니메이션 (steps 위주) ===== */
+  @keyframes gx-blink { 50% { opacity: 0; } }
+  @keyframes gx-dim { 50% { opacity: .35; } }
+  @keyframes gx-nudge { 50% { translate: 3px -50%; } }
+  @keyframes gx-stone { 0% { transform: scale(1.5); opacity: .3; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes gx-pulse { 50% { transform: scale(1.6); } }
+  @keyframes gx-draw { from { stroke-dashoffset: 360; } to { stroke-dashoffset: 0; } }
+  @keyframes gx-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes gx-banner { from { transform: scale(2.2); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes gx-spin { to { transform: rotate(360deg); } }
+  @keyframes gx-toast {
+    0% { transform: scale(.6); opacity: 0; } 15% { transform: scale(1.1); opacity: 1; }
+    25%, 80% { transform: none; opacity: 1; } 100% { opacity: 0; }
+  }
+  @keyframes gx-wipe-in { from { clip-path: inset(0); } to { clip-path: inset(100% 0 0 0); } }
+  @keyframes gx-wipe-out { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+
+  /* 움직임 줄이기: 모든 연출 끔 (전환 덮개도 안 보이게) */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html.gx-enter body::before, html.gx-leave body::before { clip-path: inset(0 0 100% 0); }
+    .gx-toast.show { opacity: 1; }
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="head">
-    <a class="back" href="index.html" data-i18n="back">← 게임 목록</a>
-    <div class="title-row">
-      <h1 data-i18n="title">오목</h1>
-      <p class="sub" data-i18n="hint">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리</p>
-      <div class="head-tools">
-        <select class="lang" id="lang" aria-label="언어"></select>
-        <span class="sr-only" id="layoutLbl" data-i18n="layout">화면 배치</span>
-        <div class="seg layout-seg" id="layoutSeg" role="group" aria-labelledby="layoutLbl">
-          <button type="button" data-v="mobile" data-i18n="layoutMobile" aria-pressed="false">모바일</button>
-          <button type="button" data-v="pc" data-i18n="layoutPc" aria-pressed="false">PC</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
+  <!-- HUD: [메뉴] [상태] [수] [소리] -->
+  <header class="gx-hud">
+    <button type="button" class="gx-icon" id="menuBtn" aria-label="메뉴" data-i18n-aria="menu"
+            aria-haspopup="dialog" aria-controls="gxMenu" aria-expanded="false">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+        <rect x="2" y="3" width="12" height="2"/><rect x="2" y="7" width="12" height="2"/><rect x="2" y="11" width="12" height="2"/>
+      </svg>
+    </button>
+    <div class="hud-center">
+      <h1 class="sr-only" data-i18n="title">오목</h1>
       <div class="status"><span class="turn-dot b" id="turnDot"></span><span id="status" aria-live="polite">흑 차례</span></div>
       <div class="status-sub" id="statusSub"></div>
     </div>
+    <div class="hud-count"><span data-i18n="moveShort">수</span><b class="num" id="moveCount">0</b></div>
+    <button type="button" class="gx-icon" id="soundBtn" aria-label="소리" data-i18n-aria="sound" aria-pressed="true">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+        <rect x="1" y="6" width="3" height="4"/><rect x="4" y="5" width="2" height="6"/><rect x="6" y="3" width="2" height="10"/>
+        <g class="snd-on"><rect x="10" y="6" width="1" height="4"/><rect x="12" y="4" width="1" height="8"/><rect x="14" y="2" width="1" height="12"/></g>
+        <g class="snd-off"><rect x="10" y="5" width="1" height="1"/><rect x="11" y="6" width="1" height="1"/><rect x="12" y="7" width="2" height="2"/><rect x="14" y="9" width="1" height="1"/><rect x="15" y="10" width="1" height="1"/><rect x="15" y="5" width="1" height="1"/><rect x="14" y="6" width="1" height="1"/><rect x="11" y="9" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/></g>
+      </svg>
+    </button>
   </header>
+
+  <!-- 플레이어 패널: data-color(b|w)·이름·태그·.active 는 JS 가 채움 -->
+  <section class="gx-player" id="plTop" data-color="w" aria-labelledby="plTopName">
+    <span class="gx-cursor" aria-hidden="true">&#9654;</span>
+    <span class="gx-stone" aria-hidden="true"></span>
+    <span class="gx-avatar" id="plTopAvatar" aria-hidden="true"></span>
+    <span class="gx-player-name" id="plTopName">백</span>
+    <span class="gx-player-tag" id="plTopTag">AI</span>
+  </section>
 
   <div class="board-wrap">
     <svg class="board" id="board" role="application" tabindex="0" aria-label="오목판"></svg>
     <div class="sr-only" id="sr" aria-live="polite"></div>
-    <div class="overlay" id="endOverlay">
-      <div class="dialog">
-        <h2 id="endTitle"></h2>
-        <p id="endText"></p>
-        <div class="row">
-          <button class="btn" id="endClose" data-i18n="viewBoard">판 보기</button>
-          <button class="btn primary" id="endNew" data-i18n="newGame">새 게임</button>
-        </div>
+    <div class="gx-toast" id="gxToast" aria-hidden="true"></div>
+  </div>
+
+  <section class="gx-player" id="plBottom" data-color="b" aria-labelledby="plBottomName">
+    <span class="gx-cursor" aria-hidden="true">&#9654;</span>
+    <span class="gx-stone" aria-hidden="true"></span>
+    <span class="gx-avatar" id="plBottomAvatar" aria-hidden="true"></span>
+    <span class="gx-player-name" id="plBottomName">흑</span>
+    <span class="gx-player-tag" id="plBottomTag">나</span>
+  </section>
+
+  <!-- 하단 도크 -->
+  <div class="dock" id="actionDock">
+    <button type="button" class="gx-btn" id="undoBtn" data-i18n="undo">무르기</button>
+  </div>
+
+  <!-- 결과 화면: .show 로 열림(기존 JS), data-outcome = win|lose|draw -->
+  <div class="gx-result" id="endOverlay" role="dialog" aria-modal="true" aria-labelledby="endTitle" aria-describedby="endText" data-outcome="">
+    <div class="gx-rays" aria-hidden="true"></div>
+    <div class="gx-result-box">
+      <svg class="gx-stars" viewBox="0 0 64 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+        <g><rect x="6" y="6" width="1" height="5"/><rect x="4" y="8" width="5" height="1"/></g>
+        <g class="s2"><rect x="31" y="0" width="2" height="8"/><rect x="28" y="3" width="8" height="2"/></g>
+        <g><rect x="57" y="6" width="1" height="5"/><rect x="55" y="8" width="5" height="1"/></g>
+      </svg>
+      <p class="gx-outcome" aria-hidden="true">
+        <span data-o="win" data-i18n="victory">승리!</span><span data-o="lose" data-i18n="defeat">패배…</span><span data-o="draw" data-i18n="drawResult">무승부</span>
+      </p>
+      <h2 id="endTitle"></h2>
+      <p class="gx-result-text" id="endText"></p>
+      <div class="gx-result-actions">
+        <button type="button" class="gx-btn" id="endClose" data-i18n="viewBoard">판 보기</button>
+        <button type="button" class="gx-btn primary" id="endNew" data-i18n="newGame">새 게임</button>
+        <button type="button" class="gx-btn" id="endExit" data-i18n="exit">나가기</button>
       </div>
     </div>
   </div>
 
-  <!-- 도구 막대: 모바일은 판 오른쪽 세로 열(아이콘), PC는 숨김.
-       .tool[data-panel] 은 아래 [data-panel-id] 패널을 연다(JS: .app[data-open]). -->
-  <nav class="tools" id="tools" aria-label="도구" data-i18n-aria="tools">
-    <div class="tool-group">
-      <button type="button" class="tool" data-panel="controls" aria-controls="panelControls" aria-expanded="false" aria-label="게임 설정" data-i18n-aria="controls">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg>
-      </button>
-      <button type="button" class="tool" data-panel="stats" aria-controls="panelStats" aria-expanded="false" aria-label="기록" data-i18n-aria="stats">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/></svg>
-      </button>
-      <button type="button" class="tool" data-panel="help" aria-controls="panelHelp" aria-expanded="false" aria-label="도움말" data-i18n-aria="help">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/></svg>
-      </button>
-    </div>
-  </nav>
+  <!-- 일시정지 메뉴 + 하위 화면(설정·도움말·준비). 열기/닫기·어느 화면을 보일지는 JS(hidden) -->
+  <div class="gx-menu" id="gxMenu" role="dialog" aria-modal="true" aria-labelledby="gxPauseTitle" hidden>
+    <div class="gx-menu-box">
 
-  <div class="side">
-    <div class="card set-card">
-      <section class="set-body" id="panelControls" data-panel-id="controls" aria-labelledby="controlsTitle">
-      <div class="panel-head m-only">
-        <span class="field-label" id="controlsTitle" data-i18n="controls">게임 설정</span>
-        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
-      </div>
-      <div>
-        <div class="field-label" data-i18n="level">AI 난이도</div>
-        <div class="seg" id="levelSeg">
-          <button data-v="0" data-i18n="lv0">입문</button>
-          <button data-v="1" data-i18n="lv1">쉬움</button>
-          <button data-v="2" data-i18n="lv2">보통</button>
-          <button data-v="3" data-i18n="lv3">어려움</button>
+      <section class="gx-sheet" id="gxPause" data-sheet="pause">
+        <div class="gx-sheet-head"><h2 class="gx-title" id="gxPauseTitle" data-i18n="menu">메뉴</h2></div>
+        <div class="gx-menu-list">
+          <button type="button" class="gx-btn" id="menuResume" data-i18n="resume" aria-current="true">계속하기</button>
+          <button type="button" class="gx-btn" id="menuRestart" data-i18n="newGame">새 게임</button>
+          <button type="button" class="gx-btn" id="menuSettings" data-i18n="settings">설정</button>
+          <button type="button" class="gx-btn" id="menuHelp" data-i18n="help">도움말</button>
+          <button type="button" class="gx-btn" id="menuExit" data-i18n="exit">나가기</button>
         </div>
-      </div>
-      <div>
-        <div class="field-label" data-i18n="mode">대전 방식</div>
-        <div class="seg" id="modeSeg">
-          <button data-v="me-b" data-i18n="modeB">나: 흑(먼저)</button>
-          <button data-v="me-w" data-i18n="modeW">나: 백</button>
-          <button data-v="pvp" data-i18n="modePvp">2인 대전</button>
+        <div class="gx-confirm" id="exitConfirm" role="group" aria-labelledby="exitConfirmText" hidden>
+          <p id="exitConfirmText" data-i18n="exitConfirm">진행 중인 대국을 그만두고 나갈까요?</p>
+          <div class="gx-row">
+            <button type="button" class="gx-btn primary" id="exitYes" data-i18n="exit">나가기</button>
+            <button type="button" class="gx-btn" id="exitNo" data-i18n="cancel">취소</button>
+          </div>
         </div>
-      </div>
       </section>
-      <!-- 조작 줄: PC는 설정 카드 안, 모바일은 판 바로 아래 줄(grid-area: dock) -->
-      <div class="row ctrl-row" id="actionDock">
-        <button class="btn primary" id="newBtn" data-i18n="newGame">새 게임</button>
-        <button class="btn" id="undoBtn" data-i18n="undo">무르기</button>
-      </div>
-    </div>
-    <section class="card stats-card" id="panelStats" data-panel-id="stats" aria-labelledby="statsTitle">
-      <div class="panel-head m-only">
-        <span class="field-label" id="statsTitle" data-i18n="stats">기록</span>
-        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
-      </div>
-      <div class="stats">
-        <span data-i18n="moveCount">놓은 돌</span><b id="moveCount">0</b>
-      </div>
-    </section>
 
-    <!-- 도움말: 모바일 전용(PC는 헤더 안내 문구로 충분) -->
-    <section class="card help-card m-only" id="panelHelp" data-panel-id="help" aria-labelledby="helpTitle">
-      <div class="panel-head">
-        <span class="field-label" id="helpTitle" data-i18n="help">도움말</span>
-        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
-      </div>
-      <p class="help-text" data-i18n="hint">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리</p>
-      <p class="help-text" data-i18n="kbdHelp">방향키로 이동, Enter 또는 Space로 착수</p>
-    </section>
+      <section class="gx-sheet" id="gxSettings" data-sheet="settings" aria-labelledby="gxSettingsTitle" hidden>
+        <div class="gx-sheet-head">
+          <button type="button" class="gx-btn gx-back" data-back aria-label="뒤로" data-i18n-aria="goBack">&#9664;</button>
+          <h2 class="gx-title" id="gxSettingsTitle" data-i18n="settings">설정</h2>
+        </div>
+        <div class="gx-opt">
+          <span class="gx-opt-label" id="soundLbl" data-i18n="sound">소리</span>
+          <button type="button" class="gx-btn gx-toggle" id="soundToggle" aria-labelledby="soundLbl" aria-pressed="true">
+            <span class="v-on" data-i18n="on">켜짐</span><span class="v-off" data-i18n="off">꺼짐</span>
+          </button>
+        </div>
+        <div class="gx-opt">
+          <span class="gx-opt-label" id="langLbl" data-i18n="langLabel">언어</span>
+          <button type="button" class="gx-btn gx-cycle" id="langCycle" aria-labelledby="langLbl langCycleVal">
+            <span class="gx-cycle-arrow" aria-hidden="true">&#9664;</span>
+            <span class="gx-cycle-val" id="langCycleVal">한국어</span>
+            <span class="gx-cycle-arrow" aria-hidden="true">&#9654;</span>
+          </button>
+          <select class="lang" id="lang" aria-label="언어" hidden></select>
+        </div>
+        <div class="gx-opt">
+          <span class="gx-opt-label" id="layoutLbl" data-i18n="layout">화면 배치</span>
+          <div class="seg layout-seg" id="layoutSeg" role="group" aria-labelledby="layoutLbl">
+            <button type="button" data-v="mobile" data-i18n="layoutMobile" aria-pressed="false">모바일</button>
+            <button type="button" data-v="pc" data-i18n="layoutPc" aria-pressed="false">PC</button>
+          </div>
+        </div>
+        <div class="gx-opt wide" id="uiThemeOpt">
+          <span class="gx-opt-label" id="uiThemeLbl" data-i18n="uiTheme">UI 테마</span>
+          <div class="gx-swatches" id="uiThemeSwatches" role="group" aria-labelledby="uiThemeLbl">
+            <button type="button" class="gx-btn" data-v="classic" aria-pressed="true"><span class="sw-chip" data-v="classic" aria-hidden="true"></span><span data-i18n="thClassic">클래식</span></button>
+            <button type="button" class="gx-btn" data-v="gameboy" aria-pressed="false"><span class="sw-chip" data-v="gameboy" aria-hidden="true"></span><span data-i18n="thGameboy">게임보이</span></button>
+            <button type="button" class="gx-btn" data-v="neon" aria-pressed="false"><span class="sw-chip" data-v="neon" aria-hidden="true"></span><span data-i18n="thNeon">네온</span></button>
+            <button type="button" class="gx-btn" data-v="famicom" aria-pressed="false"><span class="sw-chip" data-v="famicom" aria-hidden="true"></span><span data-i18n="thFamicom">패미컴</span></button>
+          </div>
+        </div>
+        <h3 class="gx-subhead" id="skinTitle" data-i18n="customize">꾸미기</h3>
+        <div class="gx-opt wide">
+          <span class="gx-opt-label" id="skinStonesLbl" data-i18n="skinStones">돌 모양</span>
+          <div class="seg" id="skinStones" role="group" aria-labelledby="skinStonesLbl">
+            <button type="button" data-v="classic" aria-pressed="true" class="on"><span class="st-chip" data-v="classic" aria-hidden="true"></span><span data-i18n="stClassic">클래식</span></button>
+            <button type="button" data-v="pixel" aria-pressed="false"><span class="st-chip" data-v="pixel" aria-hidden="true"></span><span data-i18n="stPixel">픽셀</span></button>
+            <button type="button" data-v="gem" aria-pressed="false"><span class="st-chip" data-v="gem" aria-hidden="true"></span><span data-i18n="stGem">보석</span></button>
+          </div>
+        </div>
+        <div class="gx-opt wide">
+          <span class="gx-opt-label" id="skinBoardLbl" data-i18n="skinBoard">판</span>
+          <div class="seg" id="skinBoard" role="group" aria-labelledby="skinBoardLbl">
+            <button type="button" data-v="wood" aria-pressed="true" class="on"><span class="bd-chip" data-v="wood" aria-hidden="true"></span><span data-i18n="bdWood">나무</span></button>
+            <button type="button" data-v="bamboo" aria-pressed="false"><span class="bd-chip" data-v="bamboo" aria-hidden="true"></span><span data-i18n="bdBamboo">대나무</span></button>
+            <button type="button" data-v="slate" aria-pressed="false"><span class="bd-chip" data-v="slate" aria-hidden="true"></span><span data-i18n="bdSlate">석판</span></button>
+            <button type="button" data-v="retro" aria-pressed="false"><span class="bd-chip" data-v="retro" aria-hidden="true"></span><span data-i18n="bdRetro">레트로</span></button>
+          </div>
+        </div>
+        <div class="gx-sheet-foot">
+          <button type="button" class="gx-btn" id="settingsSetup" data-i18n="changeLevel">난이도 변경</button>
+        </div>
+      </section>
+
+      <section class="gx-sheet" id="gxHelp" data-sheet="help" aria-labelledby="gxHelpTitle" hidden>
+        <div class="gx-sheet-head">
+          <button type="button" class="gx-btn gx-back" data-back aria-label="뒤로" data-i18n-aria="goBack">&#9664;</button>
+          <h2 class="gx-title" id="gxHelpTitle" data-i18n="help">도움말</h2>
+        </div>
+        <section class="help-card" id="panelHelp" data-panel-id="help" aria-labelledby="gxHelpTitle">
+          <p class="help-text" data-i18n="hint">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리</p>
+          <p class="help-text" data-i18n="tapAgain">같은 곳을 한 번 더 누르면 돌을 놓아요</p>
+          <p class="help-text" data-i18n="kbdHelp">방향키로 이동, Enter 또는 Space로 착수</p>
+          <p class="help-text" data-i18n="kbdMenu">Esc 또는 P로 메뉴 열기</p>
+        </section>
+      </section>
+
+      <section class="gx-sheet" id="gxSetup" data-sheet="setup" aria-labelledby="gxSetupTitle" hidden>
+        <div class="gx-sheet-head">
+          <button type="button" class="gx-btn gx-back" data-back aria-label="뒤로" data-i18n-aria="goBack">&#9664;</button>
+          <h2 class="gx-title" id="gxSetupTitle" data-i18n="setup">대국 준비</h2>
+        </div>
+        <section class="set-body" id="panelControls" data-panel-id="controls" aria-labelledby="gxSetupTitle">
+          <div>
+            <div class="field-label" id="modeLbl" data-i18n="mode">대전 방식</div>
+            <div class="seg" id="modeSeg" role="group" aria-labelledby="modeLbl">
+              <button data-v="me-b" data-i18n="modeB">나: 흑(먼저)</button>
+              <button data-v="me-w" data-i18n="modeW">나: 백</button>
+              <button data-v="pvp" data-i18n="modePvp">2인 대전</button>
+            </div>
+          </div>
+          <div>
+            <div class="field-label" id="levelLbl" data-i18n="level">AI 난이도</div>
+            <div class="seg" id="levelSeg" role="group" aria-labelledby="levelLbl">
+              <button data-v="0" data-i18n="lv0">입문</button>
+              <button data-v="1" data-i18n="lv1">쉬움</button>
+              <button data-v="2" data-i18n="lv2">보통</button>
+              <button data-v="3" data-i18n="lv3">어려움</button>
+            </div>
+          </div>
+        </section>
+        <div class="gx-sheet-foot">
+          <button type="button" class="gx-btn primary" id="setupStart" data-i18n="startMatch">대국 시작</button>
+        </div>
+      </section>
+
+    </div>
   </div>
+
 </div>
 
 <script>
 // ===== 다국어 =====
 const I18N = {
   ko: {
-    name: '한국어', title: '오목', hint: '가로·세로·대각선으로 돌 5개를 먼저 이으면 승리', board: '오목판', back: '← 게임 목록',
+    name: '한국어', title: '오목', hint: '가로·세로·대각선으로 돌 5개를 먼저 이으면 승리', board: '오목판',
     turnB: '흑 차례', turnW: '백 차례', thinking: 'AI가 생각 중…', yourTurn: '내 차례예요',
     tapAgain: '같은 곳을 한 번 더 누르면 돌을 놓아요', winB: '흑 승리', winW: '백 승리', draw: '무승부',
     full: '판이 가득 찼어요', five: '다섯 개를 이었어요', restart: '새 게임을 눌러 다시 시작하세요',
     level: 'AI 난이도', lv0: '입문', lv1: '쉬움', lv2: '보통', lv3: '어려움',
     mode: '대전 방식', modeB: '나: 흑(먼저)', modeW: '나: 백', modePvp: '2인 대전',
-    newGame: '새 게임', undo: '무르기', viewBoard: '판 보기', moveCount: '놓은 돌',
-    confirmMode: '대전 방식을 바꾸면 새 게임이 시작돼요. 계속할까요?',
-    layout: '화면 배치', layoutMobile: '모바일', layoutPc: 'PC',
-    controls: '게임 설정', tools: '도구', close: '닫기', stats: '기록', help: '도움말',
+    newGame: '새 게임', undo: '무르기', viewBoard: '판 보기',
+    layout: '화면 배치', layoutMobile: '모바일', layoutPc: 'PC', help: '도움말',
     langLabel: '언어', cellEmpty: '빈 자리', cellB: '흑돌', cellW: '백돌', kbdHelp: '방향키로 이동, Enter 또는 Space로 착수',
+    menu: '메뉴', resume: '계속하기', settings: '설정', exit: '나가기', exitConfirm: '진행 중인 대국을 그만두고 나갈까요?',
+    cancel: '취소', goBack: '뒤로', victory: '승리!', defeat: '패배…', drawResult: '무승부',
+    sound: '소리', on: '켜짐', off: '꺼짐', startMatch: '대국 시작', setup: '대국 준비', changeLevel: '난이도 변경',
+    moveShort: '수', kbdMenu: 'Esc 또는 P로 메뉴 열기',
+    uiTheme: 'UI 테마', thClassic: '클래식', thGameboy: '게임보이', thNeon: '네온', thFamicom: '패미컴',
+    customize: '꾸미기', skinStones: '돌 모양', skinBoard: '판', stClassic: '클래식', stPixel: '픽셀', stGem: '보석',
+    bdWood: '나무', bdBamboo: '대나무', bdSlate: '석판', bdRetro: '레트로',
+    you: '나', ai: 'AI', player: '플레이어', player2: '플레이어 2', colorB: '흑', colorW: '백',
+    fiveToast: '오목!', startToast: '시작!',
   },
   en: {
-    name: 'English', title: 'Gomoku', hint: 'Get five stones in a row — across, down or diagonally', board: 'Gomoku board', back: '← All games',
+    name: 'English', title: 'Gomoku', hint: 'Get five stones in a row — across, down or diagonally', board: 'Gomoku board',
     turnB: 'Black to move', turnW: 'White to move', thinking: 'AI is thinking…', yourTurn: 'Your move',
     tapAgain: 'Tap the same spot again to place', winB: 'Black wins', winW: 'White wins', draw: 'Draw',
     full: 'The board is full', five: 'Five in a row', restart: 'Press "New game" to play again',
     level: 'AI level', lv0: 'Beginner', lv1: 'Easy', lv2: 'Medium', lv3: 'Hard',
     mode: 'Mode', modeB: 'Me: Black (first)', modeW: 'Me: White', modePvp: '2 players',
-    newGame: 'New game', undo: 'Undo', viewBoard: 'View board', moveCount: 'Stones placed',
-    confirmMode: 'Changing the mode starts a new game. Continue?',
-    layout: 'Layout', layoutMobile: 'Mobile', layoutPc: 'PC',
-    controls: 'Game settings', tools: 'Tools', close: 'Close', stats: 'Stats', help: 'Help',
+    newGame: 'New game', undo: 'Undo', viewBoard: 'View board',
+    layout: 'Layout', layoutMobile: 'Mobile', layoutPc: 'PC', help: 'Help',
     langLabel: 'Language', cellEmpty: 'empty', cellB: 'black stone', cellW: 'white stone', kbdHelp: 'Arrow keys to move, Enter or Space to place',
+    menu: 'Menu', resume: 'Resume', settings: 'Settings', exit: 'Exit', exitConfirm: 'Quit the game in progress and leave?',
+    cancel: 'Cancel', goBack: 'Back', victory: 'VICTORY!', defeat: 'DEFEAT…', drawResult: 'DRAW',
+    sound: 'Sound', on: 'On', off: 'Off', startMatch: 'Start match', setup: 'Match setup', changeLevel: 'Change level',
+    moveShort: 'Move', kbdMenu: 'Esc or P opens the menu',
+    uiTheme: 'UI theme', thClassic: 'Classic', thGameboy: 'Game Boy', thNeon: 'Neon', thFamicom: 'Famicom',
+    customize: 'Customize', skinStones: 'Stones', skinBoard: 'Board', stClassic: 'Classic', stPixel: 'Pixel', stGem: 'Gem',
+    bdWood: 'Wood', bdBamboo: 'Bamboo', bdSlate: 'Slate', bdRetro: 'Retro',
+    you: 'You', ai: 'AI', player: 'Player', player2: 'Player 2', colorB: 'Black', colorW: 'White',
+    fiveToast: 'FIVE!', startToast: 'START!',
   },
   ja: {
-    name: '日本語', title: '五目並べ', hint: '縦・横・斜めに石を5つ先に並べたら勝ち', board: '碁盤', back: '← ゲーム一覧',
+    name: '日本語', title: '五目並べ', hint: '縦・横・斜めに石を5つ先に並べたら勝ち', board: '碁盤',
     turnB: '黒の番', turnW: '白の番', thinking: 'AIが考えています…', yourTurn: 'あなたの番です',
     tapAgain: '同じ場所をもう一度タップすると石を置きます', winB: '黒の勝ち', winW: '白の勝ち', draw: '引き分け',
     full: '盤が埋まりました', five: '5つ並びました', restart: '「新しいゲーム」で再開できます',
     level: 'AIの強さ', lv0: '入門', lv1: 'やさしい', lv2: 'ふつう', lv3: 'むずかしい',
     mode: '対戦モード', modeB: '自分: 黒（先手）', modeW: '自分: 白', modePvp: '2人対戦',
-    newGame: '新しいゲーム', undo: '待った', viewBoard: '盤を見る', moveCount: '置いた石',
-    confirmMode: 'モードを変えると新しいゲームが始まります。続けますか？',
-    layout: '画面レイアウト', layoutMobile: 'モバイル', layoutPc: 'PC',
-    controls: 'ゲーム設定', tools: 'ツール', close: '閉じる', stats: '記録', help: 'ヘルプ',
+    newGame: '新しいゲーム', undo: '待った', viewBoard: '盤を見る',
+    layout: '画面レイアウト', layoutMobile: 'モバイル', layoutPc: 'PC', help: 'ヘルプ',
     langLabel: '言語', cellEmpty: '空き', cellB: '黒石', cellW: '白石', kbdHelp: '矢印キーで移動、Enter または Space で置く',
+    menu: 'メニュー', resume: '続ける', settings: '設定', exit: 'やめる', exitConfirm: '対局を中断して退出しますか？',
+    cancel: 'キャンセル', goBack: '戻る', victory: '勝利！', defeat: '敗北…', drawResult: '引き分け',
+    sound: 'サウンド', on: 'オン', off: 'オフ', startMatch: '対局開始', setup: '対局準備', changeLevel: '強さを変更',
+    moveShort: '手', kbdMenu: 'Esc または P でメニューを開く',
+    uiTheme: 'UIテーマ', thClassic: 'クラシック', thGameboy: 'ゲームボーイ', thNeon: 'ネオン', thFamicom: 'ファミコン',
+    customize: 'カスタマイズ', skinStones: '石の形', skinBoard: '盤', stClassic: 'クラシック', stPixel: 'ドット', stGem: '宝石',
+    bdWood: '木', bdBamboo: '竹', bdSlate: '石板', bdRetro: 'レトロ',
+    you: 'あなた', ai: 'AI', player: 'プレイヤー', player2: 'プレイヤー2', colorB: '黒', colorW: '白',
+    fiveToast: '五目！', startToast: 'スタート！',
   },
   zh: {
-    name: '中文', title: '五子棋', hint: '横、竖、斜先连成五子者获胜', board: '棋盘', back: '← 游戏列表',
+    name: '中文', title: '五子棋', hint: '横、竖、斜先连成五子者获胜', board: '棋盘',
     turnB: '黑方落子', turnW: '白方落子', thinking: 'AI 思考中…', yourTurn: '轮到你了',
     tapAgain: '再点一次同一位置即可落子', winB: '黑方获胜', winW: '白方获胜', draw: '和棋',
     full: '棋盘已满', five: '五子连珠', restart: '点击「新游戏」重新开始',
     level: 'AI 难度', lv0: '入门', lv1: '简单', lv2: '普通', lv3: '困难',
     mode: '对战模式', modeB: '我: 黑方（先手）', modeW: '我: 白方', modePvp: '双人对战',
-    newGame: '新游戏', undo: '悔棋', viewBoard: '查看棋盘', moveCount: '已落子',
-    confirmMode: '切换模式将开始新游戏。是否继续？',
-    layout: '界面布局', layoutMobile: '手机', layoutPc: '电脑',
-    controls: '游戏设置', tools: '工具', close: '关闭', stats: '记录', help: '帮助',
+    newGame: '新游戏', undo: '悔棋', viewBoard: '查看棋盘',
+    layout: '界面布局', layoutMobile: '手机', layoutPc: '电脑', help: '帮助',
     langLabel: '语言', cellEmpty: '空位', cellB: '黑子', cellW: '白子', kbdHelp: '方向键移动，Enter 或空格键落子',
+    menu: '菜单', resume: '继续', settings: '设置', exit: '退出', exitConfirm: '要放弃当前对局并退出吗？',
+    cancel: '取消', goBack: '返回', victory: '胜利！', defeat: '失败…', drawResult: '和棋',
+    sound: '声音', on: '开', off: '关', startMatch: '开始对局', setup: '对局准备', changeLevel: '更改难度',
+    moveShort: '手', kbdMenu: '按 Esc 或 P 打开菜单',
+    uiTheme: '界面主题', thClassic: '经典', thGameboy: 'Game Boy', thNeon: '霓虹', thFamicom: '红白机',
+    customize: '外观', skinStones: '棋子样式', skinBoard: '棋盘', stClassic: '经典', stPixel: '像素', stGem: '宝石',
+    bdWood: '木纹', bdBamboo: '竹', bdSlate: '石板', bdRetro: '复古',
+    you: '我', ai: 'AI', player: '玩家', player2: '玩家 2', colorB: '黑', colorW: '白',
+    fiveToast: '五连！', startToast: '开始！',
   },
   es: {
-    name: 'Español', title: 'Gomoku', hint: 'Alinea cinco piedras: en horizontal, vertical o diagonal', board: 'Tablero de Gomoku', back: '← Todos los juegos',
+    name: 'Español', title: 'Gomoku', hint: 'Alinea cinco piedras: en horizontal, vertical o diagonal', board: 'Tablero de Gomoku',
     turnB: 'Turno de negras', turnW: 'Turno de blancas', thinking: 'La IA está pensando…', yourTurn: 'Tu turno',
     tapAgain: 'Toca de nuevo el mismo punto para colocar', winB: 'Ganan negras', winW: 'Ganan blancas', draw: 'Empate',
     full: 'El tablero está lleno', five: 'Cinco en línea', restart: 'Pulsa «Nueva partida» para volver a jugar',
     level: 'Nivel de la IA', lv0: 'Principiante', lv1: 'Fácil', lv2: 'Medio', lv3: 'Difícil',
     mode: 'Modo', modeB: 'Yo: negras (salgo)', modeW: 'Yo: blancas', modePvp: '2 jugadores',
-    newGame: 'Nueva partida', undo: 'Deshacer', viewBoard: 'Ver tablero', moveCount: 'Piedras colocadas',
-    confirmMode: 'Cambiar el modo inicia una nueva partida. ¿Continuar?',
-    layout: 'Diseño', layoutMobile: 'Móvil', layoutPc: 'PC',
-    controls: 'Ajustes de juego', tools: 'Herramientas', close: 'Cerrar', stats: 'Estadísticas', help: 'Ayuda',
+    newGame: 'Nueva partida', undo: 'Deshacer', viewBoard: 'Ver tablero',
+    layout: 'Diseño', layoutMobile: 'Móvil', layoutPc: 'PC', help: 'Ayuda',
     langLabel: 'Idioma', cellEmpty: 'vacío', cellB: 'piedra negra', cellW: 'piedra blanca', kbdHelp: 'Flechas para mover, Intro o Espacio para colocar',
+    menu: 'Menú', resume: 'Continuar', settings: 'Ajustes', exit: 'Salir', exitConfirm: '¿Abandonar la partida en curso y salir?',
+    cancel: 'Cancelar', goBack: 'Atrás', victory: '¡VICTORIA!', defeat: 'DERROTA…', drawResult: 'EMPATE',
+    sound: 'Sonido', on: 'Sí', off: 'No', startMatch: 'Empezar partida', setup: 'Preparar partida', changeLevel: 'Cambiar nivel',
+    moveShort: 'Jug.', kbdMenu: 'Esc o P abre el menú',
+    uiTheme: 'Tema de la interfaz', thClassic: 'Clásico', thGameboy: 'Game Boy', thNeon: 'Neón', thFamicom: 'Famicom',
+    customize: 'Personalizar', skinStones: 'Piedras', skinBoard: 'Tablero', stClassic: 'Clásica', stPixel: 'Píxel', stGem: 'Gema',
+    bdWood: 'Madera', bdBamboo: 'Bambú', bdSlate: 'Pizarra', bdRetro: 'Retro',
+    you: 'Tú', ai: 'IA', player: 'Jugador', player2: 'Jugador 2', colorB: 'Negras', colorW: 'Blancas',
+    fiveToast: '¡CINCO!', startToast: '¡A JUGAR!',
   },
   fr: {
-    name: 'Français', title: 'Gomoku', hint: 'Alignez cinq pierres : horizontalement, verticalement ou en diagonale', board: 'Plateau de Gomoku', back: '← Tous les jeux',
+    name: 'Français', title: 'Gomoku', hint: 'Alignez cinq pierres : horizontalement, verticalement ou en diagonale', board: 'Plateau de Gomoku',
     turnB: 'Aux noirs de jouer', turnW: 'Aux blancs de jouer', thinking: "L'IA réfléchit…", yourTurn: 'À vous de jouer',
     tapAgain: 'Touchez à nouveau le même point pour poser', winB: 'Les noirs gagnent', winW: 'Les blancs gagnent', draw: 'Match nul',
     full: 'Le plateau est plein', five: 'Cinq alignés', restart: 'Appuyez sur « Nouvelle partie » pour rejouer',
     level: "Niveau de l'IA", lv0: 'Débutant', lv1: 'Facile', lv2: 'Moyen', lv3: 'Difficile',
     mode: 'Mode', modeB: 'Moi : noirs (1er)', modeW: 'Moi : blancs', modePvp: '2 joueurs',
-    newGame: 'Nouvelle partie', undo: 'Annuler', viewBoard: 'Voir le plateau', moveCount: 'Pierres posées',
-    confirmMode: 'Changer de mode lance une nouvelle partie. Continuer ?',
-    layout: 'Affichage', layoutMobile: 'Mobile', layoutPc: 'PC',
-    controls: 'Réglages du jeu', tools: 'Outils', close: 'Fermer', stats: 'Statistiques', help: 'Aide',
+    newGame: 'Nouvelle partie', undo: 'Annuler', viewBoard: 'Voir le plateau',
+    layout: 'Affichage', layoutMobile: 'Mobile', layoutPc: 'PC', help: 'Aide',
     langLabel: 'Langue', cellEmpty: 'vide', cellB: 'pierre noire', cellW: 'pierre blanche', kbdHelp: 'Flèches pour se déplacer, Entrée ou Espace pour poser',
+    menu: 'Menu', resume: 'Reprendre', settings: 'Réglages', exit: 'Quitter', exitConfirm: 'Abandonner la partie en cours et quitter ?',
+    cancel: 'Annuler', goBack: 'Retour', victory: 'VICTOIRE !', defeat: 'DÉFAITE…', drawResult: 'NUL',
+    sound: 'Son', on: 'Oui', off: 'Non', startMatch: 'Lancer la partie', setup: 'Préparation', changeLevel: 'Changer le niveau',
+    moveShort: 'Coup', kbdMenu: 'Échap ou P ouvre le menu',
+    uiTheme: "Thème de l'interface", thClassic: 'Classique', thGameboy: 'Game Boy', thNeon: 'Néon', thFamicom: 'Famicom',
+    customize: 'Personnaliser', skinStones: 'Pierres', skinBoard: 'Plateau', stClassic: 'Classique', stPixel: 'Pixel', stGem: 'Gemme',
+    bdWood: 'Bois', bdBamboo: 'Bambou', bdSlate: 'Ardoise', bdRetro: 'Rétro',
+    you: 'Vous', ai: 'IA', player: 'Joueur', player2: 'Joueur 2', colorB: 'Noirs', colorW: 'Blancs',
+    fiveToast: 'CINQ !', startToast: "C'EST PARTI !",
   },
   de: {
-    name: 'Deutsch', title: 'Gomoku', hint: 'Bilde zuerst eine Fünferreihe – waagrecht, senkrecht oder diagonal', board: 'Gomoku-Brett', back: '← Alle Spiele',
+    name: 'Deutsch', title: 'Gomoku', hint: 'Bilde zuerst eine Fünferreihe – waagrecht, senkrecht oder diagonal', board: 'Gomoku-Brett',
     turnB: 'Schwarz am Zug', turnW: 'Weiß am Zug', thinking: 'Die KI denkt nach…', yourTurn: 'Du bist am Zug',
     tapAgain: 'Tippe noch einmal auf dieselbe Stelle, um den Stein zu setzen', winB: 'Schwarz gewinnt', winW: 'Weiß gewinnt', draw: 'Unentschieden',
     full: 'Das Brett ist voll', five: 'Fünf in einer Reihe', restart: 'Tippe auf „Neues Spiel“, um neu zu starten',
     level: 'KI-Stärke', lv0: 'Anfänger', lv1: 'Leicht', lv2: 'Mittel', lv3: 'Schwer',
     mode: 'Modus', modeB: 'Ich: Schwarz (beginnt)', modeW: 'Ich: Weiß', modePvp: '2 Spieler',
-    newGame: 'Neues Spiel', undo: 'Rückgängig', viewBoard: 'Brett ansehen', moveCount: 'Gesetzte Steine',
-    confirmMode: 'Ein Moduswechsel startet ein neues Spiel. Fortfahren?',
-    layout: 'Ansicht', layoutMobile: 'Mobil', layoutPc: 'PC',
-    controls: 'Spieleinstellungen', tools: 'Werkzeuge', close: 'Schließen', stats: 'Statistik', help: 'Hilfe',
+    newGame: 'Neues Spiel', undo: 'Rückgängig', viewBoard: 'Brett ansehen',
+    layout: 'Ansicht', layoutMobile: 'Mobil', layoutPc: 'PC', help: 'Hilfe',
     langLabel: 'Sprache', cellEmpty: 'leer', cellB: 'schwarzer Stein', cellW: 'weißer Stein', kbdHelp: 'Pfeiltasten zum Bewegen, Enter oder Leertaste zum Setzen',
+    menu: 'Menü', resume: 'Weiter', settings: 'Einstellungen', exit: 'Beenden', exitConfirm: 'Laufende Partie abbrechen und verlassen?',
+    cancel: 'Abbrechen', goBack: 'Zurück', victory: 'SIEG!', defeat: 'NIEDERLAGE…', drawResult: 'REMIS',
+    sound: 'Ton', on: 'An', off: 'Aus', startMatch: 'Partie starten', setup: 'Partie vorbereiten', changeLevel: 'Stärke ändern',
+    moveShort: 'Zug', kbdMenu: 'Esc oder P öffnet das Menü',
+    uiTheme: 'UI-Design', thClassic: 'Klassisch', thGameboy: 'Game Boy', thNeon: 'Neon', thFamicom: 'Famicom',
+    customize: 'Anpassen', skinStones: 'Steine', skinBoard: 'Brett', stClassic: 'Klassisch', stPixel: 'Pixel', stGem: 'Edelstein',
+    bdWood: 'Holz', bdBamboo: 'Bambus', bdSlate: 'Schiefer', bdRetro: 'Retro',
+    you: 'Du', ai: 'KI', player: 'Spieler', player2: 'Spieler 2', colorB: 'Schwarz', colorW: 'Weiß',
+    fiveToast: 'FÜNF!', startToast: 'LOS!',
   },
 };
+
+// ===== [공유] 효과음 시작 =====
+// WebAudio 로 그 자리에서 만드는 8비트 효과음(외부 파일 없음). 사이트 공통 키 games-sound = 'on'|'off' (기본 on).
+// - 첫 pointerdown/keydown 때 AudioContext 를 만들거나 깨움 → 그 전에는 소리 없음. WebAudio 가 없으면 조용히 무시.
+// - Sfx.play(name, delay?)  : 등록된 소리 재생 (delay 초 뒤).
+// - Sfx.define(name, fn, gapMs?) : 소리 등록. fn(S, t) 안에서 S.tone / S.noise / S.seq 로 t(시작 시각)부터 예약.
+//   gapMs 를 주면 그 간격 안의 반복 재생은 건너뜀 (예: 공 배틀 hit 은 80).
+// - Sfx.toggle() / Sfx.set(on) : 켜기·끄기 + 저장. #soundBtn / #soundToggle 이 있으면 aria-pressed 를 맞춤.
+// - 다른 탭에서 바꾸면 storage 이벤트로 따라감. 블록 끝의 Sfx.boot() 가 이 연결을 모두 함.
+const Sfx = {
+  KEY: 'games-sound',
+  on: true, ctx: null, out: null, defs: {}, gaps: {}, last: {}, noiseBuf: null,
+  load() {
+    try { this.on = localStorage.getItem(this.KEY) !== 'off'; } catch (e) {}
+  },
+  init() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try {
+        this.ctx = new AC();
+        this.out = this.ctx.createGain();
+        this.out.gain.value = 0.25; // 마스터 볼륨
+        this.out.connect(this.ctx.destination);
+      } catch (e) { this.ctx = null; return; }
+    }
+    if (this.ctx.state === 'suspended') { try { this.ctx.resume(); } catch (e) {} }
+  },
+  set(on) {
+    this.on = !!on;
+    try { localStorage.setItem(this.KEY, this.on ? 'on' : 'off'); } catch (e) {}
+    this.sync();
+  },
+  toggle() {
+    this.set(!this.on);
+    if (this.on) { this.init(); this.play('ui-ok'); }
+  },
+  sync() {
+    document.querySelectorAll('#soundBtn, #soundToggle').forEach(b => b.setAttribute('aria-pressed', String(this.on)));
+  },
+  define(name, fn, gapMs) {
+    this.defs[name] = fn;
+    if (gapMs) this.gaps[name] = gapMs;
+  },
+  play(name, delay) {
+    // 깨우는 중(suspended)이어도 예약해 두면 깨어날 때 울림
+    if (!this.on || !this.ctx || this.ctx.state === 'closed') return;
+    const fn = this.defs[name];
+    if (!fn) return;
+    const gap = this.gaps[name];
+    if (gap) {
+      const now = Date.now();
+      if (now - (this.last[name] || 0) < gap) return;
+      this.last[name] = now;
+    }
+    try { fn(this, this.ctx.currentTime + 0.01 + (delay || 0)); } catch (e) {}
+  },
+  // 기본 음 하나: o = { type: square|triangle|sawtooth|sine, vol 0..1, to: 끝 주파수(미끄러짐), hold: 유지 비율 }
+  tone(t, f, dur, o) {
+    o = o || {};
+    const c = this.ctx, osc = c.createOscillator(), g = c.createGain();
+    const v = o.vol == null ? 0.5 : o.vol;
+    osc.type = o.type || 'square';
+    osc.frequency.setValueAtTime(f, t);
+    if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(v, t + 0.005);
+    g.gain.setValueAtTime(v, t + Math.max(0.006, dur * (o.hold == null ? 0.4 : o.hold)));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(this.out);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  },
+  // 잡음(타격·착지 느낌): o = { vol, hp: 고역 통과 Hz, lp: 저역 통과 Hz }
+  noise(t, dur, o) {
+    o = o || {};
+    const c = this.ctx;
+    if (!this.noiseBuf) {
+      const n = (c.sampleRate * 0.5) | 0, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noiseBuf = b;
+    }
+    const src = c.createBufferSource(), g = c.createGain();
+    const v = o.vol == null ? 0.4 : o.vol;
+    src.buffer = this.noiseBuf; src.loop = true;
+    let node = src;
+    if (o.hp || o.lp) {
+      const f = c.createBiquadFilter();
+      f.type = o.hp ? 'highpass' : 'lowpass';
+      f.frequency.value = o.hp || o.lp;
+      src.connect(f); node = f;
+    }
+    g.gain.setValueAtTime(v, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    node.connect(g); g.connect(this.out);
+    src.start(t); src.stop(t + dur + 0.02);
+  },
+  // 음 여러 개를 step 초 간격으로 (0 은 쉼표)
+  seq(t, freqs, step, o) {
+    freqs.forEach((f, i) => { if (f) this.tone(t + i * step, f, (o && o.dur) || step * 0.9, o); });
+  },
+  boot() {
+    this.load();
+    const wake = () => this.init();
+    for (const ev of ['pointerdown', 'pointerup', 'keydown']) window.addEventListener(ev, wake, true);
+    window.addEventListener('storage', e => {
+      if (e.key !== this.KEY && e.key !== null) return;
+      this.load();
+      this.sync();
+    });
+    this.sync();
+  },
+};
+// 공통 소리 (게임별 소리는 각 페이지에서 Sfx.define 으로 추가)
+Sfx.define('ui-move', (S, t) => S.tone(t, 880, 0.04, { vol: 0.22 }));
+Sfx.define('ui-ok', (S, t) => S.seq(t, [660, 990], 0.05, { vol: 0.3, dur: 0.07 }));
+Sfx.define('ui-back', (S, t) => S.seq(t, [520, 330], 0.05, { vol: 0.3, dur: 0.07 }));
+Sfx.define('menu-open', (S, t) => S.tone(t, 300, 0.12, { type: 'triangle', to: 900, vol: 0.5, hold: 0.7 }));
+Sfx.define('menu-close', (S, t) => S.tone(t, 900, 0.12, { type: 'triangle', to: 300, vol: 0.5, hold: 0.7 }));
+Sfx.define('start', (S, t) => {
+  S.seq(t, [523, 659, 784], 0.07, { vol: 0.35, dur: 0.08 });
+  S.tone(t + 0.21, 1047, 0.25, { vol: 0.35 });
+});
+Sfx.define('win', (S, t) => {
+  S.seq(t, [523, 659, 784, 1047, 784, 1047], 0.09, { vol: 0.32, dur: 0.1 });
+  S.tone(t + 0.54, 1319, 0.45, { vol: 0.32, hold: 0.6 });
+  S.tone(t + 0.54, 659, 0.45, { type: 'triangle', vol: 0.4, hold: 0.6 });
+});
+Sfx.define('lose', (S, t) => {
+  S.seq(t, [523, 415, 349], 0.15, { type: 'triangle', vol: 0.5, dur: 0.16 });
+  S.tone(t + 0.45, 262, 0.6, { type: 'triangle', to: 196, vol: 0.5, hold: 0.5 });
+});
+Sfx.define('draw', (S, t) => {
+  S.seq(t, [440, 0, 440], 0.12, { vol: 0.3, dur: 0.1 });
+  S.tone(t + 0.36, 392, 0.35, { vol: 0.3 });
+});
+Sfx.boot();
+// ===== [공유] 효과음 끝 =====
+
+// ===== [공유] 픽셀 아바타 시작 =====
+// 8×8 스프라이트 12종. '.' = 투명, 'x' = 주 색(프로필 색), 'o' = 외곽선(--ink), 'w' = 흰 하이라이트.
+// renderAvatar(box, avatarIndex, colorKey): box(.gx-avatar) 안에 SVG(rect.av-x/.av-o/.av-w, crispEdges)를 넣고
+// box.dataset.avColor = colorKey (CSS 의 .gx-avatar[data-av-color] 가 --av-* 색을 고름).
+const PX_AVATARS = [
+  [ // 0 고양이
+    '.o....o.',
+    'oxo..oxo',
+    'oxxooxxo',
+    'oxoxxoxo',
+    'oxwwwwxo',
+    'oxxooxxo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 1 강아지
+    '.oo..oo.',
+    'oxxooxxo',
+    'oxxxxxxo',
+    'oxoxxoxo',
+    'ooxwwxoo',
+    '.oxooxo.',
+    '.oxwwxo.',
+    '..oooo..',
+  ],
+  [ // 2 로봇
+    '...oo...',
+    '...ow...',
+    'oooooooo',
+    'oxxxxxxo',
+    'oxwxxwxo',
+    'oxxxxxxo',
+    'oxowowxo',
+    'oooooooo',
+  ],
+  [ // 3 유령
+    '..oooo..',
+    '.oxxxxo.',
+    'oxwxxxxo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oo.oo.oo',
+  ],
+  [ // 4 슬라임
+    '........',
+    '...oo...',
+    '..oxxo..',
+    '.oxwxxo.',
+    'oxxxxxxo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    '.oooooo.',
+  ],
+  [ // 5 해골
+    '.oooooo.',
+    'oxxxxxxo',
+    'oxwxxxxo',
+    'oooxxooo',
+    'oooxxooo',
+    'oxxooxxo',
+    '.oxoxox.',
+    '..oooo..',
+  ],
+  [ // 6 기사
+    '...oo...',
+    '.ooxxoo.',
+    'oxxxxxxo',
+    'oxwxxxxo',
+    'oooooooo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    '.oooooo.',
+  ],
+  [ // 7 마법사
+    '....o...',
+    '...oxo..',
+    '..oxxxo.',
+    '.oxxwxxo',
+    'oooooooo',
+    'owowwowo',
+    'owwwwwwo',
+    '.oooooo.',
+  ],
+  [ // 8 개구리
+    '.oo..oo.',
+    'owoxxowo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oxooooxo',
+    'oxxxxxxo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 9 외계인
+    '.o....o.',
+    '..oxxo..',
+    '.oxxxxo.',
+    'oxxxxxxo',
+    'oowxxwoo',
+    'oooxxooo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 10 버섯
+    '..oooo..',
+    '.oxwxxo.',
+    'oxxxxwxo',
+    'oxwxxxxo',
+    'oooooooo',
+    '..owwo..',
+    '..owwo..',
+    '..oooo..',
+  ],
+  [ // 11 별
+    '...oo...',
+    '..oxxo..',
+    'oooxxooo',
+    'oxxwxxxo',
+    '.oxxxxo.',
+    '.oxxxxo.',
+    'oxxooxxo',
+    'oo....oo',
+  ],
+];
+const AV_COLORS = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
+function renderAvatar(box, avatarIndex, colorKey) {
+  if (!box) return;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const grid = PX_AVATARS[avatarIndex] || PX_AVATARS[0];
+  const s = document.createElementNS(SVGNS, 'svg');
+  s.setAttribute('viewBox', '0 0 8 8');
+  s.setAttribute('shape-rendering', 'crispEdges');
+  s.setAttribute('aria-hidden', 'true');
+  s.setAttribute('focusable', 'false');
+  const CLS = { x: 'av-x', o: 'av-o', w: 'av-w' };
+  grid.forEach((row, y) => {
+    // 같은 글자가 이어지면 rect 하나로 합침
+    for (let x = 0; x < row.length;) {
+      const ch = row[x];
+      let n = 1;
+      while (x + n < row.length && row[x + n] === ch) n++;
+      if (CLS[ch]) {
+        const r = document.createElementNS(SVGNS, 'rect');
+        r.setAttribute('x', x); r.setAttribute('y', y);
+        r.setAttribute('width', n); r.setAttribute('height', 1);
+        r.setAttribute('class', CLS[ch]);
+        s.appendChild(r);
+      }
+      x += n;
+    }
+  });
+  box.replaceChildren(s);
+  box.dataset.avColor = AV_COLORS.includes(colorKey) ? colorKey : 'red';
+}
+// ===== [공유] 픽셀 아바타 끝 =====
+
+// ===== [공유] 프로필 시작 =====
+// localStorage games-profile = {"name","avatar":0..11,"color":"red|…|pink"} (허브에서 만듦). 위 아바타 블록 다음에 둘 것.
+// loadProfile() 은 늘 올바른 값을 돌려줌. name 은 앞뒤 공백·제어문자 제거, 최대 12자.
+// name 이 비었거나 기본값 '플레이어' 이면 '' → 화면에서는 각 언어의 기본 이름(I18N player)으로 표시: p.name || t('player')
+const PROFILE_KEY = 'games-profile';
+function loadProfile() {
+  const p = { name: '', avatar: 0, color: 'red' };
+  try {
+    const v = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
+    if (v && typeof v === 'object') {
+      if (typeof v.name === 'string') {
+        const nm = Array.from(v.name.replace(/[\u0000-\u001f\u007f]/g, '').trim()).slice(0, 12).join('').trim();
+        p.name = nm === '플레이어' ? '' : nm;
+      }
+      if (Number.isInteger(v.avatar) && v.avatar >= 0 && v.avatar < PX_AVATARS.length) p.avatar = v.avatar;
+      if (AV_COLORS.includes(v.color)) p.color = v.color;
+    }
+  } catch (e) {}
+  return p;
+}
+// ===== [공유] 프로필 끝 =====
+
+// ===== [공유] UI 테마 시작 =====
+// html[data-ui] = classic|gameboy|neon|famicom (첫 렌더 전 적용은 <head> 스니펫). 저장 키 games-ui-theme.
+// setUiTheme(v): 적용 + 저장 + #uiThemeSwatches 버튼 aria-pressed 동기화. 스와치 클릭·다른 탭 변경도 여기서 연결.
+const UI_THEMES = ['classic', 'gameboy', 'neon', 'famicom'];
+const UI_THEME_KEY = 'games-ui-theme';
+function getUiTheme() {
+  const v = document.documentElement.dataset.ui;
+  return UI_THEMES.includes(v) ? v : 'classic';
+}
+function syncUiTheme() {
+  const v = getUiTheme();
+  document.querySelectorAll('#uiThemeSwatches button[data-v]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+}
+function setUiTheme(v, noSave) {
+  if (!UI_THEMES.includes(v)) v = 'classic';
+  document.documentElement.dataset.ui = v;
+  if (!noSave) { try { localStorage.setItem(UI_THEME_KEY, v); } catch (e) {} }
+  syncUiTheme();
+}
+(function () {
+  const sw = document.getElementById('uiThemeSwatches');
+  if (sw) sw.addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]');
+    if (!b) return;
+    setUiTheme(b.dataset.v);
+    if (typeof Sfx !== 'undefined') Sfx.play('ui-ok');
+  });
+  window.addEventListener('storage', e => {
+    if (e.key !== UI_THEME_KEY && e.key !== null) return;
+    let v = null;
+    try { v = localStorage.getItem(UI_THEME_KEY); } catch (err) {}
+    setUiTheme(v, true);
+  });
+  syncUiTheme();
+})();
+// ===== [공유] UI 테마 끝 =====
+
+// ===== [공유] 메뉴 도우미 시작 =====
+// 페이지 요소에 기대지 않는 범용 도우미.
+// GxUI.modal(root, o)  : 모달 하나(결과 화면 등). 열기/닫기, Tab 가두기, 바깥 포커스 되돌리기, Esc, 닫으면 원래 포커스로.
+//   o = { showClass: 'show'(없으면 hidden 속성으로 열고 닫음), fallbackFocus: () => el, onEscape(e) }
+// GxMenu(root, o)      : .gx-menu 안의 [data-sheet] 하위 화면들을 쌓아 가며 보여 주는 메뉴(modal 위에 만듦).
+//   html[data-menu] = 지금 시트 이름('' = 닫힘). [data-back] = 뒤로. 스크림 클릭 = 닫기.
+//   ↑↓ Home/End = 줄 이동([role=group] 은 한 줄로 취급), ←→ = 그룹 안 이동, Esc = 뒤로/닫기.
+//   .gx-menu-list 버튼은 포커스를 받으면 aria-current="true" (▶ 커서).
+//   o = { button: 메뉴 버튼(aria-expanded), fallbackFocus, focusFor(name, sheet) → el, onShow(name, sheet),
+//         onEscape() → true 면 처리됨, onClose() }
+//   menu.open(name, { locked, returnTo }) — locked 면 첫 시트에서 뒤로 버튼 숨김·Esc/스크림으로 못 닫음
+//   menu.push(name), menu.back(), menu.close({ restore: false, silent: true }), menu.isOpen(), menu.current()
+// GxUI.leave(href)     : html.gx-leave 와이프 후 250ms 뒤 이동(움직임 줄이기면 바로). GxUI.enter(): gx-enter 정리.
+const GxUI = {
+  reduced() {
+    try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  },
+  sfx(name) { if (typeof Sfx !== 'undefined') Sfx.play(name); },
+  shown(el) {
+    return !!el && !el.disabled && !el.closest('[hidden]') && el.getClientRects().length > 0;
+  },
+  focusables(root) {
+    if (!root) return [];
+    return Array.from(root.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(GxUI.shown);
+  },
+  focusSafe(el) {
+    if (!el || !el.isConnected || !GxUI.shown(el)) return false;
+    try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+    return true;
+  },
+  trapTab(root, e) {
+    const list = GxUI.focusables(root);
+    if (!list.length) { e.preventDefault(); return; }
+    const first = list[0], last = list[list.length - 1], a = document.activeElement;
+    if (e.shiftKey && (a === first || !root.contains(a))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (a === last || !root.contains(a))) { e.preventDefault(); first.focus(); }
+  },
+  // 줄 단위 이동: [role=group] 안 버튼들은 한 줄
+  stops(root) {
+    const out = [];
+    for (const el of GxUI.focusables(root)) {
+      const g = el.closest('[role="group"]');
+      const key = g && root.contains(g) ? g : el;
+      if (!out.includes(key)) out.push(key);
+    }
+    return out;
+  },
+  moveStop(root, dir) { // dir: 1 | -1 | 'first' | 'last'
+    const stops = GxUI.stops(root);
+    if (!stops.length) return false;
+    const i = stops.findIndex(s => s.contains(document.activeElement));
+    let n;
+    if (dir === 'first') n = 0;
+    else if (dir === 'last') n = stops.length - 1;
+    else if (i < 0) n = dir > 0 ? 0 : stops.length - 1;
+    else n = (i + dir + stops.length) % stops.length;
+    let target = stops[n];
+    if (target.matches('[role="group"]')) {
+      const btns = GxUI.focusables(target);
+      target = btns.find(b => b.getAttribute('aria-pressed') === 'true' || b.classList.contains('on')) || btns[0];
+    }
+    return GxUI.focusSafe(target);
+  },
+  moveInGroup(group, from, dir) {
+    const btns = GxUI.focusables(group);
+    const i = btns.indexOf(from);
+    if (i < 0 || btns.length < 2) return false;
+    return GxUI.focusSafe(btns[(i + dir + btns.length) % btns.length]);
+  },
+  modal(root, o) {
+    o = o || {};
+    const d = { root, returnTo: null };
+    d.isOpen = () => (o.showClass ? root.classList.contains(o.showClass) : !root.hidden);
+    // focusEl: 요소 또는 요소를 돌려주는 함수(열린 뒤에 계산)
+    d.open = (focusEl, returnTo) => {
+      d.returnTo = returnTo || document.activeElement;
+      if (o.showClass) root.classList.add(o.showClass); else root.hidden = false;
+      const f = typeof focusEl === 'function' ? focusEl() : focusEl;
+      GxUI.focusSafe(f) || GxUI.focusSafe(GxUI.focusables(root)[0]);
+    };
+    d.close = restore => {
+      if (!d.isOpen()) return false;
+      if (o.showClass) root.classList.remove(o.showClass); else root.hidden = true;
+      const r = d.returnTo;
+      d.returnTo = null;
+      if (restore !== false && !GxUI.focusSafe(r) && o.fallbackFocus) GxUI.focusSafe(o.fallbackFocus());
+      return true;
+    };
+    // document 에 걸어 둠: 포커스가 body 로 빠진 경우에도 Tab/Esc 를 잡음
+    document.addEventListener('keydown', e => {
+      if (e.defaultPrevented || !d.isOpen()) return;
+      if (e.key === 'Tab') GxUI.trapTab(root, e);
+      else if (e.key === 'Escape') {
+        e.preventDefault();
+        if (o.onEscape) o.onEscape(e); else d.close();
+      }
+    });
+    document.addEventListener('focusin', e => {
+      if (d.isOpen() && !root.contains(e.target)) GxUI.focusSafe(GxUI.focusables(root)[0]);
+    });
+    return d;
+  },
+  leave(href) {
+    const h = document.documentElement;
+    if (h.classList.contains('gx-leave')) return;
+    if (GxUI.reduced()) { location.href = href; return; }
+    h.classList.add('gx-leave');
+    setTimeout(() => { location.href = href; }, 250);
+  },
+  enter() {
+    const h = document.documentElement;
+    setTimeout(() => h.classList.remove('gx-enter'), 300);
+    // 뒤로 가기로 돌아온 경우(bfcache) 퇴장 덮개를 걷음
+    window.addEventListener('pageshow', e => { if (e.persisted) h.classList.remove('gx-leave', 'gx-enter'); });
+  },
+};
+function GxMenu(root, o) {
+  o = o || {};
+  const html = document.documentElement;
+  const sheets = {};
+  root.querySelectorAll('[data-sheet]').forEach(s => { sheets[s.dataset.sheet] = s; });
+  let stack = [], locked = false;
+  const atLockedRoot = () => locked && stack.length <= 1;
+  const m = GxUI.modal(root, {
+    fallbackFocus: o.fallbackFocus,
+    onEscape: () => { if (o.onEscape && o.onEscape()) return; m.back(); },
+  });
+  const baseOpen = m.open, baseClose = m.close;
+  m.current = () => (stack.length ? stack[stack.length - 1].name : '');
+  function showSheet(name) {
+    const s = sheets[name];
+    for (const k in sheets) sheets[k].hidden = k !== name;
+    const title = s.querySelector('.gx-title[id]');
+    if (title) root.setAttribute('aria-labelledby', title.id);
+    html.dataset.menu = name;
+    s.querySelectorAll('[data-back]').forEach(b => { b.hidden = atLockedRoot(); });
+    if (o.onShow) o.onShow(name, s);
+  }
+  function sheetFocus(name) {
+    const s = sheets[name], list = GxUI.focusables(s);
+    return [o.focusFor && o.focusFor(name, s), s.querySelector('.gx-menu-list [aria-current="true"]'),
+      list.find(b => !b.hasAttribute('data-back')), list[0]].find(x => x && GxUI.shown(x));
+  }
+  m.open = (name, opt) => {
+    opt = opt || {};
+    if (!sheets[name]) return;
+    if (m.isOpen()) { m.push(name); return; }
+    locked = !!opt.locked;
+    stack = [{ name, from: null }];
+    // 커서 ▶ 는 목록 첫 항목에서 시작
+    root.querySelectorAll('.gx-menu-list').forEach(l => l.querySelectorAll('.gx-btn').forEach((b, i) => {
+      if (i === 0) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+    }));
+    showSheet(name);
+    baseOpen(() => sheetFocus(name), opt.returnTo);
+    if (o.button) o.button.setAttribute('aria-expanded', 'true');
+    GxUI.sfx('menu-open');
+  };
+  m.push = name => {
+    if (!sheets[name]) return;
+    stack.push({ name, from: document.activeElement });
+    showSheet(name);
+    GxUI.focusSafe(sheetFocus(name));
+    GxUI.sfx('ui-ok');
+  };
+  m.back = () => {
+    if (stack.length > 1) {
+      const top = stack.pop();
+      showSheet(m.current());
+      GxUI.focusSafe(top.from) || GxUI.focusSafe(sheetFocus(m.current()));
+      GxUI.sfx('ui-back');
+    } else if (!locked) m.close();
+  };
+  m.close = opt => {
+    opt = opt || {};
+    if (!m.isOpen()) return false;
+    stack = []; locked = false;
+    html.dataset.menu = '';
+    baseClose(opt.restore);
+    if (o.button) o.button.setAttribute('aria-expanded', 'false');
+    if (!opt.silent) GxUI.sfx('menu-close');
+    if (o.onClose) o.onClose();
+    return true;
+  };
+  html.dataset.menu = '';
+  root.addEventListener('click', e => {
+    if (e.target === root) { if (!atLockedRoot()) m.close(); return; }
+    if (e.target.closest('[data-back]')) m.back();
+  });
+  root.addEventListener('focusin', e => {
+    const b = e.target.closest && e.target.closest('.gx-menu-list .gx-btn');
+    if (!b) return;
+    b.parentNode.querySelectorAll('.gx-btn').forEach(x => {
+      if (x === b) x.setAttribute('aria-current', 'true'); else x.removeAttribute('aria-current');
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented || !m.isOpen() || e.altKey || e.ctrlKey || e.metaKey) return;
+    const s = sheets[m.current()];
+    if (!s) return;
+    const k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowUp' || k === 'Home' || k === 'End') {
+      e.preventDefault();
+      if (GxUI.moveStop(s, k === 'ArrowDown' ? 1 : k === 'ArrowUp' ? -1 : k === 'Home' ? 'first' : 'last')) GxUI.sfx('ui-move');
+    } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
+      const g = e.target.closest && e.target.closest('[role="group"]');
+      if (g && s.contains(g)) {
+        e.preventDefault();
+        if (GxUI.moveInGroup(g, e.target, k === 'ArrowRight' ? 1 : -1)) GxUI.sfx('ui-move');
+      }
+    }
+  });
+  return m;
+}
+// ===== [공유] 메뉴 도우미 끝 =====
 
 // ===== ENGINE START =====
 const N = 15;
@@ -763,18 +1844,22 @@ const svg = $('board');
 const NS = 'http://www.w3.org/2000/svg';
 const M = 24, G = 40, SIZE = M * 2 + G * (N - 1);
 const pos = i => [M + (i % N) * G, M + ((i / N) | 0) * G];
+const EXIT_HREF = 'index.html#select';
+const AI_AVATAR = 2; // 로봇
 
 let board, history, over, winLine, thinking, preview = -1, hover = -1, gen = 0;
 // 키보드 커서: cursor 는 칸 인덱스, kbdOn 은 키보드로 조작 중일 때만 true (마우스·터치를 쓰면 꺼짐)
 let cursor = -1, kbdOn = false;
 let mode = 'me-b', level = 2;
+// ready: 준비 시트에서 "대국 시작"을 누르기 전에는 착수·AI 없음
+let ready = false;
+// 준비 시트에서 고르는 중인 대전 방식("대국 시작"을 눌러야 mode 에 반영). 난이도는 누르는 즉시 반영
+let setupMode = mode;
+// 결과 화면: 승리선 연출 뒤에 열림. 그 사이 메뉴가 열려 있으면 메뉴를 닫을 때 엶
+let resultTimer = 0, pendingResult = false;
 
 function detectLang() {
-  for (const l of (navigator.languages || [navigator.language || 'ko'])) {
-    const code = String(l).toLowerCase().slice(0, 2);
-    if (I18N[code]) return code;
-  }
-  return 'ko'; // 지원하지 않는 언어면 기본 한국어
+  return 'ko'; // 기본 언어는 한국어. 언어 선택(games-lang)을 저장하면 그 값을 씀
 }
 let lang = detectLang();
 try {
@@ -784,6 +1869,7 @@ try {
   const gl = localStorage.getItem('games-lang');
   if (I18N[gl]) lang = gl;
 } catch (e) {}
+setupMode = mode;
 function saveSettings() {
   try {
     localStorage.setItem('gomoku-settings', JSON.stringify({ mode, level }));
@@ -792,14 +1878,57 @@ function saveSettings() {
 }
 const t = k => (I18N[lang] && I18N[lang][k]) || I18N.ko[k] || k;
 
+// 프로필 (K1): "나"(2인 대전이면 1P) 패널에 아바타·이름
+let profile = loadProfile();
+
+// ===== 오목 스킨 (K4): gomoku-skin = {"stones":"classic|pixel|gem","board":"wood|bamboo|slate|retro"} =====
+const SKIN_KEY = 'gomoku-skin';
+const SKIN_STONES = ['classic', 'pixel', 'gem'], SKIN_BOARDS = ['wood', 'bamboo', 'slate', 'retro'];
+function loadSkin() {
+  const s = { stones: 'classic', board: 'wood' };
+  try {
+    const v = JSON.parse(localStorage.getItem(SKIN_KEY) || 'null');
+    if (v && SKIN_STONES.includes(v.stones)) s.stones = v.stones;
+    if (v && SKIN_BOARDS.includes(v.board)) s.board = v.board;
+  } catch (e) {}
+  return s;
+}
+let skin = loadSkin();
+function saveSkin() {
+  try { localStorage.setItem(SKIN_KEY, JSON.stringify(skin)); } catch (e) {}
+}
+function syncSeg(seg, v) {
+  for (const b of seg.querySelectorAll('button[data-v]')) {
+    const on = b.dataset.v === v;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  }
+}
+function applySkin() {
+  if (skin.board === 'wood') svg.removeAttribute('data-board'); else svg.dataset.board = skin.board;
+  syncSeg($('skinStones'), skin.stones);
+  syncSeg($('skinBoard'), skin.board);
+}
+
+// 오목 효과음
+Sfx.define('stone', (S, t) => {
+  S.noise(t, 0.035, { vol: 0.35, hp: 1800 });
+  S.tone(t, 260, 0.09, { type: 'triangle', to: 110, vol: 0.6, hold: 0.2 });
+});
+Sfx.define('five', (S, t) => {
+  S.seq(t, [784, 988, 1175, 1568], 0.05, { vol: 0.3, dur: 0.07 });
+  S.noise(t + 0.2, 0.15, { vol: 0.12, hp: 5000 });
+});
+
 function applyLang() {
   document.documentElement.lang = lang;
   document.title = t('title');
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
-  svg.setAttribute('aria-label', t('board') + '. ' + t('kbdHelp'));
+  svg.setAttribute('aria-label', t('board') + '. ' + t('kbdHelp') + '. ' + t('kbdMenu'));
   $('lang').setAttribute('aria-label', t('langLabel'));
   $('lang').value = lang;
+  $('langCycleVal').textContent = I18N[lang].name;
 }
 
 // 좌표 이름: 열 A~O(왼→오), 행 15~1(위→아래). 가운데는 H8
@@ -812,11 +1941,23 @@ function cellInfo(i) {
 // 스크린리더 안내 (같은 문구도 다시 읽히도록 끝에 보이지 않는 공백을 번갈아 붙임)
 function announce(text) {
   const sr = $('sr');
-  sr.textContent = sr.textContent === text ? text + ' ' : text;
+  sr.textContent = sr.textContent === text ? text + ' ' : text;
 }
 
 const aiColor = () => (mode === 'me-b' ? WHITE : mode === 'me-w' ? BLACK : 0);
 const turn = () => (history.length % 2 === 0 ? BLACK : WHITE);
+
+// 보드 위 잠깐 문구 (.show 를 다시 붙여 애니메이션 재시작, 1.2초 뒤 숨김)
+let toastTimer = 0;
+function toast(text) {
+  const box = $('gxToast');
+  box.textContent = text;
+  box.classList.remove('show');
+  void box.offsetWidth;
+  box.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => box.classList.remove('show'), 1200);
+}
 
 // --- 정적인 판 그리기 ---
 function el(tag, attrs, parent) {
@@ -825,7 +1966,9 @@ function el(tag, attrs, parent) {
   if (parent) parent.appendChild(e);
   return e;
 }
-let stonesLayer;
+// stonesLayer: 돌·마지막 수·승리선 (판이 바뀔 때만 다시 그림 → 착수/승리 애니메이션이 끊기지 않음)
+// fxLayer: 미리보기 돌·키보드 커서 (매번 다시 그림)
+let stonesLayer, fxLayer;
 function drawBoard() {
   svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
   const defs = el('defs', {}, svg);
@@ -848,39 +1991,160 @@ function drawBoard() {
     el('circle', { cx: M + c * G, cy: M + r * G, r: 4.5, style: 'fill: var(--wood-line)' }, svg);
   }
   stonesLayer = el('g', {}, svg);
+  fxLayer = el('g', {}, svg);
 }
 
-function stone(i, color, extra) {
+// 픽셀 돌: 9×9 칸(한 칸 4) — e 테두리, b 몸통, h 하이라이트
+const PX_STONE = [
+  '..eeeee..',
+  '.ebbbbbe.',
+  'ebhhbbbbe',
+  'ebhbbbbbe',
+  'ebbbbbbbe',
+  'ebbbbbbbe',
+  'ebbbbbbbe',
+  '.ebbbbbe.',
+  '..eeeee..',
+];
+// 격자에서 글자 ch 인 칸들을 한 path 로 (가로로 이어진 칸은 합침). 좌표를 직접 넣음: CSS 애니메이션 transform 과 겹치지 않게
+function runsPath(ch, x0, y0, u) {
+  let d = '';
+  PX_STONE.forEach((row, r) => {
+    for (let c = 0; c < row.length;) {
+      let n = 0;
+      while (row[c + n] === ch) n++;
+      if (n) { d += `M${x0 + c * u} ${y0 + r * u}h${n * u}v${u}h${-n * u}z`; c += n; } else c++;
+    }
+  });
+  return d;
+}
+// 보석 돌: 팔각형
+function octPts(cx, cy, R, from, to) {
+  const pts = [];
+  for (let k = from; k <= to; k++) {
+    const a = (22.5 + 45 * k) * Math.PI / 180;
+    pts.push((cx + R * Math.cos(a)).toFixed(1) + ',' + (cy + R * Math.sin(a)).toFixed(1));
+  }
+  return pts;
+}
+// 돌 하나 (skin.stones 에 따라). o = { parent, cls, opacity }
+function stone(i, color, o) {
+  o = o || {};
   const [x, y] = pos(i);
-  return el('circle', Object.assign({
-    cx: x, cy: y, r: G * 0.45,
-    fill: color === BLACK ? 'url(#gb)' : 'url(#gw)',
-    style: color === BLACK ? 'stroke: var(--stone-b-edge)' : 'stroke: var(--stone-w-edge)', 'stroke-width': 1,
-  }, extra || {}), stonesLayer);
+  const parent = o.parent || stonesLayer;
+  const c = color === BLACK ? 'b' : 'w';
+  let node;
+  if (skin.stones === 'pixel') {
+    node = el('g', { class: 'st st-px' }, parent);
+    const x0 = x - 18, y0 = y - 18;
+    el('path', { class: 'st-edge ' + c, d: runsPath('e', x0, y0, 4) }, node);
+    el('path', { class: 'st-body ' + c, d: runsPath('b', x0, y0, 4) }, node);
+    el('path', { class: 'st-hi ' + c, d: runsPath('h', x0, y0, 4) }, node);
+  } else if (skin.stones === 'gem') {
+    node = el('g', { class: 'st st-gem' }, parent);
+    el('polygon', { class: 'st-edge ' + c, points: octPts(x, y, 18.5, 0, 7).join(' ') }, node);
+    el('polygon', { class: 'st-body ' + c, points: octPts(x, y, 15, 0, 7).join(' ') }, node);
+    // 왼쪽 위 면 (꼭짓점 4·5·6 + 가운데)
+    el('polygon', { class: 'st-hi ' + c, points: octPts(x, y, 15, 4, 6).concat([`${x - 2},${y - 2}`]).join(' ') }, node);
+    el('rect', { class: 'st-shine', x: x - 9, y: y - 11, width: 4, height: 4 }, node);
+  } else {
+    node = el('circle', {
+      cx: x, cy: y, r: G * 0.45,
+      fill: color === BLACK ? 'url(#gb)' : 'url(#gw)',
+      style: color === BLACK ? 'stroke: var(--stone-b-edge)' : 'stroke: var(--stone-w-edge)', 'stroke-width': 1,
+    }, parent);
+  }
+  if (o.cls) for (const k of o.cls.split(' ')) if (k) node.classList.add(k);
+  if (o.opacity != null) node.setAttribute('opacity', o.opacity);
+  return node;
 }
 
-function render() {
+let stonesKey = '', drawnLen = -1, drawnSkin = '';
+function drawStones() {
+  const key = history.join(',') + '|' + skin.stones + '|' + (winLine ? 1 : 0);
+  if (key === stonesKey) return;
+  // 한 수가 막 늘었으면 그 돌에만 .stone-new (스킨만 바뀐 경우는 제외)
+  const grew = drawnSkin === skin.stones && history.length === drawnLen + 1;
+  stonesKey = key; drawnLen = history.length; drawnSkin = skin.stones;
   stonesLayer.replaceChildren();
-  for (let i = 0; i < N * N; i++) if (board[i]) stone(i, board[i]);
   const last = history[history.length - 1];
+  const wins = winLine ? new Set(winLine) : null;
+  for (let i = 0; i < N * N; i++) {
+    if (!board[i]) continue;
+    const cls = (grew && i === last ? 'stone-new ' : '') + (wins && wins.has(i) ? 'win-stone' : '');
+    stone(i, board[i], { cls });
+  }
   if (last != null && !winLine) {
     const [x, y] = pos(last);
-    el('circle', { cx: x, cy: y, r: 5, style: 'fill: var(--mark)' }, stonesLayer);
+    el('circle', { class: 'last-mark', cx: x, cy: y, r: 5, style: 'fill: var(--mark)' }, stonesLayer);
   }
   if (winLine) {
     const sorted = winLine.slice().sort((a, b) => a - b);
     const [x1, y1] = pos(sorted[0]), [x2, y2] = pos(sorted[sorted.length - 1]);
-    el('line', { x1, y1, x2, y2, style: 'stroke: var(--mark)', 'stroke-width': 6, 'stroke-linecap': 'round', opacity: .85 }, stonesLayer);
+    // pathLength 360 = CSS stroke-dasharray 값 → 줄 길이(장목 포함)와 관계없이 끝까지 그려짐
+    el('line', { class: 'win-line', x1, y1, x2, y2, pathLength: 360, style: 'stroke: var(--mark)', 'stroke-width': 6, 'stroke-linecap': 'round', opacity: .85 }, stonesLayer);
   }
+}
+
+// 플레이어 패널: 아래 = 나(2인 대전이면 흑·1P), 위 = 상대
+let playersKey = '';
+function fillPlayer(id, color) {
+  const box = $(id);
+  box.dataset.color = color === BLACK ? 'b' : 'w';
+  let name, tag, av, avColor;
+  if (mode === 'pvp') {
+    if (color === BLACK) { name = profile.name || t('player'); tag = '1P'; av = profile.avatar; avColor = profile.color; }
+    else { name = t('player2'); tag = '2P'; av = 0; avColor = 'blue'; }
+  } else if (color === aiColor()) {
+    name = t('ai'); tag = t('lv' + level); av = AI_AVATAR; avColor = 'cyan';
+  } else {
+    name = profile.name || t('player'); tag = t('you'); av = profile.avatar; avColor = profile.color;
+  }
+  $(id + 'Name').textContent = name;
+  $(id + 'Tag').textContent = t(color === BLACK ? 'colorB' : 'colorW') + ' · ' + tag;
+  renderAvatar($(id + 'Avatar'), av, avColor);
+}
+function renderPlayers() {
+  const bottom = mode === 'me-w' ? WHITE : BLACK, top = other(bottom);
+  const key = [mode, level, lang, profile.name, profile.avatar, profile.color].join('|');
+  if (key !== playersKey) {
+    playersKey = key;
+    fillPlayer('plBottom', bottom);
+    fillPlayer('plTop', top);
+  }
+  const tc = turn();
+  $('plBottom').classList.toggle('active', ready && !over && tc === bottom);
+  $('plTop').classList.toggle('active', ready && !over && tc === top);
+}
+
+// 준비 시트의 대전 방식·난이도 표시
+function renderSetup() {
+  for (const b of $('levelSeg').children) {
+    const on = +b.dataset.v === level;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+    b.disabled = setupMode === 'pvp';
+  }
+  $('levelSeg').classList.toggle('disabled', setupMode === 'pvp');
+  for (const b of $('modeSeg').children) {
+    const on = b.dataset.v === setupMode;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  }
+}
+
+function render() {
+  drawStones();
+  fxLayer.replaceChildren();
   // 미리보기 돌: 터치 미리보기 > 키보드 커서 > 마우스 호버
   const ghost = preview >= 0 ? preview : kbdOn ? cursor : hover;
   if (ghost >= 0 && !board[ghost] && humanTurn()) {
-    stone(ghost, turn(), { opacity: preview >= 0 ? .7 : .45 });
+    stone(ghost, turn(), { parent: fxLayer, opacity: preview >= 0 ? .7 : .45 });
   }
   // 키보드 커서 테두리 (돌이 있는 칸에서도 위치가 보이도록)
   if (kbdOn && cursor >= 0) {
     const [x, y] = pos(cursor);
-    el('circle', { class: 'kbd-cursor', cx: x, cy: y, r: G * 0.5 }, stonesLayer);
+    el('circle', { class: 'kbd-cursor', cx: x, cy: y, r: G * 0.5 }, fxLayer);
   }
 
   // 상태 표시
@@ -896,34 +2160,47 @@ function render() {
     $('status').textContent = t(tc === BLACK ? 'turnB' : 'turnW');
     $('statusSub').textContent = thinking ? t('thinking')
       : preview >= 0 ? t('tapAgain')
-      : (aiColor() && tc !== aiColor() ? t('yourTurn') : '');
+      : (ready && aiColor() && tc !== aiColor() ? t('yourTurn') : '');
   }
   $('moveCount').textContent = history.length;
   $('undoBtn').disabled = thinking || history.length === 0;
-
-  for (const b of $('levelSeg').children) {
-    b.classList.toggle('on', +b.dataset.v === level);
-    b.disabled = mode === 'pvp';
-  }
-  $('levelSeg').classList.toggle('disabled', mode === 'pvp');
-  for (const b of $('modeSeg').children) b.classList.toggle('on', b.dataset.v === mode);
+  renderPlayers();
+  renderSetup();
 }
 
 function humanTurn() {
-  return !over && !thinking && turn() !== aiColor();
+  return ready && !over && !thinking && turn() !== aiColor();
 }
+
+// 메뉴·결과 화면이 열려 있으면 판 입력 무시
+const blocked = () => Menu.isOpen() || Result.isOpen();
 
 function newGame() {
   gen++;
+  clearTimeout(resultTimer);
+  pendingResult = false;
   board = new Array(N * N).fill(EMPTY);
   history = [];
   over = null;
   winLine = null;
   thinking = false;
   preview = -1;
-  $('endOverlay').classList.remove('show');
+  Result.close(false);
   render();
   maybeAI();
+}
+
+// 준비 시트 "대국 시작" / 결과 화면 "새 게임"
+function startMatch() {
+  mode = setupMode;
+  ready = true;
+  saveSettings();
+  pendingResult = false;
+  Menu.close({ restore: false, silent: true });
+  newGame();
+  Sfx.play('start');
+  toast(t('startToast'));
+  GxUI.focusSafe(svg);
 }
 
 function place(i) {
@@ -940,12 +2217,37 @@ function place(i) {
     over = { title: 'draw', text: 'full', winner: 0 };
   }
   render();
-  if (over) $('endOverlay').classList.add('show');
+  Sfx.play('stone');
+  if (over) finishGame();
   else maybeAI();
 }
 
+// 끝난 판: 승리선·토스트를 잠깐 보여 준 뒤 결과 화면
+function finishGame() {
+  if (over.winner) {
+    Sfx.play('five', 0.08);
+    toast(t('fiveToast'));
+  }
+  const myGen = gen;
+  clearTimeout(resultTimer);
+  resultTimer = setTimeout(() => { if (myGen === gen && over) showResult(); }, GxUI.reduced() ? 300 : 1100);
+}
+function outcomeOf() {
+  if (!over || !over.winner) return 'draw';
+  if (mode === 'pvp') return 'win';
+  return over.winner === aiColor() ? 'lose' : 'win';
+}
+function showResult() {
+  if (Menu.isOpen()) { pendingResult = true; return; }
+  pendingResult = false;
+  const o = outcomeOf();
+  $('endOverlay').dataset.outcome = o;
+  Result.open($('endNew'));
+  Sfx.play(o);
+}
+
 function maybeAI() {
-  if (over || turn() !== aiColor()) return;
+  if (!ready || over || turn() !== aiColor()) return;
   thinking = true;
   render();
   const myGen = gen;
@@ -961,13 +2263,16 @@ function maybeAI() {
 function undo() {
   if (thinking || !history.length) return;
   gen++;
+  clearTimeout(resultTimer);
+  pendingResult = false;
   const pop = () => { board[history.pop()] = EMPTY; };
   pop();
   if (aiColor() && turn() === aiColor() && history.length) pop();
   over = null;
   winLine = null;
   preview = -1;
-  $('endOverlay').classList.remove('show');
+  Result.close(false);
+  Sfx.play('ui-back');
   render();
   maybeAI();
 }
@@ -988,15 +2293,15 @@ svg.addEventListener('pointerdown', () => {
 });
 svg.addEventListener('pointerup', e => {
   if (e.pointerType === 'mouse' && e.button !== 0) return; // 왼쪽 버튼만 (우클릭·휠클릭 무시)
-  if (!humanTurn()) return;
+  if (blocked() || !humanTurn()) return;
   const i = pointToIdx(e);
   if (i < 0 || board[i]) { preview = -1; render(); return; }
   if (e.pointerType === 'mouse') { place(i); return; }
   if (preview === i) place(i);
-  else { preview = i; render(); }
+  else { preview = i; Sfx.play('ui-move'); render(); }
 });
 svg.addEventListener('pointermove', e => {
-  if (e.pointerType !== 'mouse') return;
+  if (e.pointerType !== 'mouse' || blocked()) return;
   const i = pointToIdx(e);
   if (i !== hover) { hover = i; render(); }
 });
@@ -1013,6 +2318,7 @@ function startKbd() {
 }
 const ARROWS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 svg.addEventListener('keydown', e => {
+  if (blocked()) return;
   const d = ARROWS[e.key];
   if (d) {
     e.preventDefault();
@@ -1023,6 +2329,7 @@ svg.addEventListener('keydown', e => {
     }
     startKbd(); // 처음 누른 방향키는 커서만 보여 줌
     announce(cellInfo(cursor));
+    Sfx.play('ui-move');
     render();
   } else if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();
@@ -1044,26 +2351,94 @@ svg.addEventListener('focus', () => {
 });
 svg.addEventListener('blur', () => { if (kbdOn) { kbdOn = false; render(); } });
 
-$('newBtn').addEventListener('click', newGame);
-$('endNew').addEventListener('click', newGame);
-$('endClose').addEventListener('click', () => $('endOverlay').classList.remove('show'));
+// ===== 결과 화면 (.show + data-outcome, 포커스 이동·Tab 가두기, Esc = 판 보기) =====
+const Result = GxUI.modal($('endOverlay'), { showClass: 'show', fallbackFocus: () => svg });
+$('endNew').addEventListener('click', () => { Result.close(false); setupMode = mode; startMatch(); });
+$('endClose').addEventListener('click', () => { Result.close(); Sfx.play('ui-back'); });
+$('endExit').addEventListener('click', leave);
+
+// ===== 일시정지 메뉴 (html[data-menu] = pause|settings|help|setup) =====
+const Menu = GxMenu($('gxMenu'), {
+  button: $('menuBtn'),
+  fallbackFocus: () => svg,
+  focusFor: name => (name === 'setup' ? $('setupStart') : null),
+  onShow(name) {
+    $('exitConfirm').hidden = true;
+    if (name === 'setup') { setupMode = mode; renderSetup(); }
+  },
+  onEscape() {
+    if ($('exitConfirm').hidden) return false;
+    hideExitConfirm();
+    return true;
+  },
+  onClose() { if (pendingResult && over) showResult(); },
+});
+function openPause() {
+  if (Result.isOpen() || Menu.isOpen()) return;
+  Menu.open('pause', { returnTo: document.activeElement });
+}
+const inProgress = () => ready && history.length > 0 && !over;
+function leave() {
+  Sfx.play('ui-ok');
+  GxUI.leave(EXIT_HREF);
+}
+function hideExitConfirm() {
+  $('exitConfirm').hidden = true;
+  GxUI.focusSafe($('menuExit'));
+  Sfx.play('ui-back');
+}
+$('menuBtn').addEventListener('click', openPause);
+$('menuResume').addEventListener('click', () => Menu.close());
+$('menuRestart').addEventListener('click', () => Menu.push('setup'));
+$('menuSettings').addEventListener('click', () => Menu.push('settings'));
+$('menuHelp').addEventListener('click', () => Menu.push('help'));
+$('settingsSetup').addEventListener('click', () => Menu.push('setup'));
+$('setupStart').addEventListener('click', startMatch);
+// 나가기: 진행 중이면 메뉴 안에서 한 번 더 확인
+$('menuExit').addEventListener('click', () => {
+  if (!inProgress()) { leave(); return; }
+  $('exitConfirm').hidden = false;
+  GxUI.focusSafe($('exitNo'));
+  Sfx.play('ui-move');
+});
+$('exitYes').addEventListener('click', leave);
+$('exitNo').addEventListener('click', hideExitConfirm);
+
+// Esc·P: 메뉴 열기 (메뉴·결과 화면이 열려 있으면 그쪽이 먼저 처리)
+document.addEventListener('keydown', e => {
+  if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (blocked()) return;
+  if (e.key === 'Escape' || e.key === 'p' || e.key === 'P' || e.code === 'KeyP') {
+    if (e.repeat) return;
+    e.preventDefault();
+    openPause();
+  }
+});
+
 $('undoBtn').addEventListener('click', undo);
 $('levelSeg').addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b || b.disabled) return;
   level = +b.dataset.v;
   saveSettings();
+  Sfx.play('ui-move');
   render();
 });
 $('modeSeg').addEventListener('click', e => {
   const b = e.target.closest('button');
-  if (!b || b.dataset.v === mode) return;
-  if (history.length && !over && !confirm(t('confirmMode'))) return;
-  mode = b.dataset.v;
-  saveSettings();
-  newGame();
+  if (!b) return;
+  setupMode = b.dataset.v; // "대국 시작"을 눌러야 적용
+  Sfx.play('ui-move');
+  renderSetup();
 });
-for (const code of Object.keys(I18N)) {
+
+// 소리
+$('soundBtn').addEventListener('click', () => Sfx.toggle());
+$('soundToggle').addEventListener('click', () => Sfx.toggle());
+
+// 언어: 숨긴 <select id="lang"> 를 #langCycle(◀ 이름 ▶)이 바꾸고 change 이벤트를 보냄
+const LANGS = Object.keys(I18N);
+for (const code of LANGS) {
   const o = document.createElement('option');
   o.value = code;
   o.textContent = I18N[code].name;
@@ -1075,6 +2450,38 @@ $('lang').addEventListener('change', e => {
   applyLang();
   render();
 });
+function cycleLang(dir) {
+  const s = $('lang');
+  s.value = LANGS[(LANGS.indexOf(lang) + dir + LANGS.length) % LANGS.length];
+  s.dispatchEvent(new Event('change'));
+  Sfx.play('ui-move');
+}
+$('langCycle').addEventListener('click', e => {
+  // 왼쪽 ◀ 를 누르면 이전 언어, 나머지는 다음 언어
+  const a = e.target.closest('.gx-cycle-arrow');
+  cycleLang(a && a === $('langCycle').querySelector('.gx-cycle-arrow') ? -1 : 1);
+});
+$('langCycle').addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault();
+  cycleLang(e.key === 'ArrowLeft' ? -1 : 1);
+});
+
+// 꾸미기 (K4): 즉시 반영
+$('skinStones').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]');
+  if (!b || !SKIN_STONES.includes(b.dataset.v)) return;
+  skin.stones = b.dataset.v;
+  saveSkin(); applySkin(); render();
+  Sfx.play('ui-move');
+});
+$('skinBoard').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]');
+  if (!b || !SKIN_BOARDS.includes(b.dataset.v)) return;
+  skin.board = b.dataset.v;
+  saveSkin(); applySkin(); render();
+  Sfx.play('ui-move');
+});
 
 // 화면 배치(모바일/PC): 상태는 html[data-layout], 저장은 사이트 공통 키 games-layout
 function syncLayoutSeg() {
@@ -1082,72 +2489,34 @@ function syncLayoutSeg() {
     b.setAttribute('aria-pressed', String(b.dataset.v === document.documentElement.dataset.layout));
   });
 }
-document.getElementById('layoutSeg').addEventListener('click', e => {
+$('layoutSeg').addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b) return;
   applyLayout(b.dataset.v);
   try { localStorage.setItem('games-layout', b.dataset.v); } catch (err) {}
-  closePanel(false);
   syncLayoutSeg();
+  Sfx.play('ui-move');
 });
-// 다른 탭에서 바꾸면 따라감
+// 다른 탭에서 바꾸면 따라감 (배치·프로필·스킨·언어. 소리·UI 테마는 공유 블록이 처리)
 window.addEventListener('storage', e => {
+  const all = e.key === null; // localStorage.clear()
   if (e.key === 'games-layout' && (e.newValue === 'mobile' || e.newValue === 'pc')) {
     applyLayout(e.newValue);
-    closePanel(false);
     syncLayoutSeg();
   }
-});
-syncLayoutSeg();
-
-// ===== 모바일 패널 (.app[data-open] = 열린 패널 id, 한 번에 하나. PC 배치에선 무효) =====
-const app = document.querySelector('.app');
-const isMobileLayout = () => document.documentElement.dataset.layout === 'mobile';
-let panelOpener = null; // 패널을 연 도구 버튼 → 닫을 때 포커스 복귀
-function syncTools() {
-  const open = app.dataset.open || '';
-  document.querySelectorAll('.tool[data-panel]').forEach(b => b.setAttribute('aria-expanded', b.dataset.panel === open ? 'true' : 'false'));
-}
-function openPanel(id, opener) {
-  const panel = document.querySelector('[data-panel-id="' + id + '"]');
-  if (!isMobileLayout() || !panel) return;
-  app.dataset.open = id;
-  panelOpener = opener || document.querySelector('.tool[data-panel="' + id + '"]');
-  syncTools();
-  const f = panel.querySelector('.panel-close') || panel.querySelector('button:not([disabled])');
-  if (f) f.focus();
-}
-function closePanel(restoreFocus) {
-  const o = panelOpener;
-  panelOpener = null;
-  if (!app.hasAttribute('data-open')) return;
-  app.removeAttribute('data-open');
-  syncTools();
-  if (restoreFocus && o && isMobileLayout()) o.focus({ preventScroll: true });
-}
-document.querySelector('.tool-group').addEventListener('click', e => {
-  const b = e.target.closest('.tool[data-panel]');
-  if (!b) return;
-  if (app.dataset.open === b.dataset.panel) closePanel(true);
-  else openPanel(b.dataset.panel, b);
-});
-document.querySelectorAll('[data-panel-id] .panel-close').forEach(b => b.addEventListener('click', () => closePanel(true)));
-document.addEventListener('keydown', e => {
-  if (e.defaultPrevented) return; // 대화상자 Esc가 먼저 처리했으면 패널은 그대로 둔다
-  if (e.key !== 'Escape' || !app.hasAttribute('data-open')) return;
-  e.preventDefault();
-  closePanel(true);
-});
-// 패널·도구 막대 바깥 탭 → 닫기. 판(.board-wrap: 판과 그 위 대화상자)은 제외 → 패널을 연 채로 수를 둘 수 있음
-document.addEventListener('pointerdown', e => {
-  if (!app.hasAttribute('data-open') || !e.target.closest) return;
-  if (e.target.closest('[data-panel-id], .tool-group, .board-wrap')) return;
-  closePanel(false);
+  if (all || e.key === PROFILE_KEY) { profile = loadProfile(); render(); }
+  if (all || e.key === SKIN_KEY) { skin = loadSkin(); applySkin(); render(); }
+  if (e.key === 'games-lang' && I18N[e.newValue] && e.newValue !== lang) { lang = e.newValue; applyLang(); render(); }
 });
 
+// ===== 시작: 판은 초기 배치, 준비 시트(대전 방식·난이도 + "대국 시작")를 먼저 엶 =====
 drawBoard();
+applySkin();
 applyLang();
+syncLayoutSeg();
 newGame();
+Menu.open('setup', { locked: true, returnTo: svg });
+GxUI.enter();
 </script>
 </body>
 </html>

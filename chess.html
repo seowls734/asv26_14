@@ -18,8 +18,18 @@ else{vp.setAttribute('content','width=device-width, initial-scale=1');d.style.re
 try{l=localStorage.getItem('games-layout')}catch(e){}
 if(l!=='mobile'&&l!=='pc'){try{l=(matchMedia('(max-width: 820px)').matches||(matchMedia('(pointer: coarse)').matches&&Math.min(screen.width,screen.height)<=820))?'mobile':'pc'}catch(e){l='pc'}}
 applyLayout(l);
-})();</script>
+})();
+// ===== [공유] UI 테마 head 시작 =====
+// 첫 렌더 전에 html[data-ui] 적용(깜빡임 방지). 사이트 공통 키 games-ui-theme = classic|gameboy|neon|famicom
+(function(){var v;try{v=localStorage.getItem('games-ui-theme')}catch(e){}
+document.documentElement.setAttribute('data-ui',(v==='gameboy'||v==='neon'||v==='famicom')?v:'classic');
+})();
+// ===== [공유] UI 테마 head 끝 =====
+// 페이지 진입 와이프(html.gx-enter) — 본문 스크립트의 GxUI.enter() 가 300ms 뒤에 걷음
+document.documentElement.classList.add('gx-enter');
+</script>
 <style>
+  /* ===== 색 토큰 (라이트) ===== */
   :root {
     --bg: #f4f1ea;
     --panel: #fffdf8;
@@ -50,6 +60,34 @@ applyLayout(l);
     --shadow-strong: rgba(0, 0, 0, .3);
     --focus: #1d1a17;            /* 포커스 링 */
     --focus-halo: #fffaf0;       /* 포커스 링 안쪽 테 (판 위에서 대비 확보) */
+    /* 허브(index.html)와 같은 값 */
+    --primary: #b93a0a; --primary-hi: #c94a10; --primary-lo: #7a2606; --primary-text: #fff;
+    --accent-hi: #a3703f; --accent-lo: #5e3d1f;
+    --btn-hi: #fffaf0; --btn-edge: #c9b99c;
+    --panel-hi: #ffffff; --frame: #d8c9ad; --frame-hi: rgba(255, 255, 255, .8);
+    --scrim: rgba(0, 0, 0, .45);
+    --pattern: rgba(139, 94, 52, .09); --vignette: rgba(90, 60, 30, .10);
+    --glow: rgba(217, 83, 26, .35);
+    --title-from: #d9531a; --title-to: #8b5e34; --title-edge: #5e3d1f;
+    --gold: #b86e00; --gold-hi: #f2b632; --gold-lo: #7a4100; --ray: rgba(242, 182, 50, .30);
+    /* 픽셀 공통 토큰 */
+    --px: 4px;
+    --ink: #1b1622;
+    --hud-bg: #2b2238;
+    --hud-text: #f4ead2;
+    --hud-muted: #b9ab90;
+    --hud-edge: #0f0b14;
+    --win: #2f8f3c;
+    --lose: #c8323c;
+    --draw: #6e6452;
+    --scanline: rgba(0, 0, 0, .05);
+    /* 프로필 아바타 색 (K1) */
+    --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+    --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+    /* 판 테마 (K3) — wood 는 --light/--dark 그대로 */
+    --bd-marble-l: #e8e6e1; --bd-marble-d: #9aa3ab;
+    --bd-retro-l: #c8d8a0; --bd-retro-d: #5a7a3a;
+    --bd-ocean-l: #d4e6f1; --bd-ocean-d: #4a7ba6;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -71,6 +109,30 @@ applyLayout(l);
       --shadow-strong: rgba(0, 0, 0, .5);
       --focus: #fffaf0;
       --focus-halo: #1d1a17;
+      --primary: #ff8a3d; --primary-hi: #ffa766; --primary-lo: #a8460f; --primary-text: #1c1a17;
+      --accent-hi: #d9a06a; --accent-lo: #7a4f27;
+      --btn-hi: #3d3831; --btn-edge: #15130f;
+      --panel-hi: #2d2924; --frame: #4a4339; --frame-hi: rgba(255, 255, 255, .07);
+      --scrim: rgba(0, 0, 0, .6);
+      --pattern: rgba(255, 235, 205, .045); --vignette: rgba(0, 0, 0, .35);
+      --glow: rgba(255, 138, 61, .35);
+      --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
+      --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
+      --px: 4px;
+      --ink: #0b0910;
+      --hud-bg: #17121f;
+      --hud-text: #f4ead2;
+      --hud-muted: #a89c86;
+      --hud-edge: #000000;
+      --win: #5fd46d;
+      --lose: #ff5a64;
+      --draw: #b8ad96;
+      --scanline: rgba(0, 0, 0, .18);
+      --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+      --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+      --bd-marble-l: #c9c7c2; --bd-marble-d: #7a838b;
+      --bd-retro-l: #a9b985; --bd-retro-d: #45602c;
+      --bd-ocean-l: #aec6d6; --bd-ocean-d: #3a6488;
     }
   }
   :root[data-theme="dark"] {
@@ -80,16 +142,103 @@ applyLayout(l);
     --coord-on-light: #6b4a2e; --coord-on-dark: #fffaf0;
     --overlay: rgba(0, 0, 0, .55); --shadow: rgba(0, 0, 0, .4); --shadow-strong: rgba(0, 0, 0, .5);
     --focus: #fffaf0; --focus-halo: #1d1a17;
+    --primary: #ff8a3d; --primary-hi: #ffa766; --primary-lo: #a8460f; --primary-text: #1c1a17;
+    --accent-hi: #d9a06a; --accent-lo: #7a4f27;
+    --btn-hi: #3d3831; --btn-edge: #15130f;
+    --panel-hi: #2d2924; --frame: #4a4339; --frame-hi: rgba(255, 255, 255, .07);
+    --scrim: rgba(0, 0, 0, .6);
+    --pattern: rgba(255, 235, 205, .045); --vignette: rgba(0, 0, 0, .35);
+    --glow: rgba(255, 138, 61, .35);
+    --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
+    --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
+    --px: 4px; --ink: #0b0910;
+    --hud-bg: #17121f; --hud-text: #f4ead2; --hud-muted: #a89c86; --hud-edge: #000000;
+    --win: #5fd46d; --lose: #ff5a64; --draw: #b8ad96;
+    --scanline: rgba(0, 0, 0, .18);
+    --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+    --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+    --bd-marble-l: #c9c7c2; --bd-marble-d: #7a838b;
+    --bd-retro-l: #a9b985; --bd-retro-d: #45602c;
+    --bd-ocean-l: #aec6d6; --bd-ocean-d: #3a6488;
   }
+
+  /* ===== UI 테마 팔레트 (K2): html[data-ui] — 기본 블록 뒤에 둬서 같은 우선순위면 이쪽이 이김 ===== */
+  :root[data-ui="gameboy"] {
+    --primary: #306230; --primary-hi: #4a7f3a; --primary-lo: #0f380f; --primary-text: #e0f8d0;
+    --hud-bg: #0f380f; --hud-text: #e0f8d0; --hud-muted: #9bbc0f; --hud-edge: #071c07;
+    --frame: #8bac0f; --glow: rgba(139, 172, 15, .45);
+    --title-from: #9bbc0f; --title-to: #306230; --title-edge: #0f380f;
+  }
+  :root[data-ui="neon"] {
+    --primary: #7b2ff7; --primary-hi: #9a5cff; --primary-lo: #4a10a8; --primary-text: #ffffff;
+    --hud-bg: #1a0b2e; --hud-text: #f0e6ff; --hud-muted: #c3a6ff; --hud-edge: #0a0414;
+    --frame: #c3a6ff; --glow: rgba(0, 229, 255, .40);
+    --title-from: #00b8d4; --title-to: #7b2ff7; --title-edge: #2a0a5e;
+  }
+  :root[data-ui="famicom"] {
+    --primary: #b21f2d; --primary-hi: #d23a46; --primary-lo: #6e0f18; --primary-text: #ffffff;
+    --hud-bg: #3a3a3a; --hud-text: #f2ead8; --hud-muted: #c8bea8; --hud-edge: #1a1a1a;
+    --frame: #c8bea8; --glow: rgba(178, 31, 45, .35);
+    --title-from: #d23a46; --title-to: #8a1420; --title-edge: #3a0a0f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-ui="gameboy"]:not([data-theme="light"]) {
+      --primary: #8bac0f; --primary-hi: #9bbc0f; --primary-lo: #306230; --primary-text: #0f380f;
+      --title-from: #e0f8d0; --title-to: #9bbc0f;
+    }
+    :root[data-ui="neon"]:not([data-theme="light"]) {
+      --primary: #00e5ff; --primary-hi: #6ff6ff; --primary-lo: #008ba3; --primary-text: #0a0414;
+      --hud-bg: #12061f; --frame: #4a2a7a; --title-from: #6ff6ff; --title-to: #ff4fd8;
+    }
+    :root[data-ui="famicom"]:not([data-theme="light"]) {
+      --primary: #ff5a66; --primary-hi: #ff8a92; --primary-lo: #a8202c; --primary-text: #1a1a1a;
+      --hud-bg: #222222; --frame: #4a4440; --title-from: #ffd27a; --title-to: #ff5a66;
+    }
+  }
+  :root[data-ui="gameboy"][data-theme="dark"] {
+    --primary: #8bac0f; --primary-hi: #9bbc0f; --primary-lo: #306230; --primary-text: #0f380f;
+    --title-from: #e0f8d0; --title-to: #9bbc0f;
+  }
+  :root[data-ui="neon"][data-theme="dark"] {
+    --primary: #00e5ff; --primary-hi: #6ff6ff; --primary-lo: #008ba3; --primary-text: #0a0414;
+    --hud-bg: #12061f; --frame: #4a2a7a; --title-from: #6ff6ff; --title-to: #ff4fd8;
+  }
+  :root[data-ui="famicom"][data-theme="dark"] {
+    --primary: #ff5a66; --primary-hi: #ff8a92; --primary-lo: #a8202c; --primary-text: #1a1a1a;
+    --hud-bg: #222222; --frame: #4a4440; --title-from: #ffd27a; --title-to: #ff5a66;
+  }
+  /* 테마 고르기 스와치 미리보기 색: 각 테마의 고정 대표색이라 라이트/다크 구분 없음 */
+  :root {
+    --sw-classic-a: #b93a0a; --sw-classic-b: #2b2238;
+    --sw-gameboy-a: #9bbc0f; --sw-gameboy-b: #0f380f;
+    --sw-neon-a: #00e5ff; --sw-neon-b: #7b2ff7;
+    --sw-famicom-a: #b21f2d; --sw-famicom-b: #c8bea8;
+  }
+  /* 픽셀 박스 조각(색 아님: 위 토큰을 조합). :root 에서 계산되므로 테마가 바뀌면 같이 바뀜 */
+  :root {
+    --ink-box: 0 calc(-1 * var(--px)) 0 0 var(--ink), 0 var(--px) 0 0 var(--ink), calc(-1 * var(--px)) 0 0 0 var(--ink), var(--px) 0 0 0 var(--ink);
+    --icon: 44px;   /* 아이콘 버튼 한 변 */
+    --uiz: 1;       /* 메뉴·결과 글자 배율 (PC 배치 + 폰 축소일 때만 > 1) */
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "D2Coding", monospace;
+  }
+  /* 폰에서 PC 모드(viewport 1280 축소)일 때만 --vp-zoom 이 있음 → 손가락 크기 유지 */
+  :root[data-layout="pc"] { --icon: calc(44px * var(--vp-zoom, 1)); --uiz: min(var(--vp-zoom, 1), 2); }
+
+  /* ===== 기본 ===== */
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
   body {
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image:
+      repeating-linear-gradient(0deg, var(--scanline) 0 1px, transparent 1px 3px),
+      radial-gradient(var(--pattern) 0 2px, transparent 2px);
+    background-size: 100% 3px, 22px 22px;
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-    min-height: 100vh;
     /* 좁은 폭 규칙은 @container 로 body 폭 기준 적용 → 모바일 모드에서 body 를 480px 로 줄이면 같은 규칙이 적용됨 */
     container-type: inline-size;
+    touch-action: manipulation;
   }
   /* 화면 배치: 모바일 모드는 화면 폭과 관계없이 폭 480px 세로 배치, 가운데 정렬 */
   :root[data-layout="mobile"] body { max-width: 480px; margin: 0 auto; }
@@ -97,91 +246,168 @@ applyLayout(l);
     position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
     overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
   }
-  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -.01em; }
-  .sub { color: var(--muted); font-size: 13px; margin: 0; }
+  h1, h2, p { margin: 0; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: calc(var(--px) + 2px); }
+  :focus:not(:focus-visible) { outline: none; }
 
-  body { touch-action: manipulation; }
+  /* ===== 화면 격자 =====
+     PC  : [HUD (2칸)] / [위 플레이어 | 기보] / [판 | 기보] / [아래 플레이어 | 기보] / [도크 | 기보]
+     좁음: HUD / 위 플레이어 / 판 / 아래 플레이어 / 도크 (기보는 #movesBtn 시트)
+     --bw(판 한 변) = min(가로 남은 폭, 세로 남은 높이, 640px). 스크롤 없음 → 스크롤바 여유 없음 */
   .app {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 24px 16px 40px;
+    --vh: 100vh;
+    --gut-l: max(16px, env(safe-area-inset-left));
+    --gut-r: max(16px, env(safe-area-inset-right));
+    --pad-y: 12px;
+    --gap: 8px;
+    --col-gap: 16px;
+    --hud-h: calc(var(--icon) + 12px);
+    --pl-h: 44px;
+    --dock-h: 56px;
+    --fw: 10px;          /* 판 픽셀 테 두께(그림자로 그려서 자리만 비워 둠) */
+    --side-w: 300px;
+    --bw-w: calc(100cqw - var(--gut-l) - var(--gut-r) - var(--col-gap) - var(--side-w) - 2 * var(--fw));
+    --bw-h: calc(var(--vh) - 2 * var(--pad-y) - env(safe-area-inset-bottom) - var(--hud-h) - 2 * var(--pl-h) - var(--dock-h) - 4 * var(--gap) - 2 * var(--fw) - var(--px));
+    --bw: max(160px, min(var(--bw-w), var(--bw-h), 640px));
+    height: 100vh;
+    padding: var(--pad-y) var(--gut-r) calc(var(--pad-y) + env(safe-area-inset-bottom)) var(--gut-l);
     display: grid;
-    grid-template-columns: auto minmax(280px, 360px);
-    grid-template-areas: "board head" "board side";
-    grid-template-rows: auto 1fr;
-    gap: 14px 24px;
+    grid-template-columns: calc(var(--bw) + 2 * var(--fw)) var(--side-w);
+    grid-template-rows: var(--hud-h) var(--pl-h) auto var(--pl-h) var(--dock-h);
+    grid-template-areas: "hud hud" "top side" "board side" "bottom side" "dock side";
+    gap: var(--gap) var(--col-gap);
     justify-content: center;
-    align-items: start;
+    align-content: center;
+    overflow: hidden;
   }
-  .head { grid-area: head; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .title-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  .back { color: var(--muted); font-size: 14px; text-decoration: none; align-self: flex-start; padding: 4px 0; }
-  .back:hover { color: var(--text); }
+  @supports (height: 100dvh) { .app { --vh: 100dvh; height: 100dvh; } }
+
+  /* ===== 픽셀 버튼 ===== */
+  .gx-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px; padding: 8px 14px; margin: 0;
+    border: 0; border-radius: 0;
+    background: var(--btn); color: var(--text);
+    font-weight: 900; letter-spacing: .06em; font-size: 15px; line-height: 1.15;
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--btn-edge), inset 0 var(--px) 0 0 var(--btn-hi);
+  }
+  .gx-btn svg { flex: none; width: 16px; height: 16px; fill: currentColor; }
+  .gx-btn:active:not(:disabled) {
+    transform: translateY(var(--px));
+    box-shadow: var(--ink-box), inset 0 -1px 0 0 var(--btn-edge), inset 0 var(--px) 0 0 var(--btn-edge);
+  }
+  .gx-btn.primary {
+    background: var(--primary); color: var(--primary-text);
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .gx-btn.primary:active:not(:disabled) {
+    box-shadow: var(--ink-box), inset 0 -1px 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-lo);
+  }
+  .gx-btn:disabled { opacity: .5; cursor: default; }
+  @media (hover: hover) {
+    .gx-btn:hover:not(:disabled) { background: var(--btn-hover); }
+    .gx-btn.primary:hover:not(:disabled) { background: var(--primary-hi); }
+  }
+  .gx-icon {
+    width: var(--icon); height: var(--icon); min-height: 0; padding: 0; flex: none;
+  }
+  .gx-icon svg { width: calc(var(--icon) * .5); height: calc(var(--icon) * .5); }
+  /* 소리 아이콘: aria-pressed 로 켜짐/꺼짐 그림 전환 (JS 연결 전에도 맞게 보임) */
+  #soundBtn .ico-off { display: none; }
+  #soundBtn[aria-pressed="false"] .ico-on { display: none; }
+  #soundBtn[aria-pressed="false"] .ico-off { display: inline; }
+
+  /* ===== HUD ===== */
+  .gx-hud {
+    grid-area: hud; min-width: 0;
+    display: grid; grid-template-columns: var(--icon) minmax(0, 1fr) var(--icon); align-items: center; gap: 10px;
+    padding: 0 6px;
+    background: var(--hud-bg); color: var(--hud-text);
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--hud-edge), 0 var(--px) 0 0 var(--hud-edge),
+      calc(-1 * var(--px)) 0 0 0 var(--hud-edge), var(--px) 0 0 0 var(--hud-edge),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--hud-edge);
+  }
+  .gx-hud .gx-icon { font-size: calc(15px * var(--uiz)); }
+  .hud-mid { min-width: 0; text-align: center; font-size: calc(16px * var(--uiz)); }
+  .status {
+    display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0;
+    font-weight: 900; letter-spacing: .06em; line-height: 1.25;
+    text-shadow: 2px 2px 0 var(--hud-edge);
+  }
+  #status { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .turn-dot {
+    flex: none; width: .9em; height: .9em; border-radius: 0;
+    box-shadow: 0 0 0 2px var(--hud-text), 0 0 0 4px var(--hud-edge);
+  }
+  .turn-dot.w { background: var(--piece-w); }
+  .turn-dot.b { background: var(--piece-b); }
+  .status-sub {
+    color: var(--hud-muted); font-size: .8em; line-height: 1.25; min-height: 1.25em; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ===== 플레이어 패널 =====
+     #plTop = 흑, #plBottom = 백(고정). 판이 뒤집히면 .app.flipped 로 위아래 자리만 바꿈 */
+  .gx-player {
+    min-width: 0; height: var(--pl-h);
+    display: flex; align-items: center; gap: 8px; padding: 0 12px 0 6px;
+    background: var(--panel); color: var(--text);
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--border), inset 0 var(--px) 0 0 var(--panel-hi);
+    font-size: 15px;
+  }
+  #plTop { grid-area: top; }
+  #plBottom { grid-area: bottom; }
+  .app.flipped #plTop { grid-area: bottom; }
+  .app.flipped #plBottom { grid-area: top; }
+  .gx-player::before {
+    content: "\25B6"; flex: none; width: 1em; text-align: center; font-size: 13px;
+    visibility: hidden;
+  }
+  .gx-player.active {
+    background: var(--primary); color: var(--primary-text);
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .gx-player.active::before { visibility: visible; animation: gx-blink 1s steps(1, end) infinite; }
+  .pl-icon.piece { flex: none; font-size: 26px; transform: none; }
+  .pl-who { flex: none; min-width: 0; max-width: 55%; display: flex; gap: 6px; align-items: baseline; font-weight: 900; letter-spacing: .06em; white-space: nowrap; overflow: hidden; }
+  .pl-name { overflow: hidden; text-overflow: ellipsis; font-weight: 700; letter-spacing: .02em; }
+  .pl-name:not(:empty)::before { content: "\00B7\00A0"; }
+  .pl-cap { flex: 1; min-width: 0; display: flex; justify-content: flex-end; overflow: hidden; }
+  .pcs {
+    font-family: "Segoe UI Symbol", "DejaVu Sans", "Noto Sans Symbols 2", "Arial Unicode MS", serif;
+    font-size: 18px; line-height: 1; letter-spacing: -2px; white-space: nowrap; color: currentColor;
+  }
+  .adv { flex: none; font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 900; min-width: 2.2em; text-align: right; }
+  .adv:empty { min-width: 0; }
+
+  /* ===== 판 ===== */
   .board-wrap {
-    grid-area: board;
-    /* 2열: 화면폭 - 좌우 패딩 32 - 사이드 최소 280 - 열 간격 24 - 스크롤바 여유 20 */
-    --bw: min(calc(100vw - 32px - 280px - 24px - 20px), 80vh, 580px);
-    width: var(--bw);
+    grid-area: board; justify-self: center; align-self: center;
     position: relative;
+    width: calc(var(--bw) + 2 * var(--fw));
+    padding: var(--fw) var(--fw) calc(var(--fw) + var(--px));
   }
-  .field-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-  .seg {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
-    background: var(--btn);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 3px;
-    gap: 3px;
-  }
-  .seg button {
-    font: inherit;
-    font-size: 14px;
-    border: 0;
-    border-radius: 7px;
-    background: transparent;
-    color: var(--text);
-    padding: 9px 4px;
-    min-height: 40px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .seg button { white-space: normal; line-height: 1.2; }
-  .seg button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
-  select.lang {
-    width: auto;
-    margin-left: auto;
-    font-size: 13px;
-    padding: 5px 6px;
-    min-height: 34px;
-  }
-  .seg button:disabled { opacity: .45; cursor: default; }
-  .seg.disabled button.on { background: var(--btn-hover); color: var(--muted); }
-  /* 헤더 오른쪽: 언어 + 화면 배치 (nav.tools = 모바일 도구 막대와 구분) */
-  .head-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
-  .head-tools select.lang { margin-left: 0; }
-  .seg.layout-seg { display: inline-grid; }
-  .layout-seg button { min-height: 44px; min-width: 52px; padding: 4px 10px; font-size: 13px; white-space: nowrap; }
-  /* 폰에서 PC 모드(viewport 1280 축소)일 때만 --vp-zoom 이 있음 → 실제 손가락 크기 유지 */
-  :root[data-layout="pc"] .layout-seg button {
-    min-height: calc(44px * var(--vp-zoom, 1)); min-width: calc(52px * var(--vp-zoom, 1));
-    font-size: calc(13px * min(var(--vp-zoom, 1), 2.8));
-  }
-  .layout-seg button:hover { background: var(--btn-hover); }
-  /* 선택 표시는 html[data-layout] 기준 (JS 연결 전에도 맞게 보임) */
-  :root[data-layout="mobile"] .layout-seg button[data-v="mobile"],
-  :root[data-layout="pc"] .layout-seg button[data-v="pc"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
   .board {
     width: var(--bw);
     height: var(--bw);
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    border-radius: 6px;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 10px 30px var(--shadow);
     touch-action: manipulation;
+    /* 픽셀 나무 테: 안쪽 선 → 테 → 모서리 깎인 잉크 외곽선 → 아래 딱딱한 그림자 */
+    box-shadow:
+      0 0 0 2px var(--accent-lo),
+      0 0 0 calc(var(--fw) - var(--px)) var(--accent),
+      0 calc(-1 * var(--px)) 0 calc(var(--fw) - var(--px)) var(--ink),
+      0 var(--px) 0 calc(var(--fw) - var(--px)) var(--ink),
+      calc(-1 * var(--px)) 0 0 calc(var(--fw) - var(--px)) var(--ink),
+      var(--px) 0 0 calc(var(--fw) - var(--px)) var(--ink),
+      0 calc(2 * var(--px)) 0 calc(var(--fw) - var(--px)) var(--ink);
   }
   /* 스크린리더용 행(role="row") 래퍼 — 레이아웃에는 영향 없음 */
   .board > .rank { display: contents; }
@@ -200,33 +426,49 @@ applyLayout(l);
   .sq.last { --tint: var(--last); }
   .sq.sel { --tint: var(--sel); }
   .sq.last, .sq.sel { box-shadow: inset 0 0 0 999px var(--tint); }
-  .sq.check { background-image: radial-gradient(circle, var(--check) 0%, var(--check-soft) 45%, transparent 72%); }
-  /* 판에 overflow:hidden 이 있어 안쪽으로 그림: 바깥 3px 링 + 안쪽 2px 테 + 기존 강조색 */
+  /* 체크: 칸 전체 빨간 막 + 깜빡이는 픽셀 테 */
+  .sq.check { background-image: linear-gradient(var(--check-soft), var(--check-soft)); }
+  .sq.check::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    box-shadow: inset 0 0 0 calc(var(--bw) / 8 * .09) var(--check);
+    animation: gx-blink .6s steps(1, end) infinite;
+  }
+  /* 방금 둔 칸: 기물이 계단식으로 내려앉고 금색 테가 두 번 번쩍 */
+  .sq.just-moved .piece { animation: gx-drop .24s steps(3, end) both; }
+  .sq.just-moved::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    box-shadow: inset 0 0 0 calc(var(--bw) / 8 * .07) var(--gold-hi);
+    animation: gx-flash .5s steps(1, end) forwards;
+  }
   .sq:focus { outline: none; }
   .sq:focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: -3px;
     box-shadow: inset 0 0 0 5px var(--focus-halo), inset 0 0 0 999px var(--tint, transparent);
   }
+  /* 이동 가능 칸: 네모 도트(통통), 잡기 칸: 네모 테 */
   .sq.target::after {
     content: "";
     position: absolute;
-    width: 30%;
-    height: 30%;
-    border-radius: 50%;
+    width: 26%;
+    height: 26%;
+    border-radius: 0;
     background: var(--dot);
     pointer-events: none;
+    animation: gx-bob .8s steps(1, end) infinite;
   }
   .sq.target.cap::after {
-    width: 90%;
-    height: 90%;
+    width: 100%;
+    height: 100%;
     background: transparent;
-    border: calc(var(--bw) / 8 * .08) solid var(--dot);
+    border: calc(var(--bw) / 8 * .09) solid var(--dot);
+    animation: none;
   }
   .coord {
     position: absolute;
+    font-family: var(--mono);
     font-size: calc(var(--bw) / 8 * .17);
-    font-weight: 600;
+    font-weight: 900;
     pointer-events: none;
     line-height: 1;
   }
@@ -244,15 +486,17 @@ applyLayout(l);
     z-index: 1;
     transform: translateY(-2%);
   }
+  /* 블러 없는 1px 외곽선 + 아래 딱딱한 그림자 */
   .piece.w {
     color: var(--piece-w);
-    text-shadow: 0 0 1px var(--piece-w-edge), 0 0 1px var(--piece-w-edge), 0 0 1px var(--piece-w-edge), 0 2px 3px var(--piece-w-shadow);
+    text-shadow: 1px 0 0 var(--piece-w-edge), -1px 0 0 var(--piece-w-edge), 0 1px 0 var(--piece-w-edge), 0 -1px 0 var(--piece-w-edge), 0 3px 0 var(--piece-w-shadow);
   }
   .piece.b {
     color: var(--piece-b);
-    text-shadow: 0 0 1px var(--piece-b-edge), 0 2px 3px var(--piece-b-shadow);
+    text-shadow: 1px 0 0 var(--piece-b-edge), -1px 0 0 var(--piece-b-edge), 0 -1px 0 var(--piece-b-edge), 0 3px 0 var(--piece-b-shadow);
   }
 
+  /* ===== 판 위 대화상자(승진) — .overlay.show 로 열림(JS) ===== */
   .overlay {
     position: absolute;
     inset: 0;
@@ -260,424 +504,688 @@ applyLayout(l);
     align-items: center;
     justify-content: center;
     background: var(--overlay);
-    border-radius: 6px;
     z-index: 5;
+    padding: var(--fw);
   }
   .overlay.show { display: flex; }
   .dialog {
     background: var(--panel);
     color: var(--text);
-    border-radius: 12px;
-    padding: 20px 22px;
+    border-radius: 0;
+    padding: 18px 20px;
     text-align: center;
-    box-shadow: 0 10px 30px var(--shadow-strong);
-    max-width: 90%;
+    max-width: 94%;
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--border), inset 0 var(--px) 0 0 var(--panel-hi), var(--px) calc(3 * var(--px)) 0 0 var(--shadow-strong);
   }
-  .dialog h2 { margin: 0 0 6px; font-size: 20px; }
+  .dialog h2 { margin: 0 0 6px; font-size: 19px; font-weight: 900; letter-spacing: .06em; }
   .dialog p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
-  .promo-row { display: flex; gap: 8px; justify-content: center; }
+  .promo-row { display: flex; gap: 10px; justify-content: center; }
   .promo-row button {
     width: calc(var(--bw) / 8);
     height: calc(var(--bw) / 8);
-    min-width: 52px;
-    min-height: 52px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 0;
+    border: 0;
     background: var(--light);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--dark);
   }
-  .promo-row button:hover { background: var(--dark); }
+  .promo-row button:active { transform: translateY(var(--px)); box-shadow: var(--ink-box); }
+  @media (hover: hover) { .promo-row button:hover { background: var(--dark); } }
   .promo-row button:focus-visible {
     outline: 3px solid var(--focus);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px var(--focus-halo);
+    outline-offset: calc(var(--px) + 2px);
   }
-  .promo-row .piece { font-size: calc(var(--bw) / 8 * .72); }
-  /* 승진 취소: 기물 버튼 줄 아래 가운데, 기물 버튼 4개 폭을 넘지 않게 */
-  .promo-cancel { margin-top: 14px; justify-content: center; }
-  .promo-cancel .btn { flex: 0 1 auto; min-width: 120px; }
+  .promo-row .piece { font-size: calc(var(--bw) / 8 * .72); transform: none; }
+  /* 승진 취소: 기물 버튼 줄 아래 가운데 */
+  .promo-cancel { display: flex; margin-top: 16px; justify-content: center; }
+  .promo-cancel .gx-btn { min-width: 120px; }
 
+  /* ===== 토스트 ("체크!") — .gx-toast.show 로 표시, 약 1.2초 뒤 스스로 사라짐 ===== */
+  .gx-toast {
+    position: absolute; left: 50%; top: 50%; z-index: 6;
+    transform: translate(-50%, -50%);
+    padding: 10px 22px;
+    background: var(--hud-bg); color: var(--hud-text);
+    font-size: clamp(22px, calc(var(--bw) * .09), 44px); font-weight: 900; letter-spacing: .08em; white-space: nowrap;
+    text-shadow: 2px 2px 0 var(--hud-edge), 4px 4px 0 var(--title-edge);
+    box-shadow: var(--ink-box), inset 0 0 0 var(--px) var(--lose);
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .gx-toast.show { visibility: visible; animation: gx-toast 1.2s steps(12, end) forwards; }
+
+  /* ===== 하단 도크 ===== */
+  .dock {
+    grid-area: dock; min-width: 0;
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px;
+    align-items: center; padding: var(--px);
+  }
+  /* 라벨은 단어 단위로만 줄바꿈(한국어 음절 중간 끊김 방지). 한 단어가 칸보다 길 때만 마지막 수단으로 끊음 */
+  .dock .gx-btn { min-width: 0; height: calc(var(--dock-h) - 2 * var(--px)); padding: 6px 8px; white-space: normal; word-break: keep-all; overflow-wrap: break-word; text-align: center; }
+  #movesBtn { display: none; }   /* PC 2열에선 기보가 오른쪽에 늘 보임 */
+
+  /* ===== 오른쪽 기보 (PC) ===== */
   .side {
-    grid-area: side;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    grid-area: side; min-width: 0; min-height: 0;
+    display: flex; flex-direction: column;
+    padding: var(--px);
   }
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+  .gx-card {
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
+    background: var(--panel); color: var(--text);
     padding: 14px 16px;
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--border), inset 0 var(--px) 0 0 var(--panel-hi);
   }
-  .status {
-    font-size: 17px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .turn-dot {
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid var(--muted);
-    flex: none;
-  }
-  .turn-dot.w { background: var(--piece-w); }
-  .turn-dot.b { background: var(--piece-b); }
-  .status-sub { color: var(--muted); font-size: 13px; margin-top: 4px; min-height: 1em; }
-
-  label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); flex: 1; min-width: 0; }
-  select {
-    font: inherit;
-    font-size: 14px;
-    color: var(--text);
-    background: var(--btn);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 8px;
-    width: 100%;
-  }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  button.btn {
-    font: inherit;
-    font-size: 14px;
-    flex: 1;
-    padding: 9px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--btn);
-    color: var(--text);
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  button.btn:hover { background: var(--btn-hover); }
-  button.btn.primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-  button.btn.primary:hover { filter: brightness(1.08); }
-  button.btn:disabled { opacity: .5; cursor: default; }
-  button.btn:focus-visible,
-  .seg button:focus-visible,
-  select:focus-visible,
-  .back:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 2px;
-  }
-
-  .captured { display: flex; flex-direction: column; gap: 6px; }
-  .cap-line { display: flex; align-items: center; gap: 6px; min-height: 26px; font-size: 13px; color: var(--muted); }
-  .cap-line .lbl { min-width: 30px; flex: none; }
-  .cap-line .pcs { font-family: "Segoe UI Symbol", "DejaVu Sans", serif; font-size: 22px; line-height: 1; letter-spacing: -2px; color: var(--text); overflow-wrap: anywhere; }
-  .cap-line .adv { margin-left: auto; font-weight: 600; color: var(--text); }
-
-  .moves-title { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .panel-head { display: flex; align-items: center; gap: 8px; min-width: 0; margin-bottom: 10px; }
+  .moves-title { flex: 1; margin: 0; font-size: 16px; font-weight: 900; letter-spacing: .06em; }
+  #movesBack { display: none; }
   .moves {
-    max-height: 240px;
-    overflow-y: auto;
+    flex: 1; min-height: 0;
+    overflow-y: auto; overscroll-behavior: contain;
+    font-family: var(--mono);
     font-size: 14px;
     font-variant-numeric: tabular-nums;
     display: grid;
-    grid-template-columns: 36px 1fr 1fr;
+    grid-template-columns: 40px 1fr 1fr;
+    grid-auto-rows: min-content;
     row-gap: 2px;
+    align-content: start;
   }
-  .moves .n { color: var(--muted); }
-  .moves .m { padding: 1px 6px; border-radius: 4px; }
-  .moves .m.cur { background: var(--btn-hover); font-weight: 600; }
-  .empty { color: var(--muted); font-size: 13px; }
+  .moves .n { color: var(--muted); padding: 2px 0; }
+  .moves .m { padding: 2px 6px; }
+  .moves .m.cur { background: var(--primary); color: var(--primary-text); font-weight: 900; }
+  .empty { grid-column: 1 / -1; color: var(--muted); font-size: 13px; font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
 
-  button.btn { min-height: 44px; }
+  /* ===== 일시정지 메뉴 / 하위 시트 =====
+     #gxMenu 의 hidden 을 풀면 보이고, 안의 화면은 html[data-menu] 로 고른다
+     (''/없음/pause → 메뉴 목록, settings, help, setup). */
+  .gx-menu {
+    position: fixed; inset: 0; z-index: 40;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    background-color: var(--scrim);
+    background-image: repeating-linear-gradient(0deg, var(--scanline) 0 1px, transparent 1px 3px);
+    font-size: calc(16px * var(--uiz));
+  }
+  .gx-menu [data-sheet] { display: none; }
+  :root:not([data-menu]) .gx-menu [data-sheet="pause"],
+  :root[data-menu=""] .gx-menu [data-sheet="pause"],
+  :root[data-menu="pause"] .gx-menu [data-sheet="pause"],
+  :root[data-menu="settings"] .gx-menu [data-sheet="settings"],
+  :root[data-menu="help"] .gx-menu [data-sheet="help"],
+  :root[data-menu="setup"] .gx-menu [data-sheet="setup"] { display: flex; }
+  .gx-menu-box, .gx-sheet {
+    flex-direction: column; gap: 14px;
+    width: min(100%, calc(420px * var(--uiz)));
+    max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
+    padding: 20px 20px 22px;
+    margin: var(--px);
+    background: var(--panel); color: var(--text);
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--border), inset 0 var(--px) 0 0 var(--panel-hi), var(--px) calc(3 * var(--px)) 0 0 var(--ink);
+    animation: gx-pop .2s steps(3, end) both;
+  }
+  .gx-title {
+    font-size: 1.5em; font-weight: 900; letter-spacing: .08em; text-align: center; line-height: 1.2;
+    color: var(--primary);
+    text-shadow: 2px 2px 0 var(--ink), 4px 4px 0 var(--title-edge);
+  }
+  .gx-menu-list { display: flex; flex-direction: column; gap: 14px; padding: var(--px); }
+  .gx-menu-list .gx-btn {
+    position: relative; justify-content: flex-start;
+    min-height: calc(48px * var(--uiz)); padding: 8px 16px 8px 2.2em; font-size: 1.05em; text-align: left;
+  }
+  /* 선택 커서 ▶: 키보드 포커스 / 마우스 올림 / JS 가 aria-current 로 지정 */
+  .gx-menu-list .gx-btn::before {
+    content: "\25B6"; position: absolute; left: .7em; top: 50%; transform: translateY(-50%);
+    font-size: .8em; visibility: hidden;
+  }
+  .gx-menu-list .gx-btn:focus-visible::before,
+  .gx-menu-list .gx-btn[aria-current="true"]::before { visibility: visible; animation: gx-nudge .5s steps(1, end) infinite; }
+  .gx-menu-list .gx-btn[aria-current="true"] {
+    background: var(--primary); color: var(--primary-text);
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  @media (hover: hover) { .gx-menu-list .gx-btn:hover::before { visibility: visible; } }
+  .gx-confirm { display: flex; flex-direction: column; gap: 12px; text-align: center; }
+  .gx-confirm p { font-weight: 700; line-height: 1.45; }
+  .gx-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; padding: var(--px); }
+  .gx-row .gx-btn { flex: 1 1 auto; min-width: calc(110px * var(--uiz)); min-height: calc(44px * var(--uiz)); font-size: 1em; }
+  /* 시트 머리: [◀ 뒤로] 제목 */
+  .sheet-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+  .sheet-head .gx-title { font-size: 1.3em; }
+  .sheet-head::after { content: ""; width: 1px; }  /* 제목 가운데 맞춤 보정 칸 */
+  .sheet-back { min-height: calc(44px * var(--uiz)); padding: 6px 12px; font-size: .9em; margin: var(--px); }
+  .sheet-back:only-child { justify-self: start; }
+  /* 설정 한 줄: [라벨] [값] */
+  .gx-opt {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 14px;
+    padding: 10px 0;
+    border-bottom: 2px dashed var(--border);
+  }
+  .gx-opt:last-child { border-bottom: 0; }
+  .opt-lbl { font-weight: 900; letter-spacing: .06em; }
+  .gx-opt > :not(.opt-lbl) { margin: var(--px); }
+  .gx-toggle, .gx-cycle { min-width: calc(120px * var(--uiz)); min-height: calc(44px * var(--uiz)); font-size: 1em; }
+  .gx-toggle .when-off { display: none; }
+  .gx-toggle[aria-pressed="false"] .when-on { display: none; }
+  .gx-toggle[aria-pressed="false"] .when-off { display: inline; }
+  .gx-toggle[aria-pressed="true"] {
+    background: var(--primary); color: var(--primary-text);
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .gx-cycle { justify-content: space-between; gap: 12px; }
+  .gx-cycle .cyc-arrow { font-size: .8em; }
+  .help-body { display: flex; flex-direction: column; gap: 10px; }
+  .help-text { font-size: 1em; line-height: 1.55; }
+  .gx-hint { font-size: .85em; color: var(--muted); text-align: center; }
+  .gx-start { min-height: calc(56px * var(--uiz)); font-size: 1.15em; margin: var(--px); }
+  /* 준비 시트 아래 버튼 묶음: [대국 시작(주)] [나가기(보조)] 힌트 */
+  .setup-actions { display: flex; flex-direction: column; gap: 12px; }
+  .gx-sub { min-height: calc(44px * var(--uiz)); margin: var(--px); font-size: .95em; color: var(--muted); }
+  .field-label { font-size: .85em; font-weight: 900; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+  .set-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
-  /* 모바일: 상태 → 체스판 → 조작 순서로 세로 배치, 판을 화면 폭에 꽉 차게
-     body 폭 기준 (좁은 화면이거나 모바일 모드(body 480px)면 적용) */
+  /* 구분 버튼 묶음(.seg): 잉크 칸막이 + 선택 칸 반전 */
+  .seg {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    gap: var(--px); padding: var(--px); margin: var(--px);
+    background: var(--ink);
+  }
+  .seg button {
+    font-size: .9em; font-weight: 800; letter-spacing: .03em; line-height: 1.2;
+    border: 0; border-radius: 0;
+    background: var(--btn); color: var(--text);
+    padding: 8px 4px; min-height: calc(44px * var(--uiz));
+    cursor: pointer; white-space: normal;
+    box-shadow: inset 0 calc(-1 * var(--px)) 0 0 var(--btn-edge), inset 0 var(--px) 0 0 var(--btn-hi);
+  }
+  .seg button:active:not(:disabled) { box-shadow: inset 0 var(--px) 0 0 var(--btn-edge); }
+  .seg button.on {
+    background: var(--primary); color: var(--primary-text); font-weight: 900;
+    box-shadow: inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .seg button:focus-visible { outline-offset: 2px; position: relative; z-index: 1; }
+  .seg button:disabled { opacity: .45; cursor: default; }
+  .seg.disabled button.on { background: var(--btn-hover); color: var(--muted); box-shadow: none; }
+  @media (hover: hover) { .seg button:hover:not(.on):not(:disabled) { background: var(--btn-hover); } }
+  .seg.layout-seg { display: inline-grid; }
+  .layout-seg button { min-width: calc(64px * var(--uiz)); padding: 6px 10px; white-space: nowrap; }
+  /* 선택 표시는 html[data-layout] 기준 (JS 연결 전에도 맞게 보임) */
+  :root[data-layout="mobile"] .layout-seg button[data-v="mobile"],
+  :root[data-layout="pc"] .layout-seg button[data-v="pc"] {
+    background: var(--primary); color: var(--primary-text); font-weight: 900;
+    box-shadow: inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+
+  /* ===== 결과 화면: #endOverlay.gx-result.show + data-outcome="win|lose|draw" ===== */
+  .overlay.gx-result {
+    position: fixed; inset: 0; z-index: 50; padding: 16px;
+    background-color: var(--scrim);
+    background-image: repeating-linear-gradient(0deg, var(--scanline) 0 1px, transparent 1px 3px);
+    overflow: hidden;
+    font-size: calc(16px * var(--uiz));
+  }
+  .gx-result-fx { position: absolute; inset: 0; pointer-events: none; display: none; }
+  .gx-result[data-outcome="win"] .gx-result-fx { display: block; }
+  /* 승리: 금빛 광선(딱딱한 띠) 회전 + 반짝이는 별 도트 */
+  .gx-result-fx::before {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 220vmax; height: 220vmax;
+    transform: translate(-50%, -50%);
+    background: repeating-conic-gradient(var(--ray) 0 10deg, transparent 10deg 20deg);
+    animation: gx-spin 2.4s steps(4, end) infinite;
+  }
+  .gx-result-fx::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px;
+    box-shadow:
+      -180px -170px 0 0 var(--gold-hi), -120px -220px 0 0 var(--gold), 150px -190px 0 0 var(--gold-hi), 210px -120px 0 0 var(--gold),
+      -230px -40px 0 0 var(--gold), 240px 30px 0 0 var(--gold-hi), -200px 120px 0 0 var(--gold-hi), 180px 160px 0 0 var(--gold),
+      -90px 210px 0 0 var(--gold), 100px 230px 0 0 var(--gold-hi), -40px -250px 0 0 var(--gold-hi), 40px 260px 0 0 var(--gold);
+    animation: gx-blink .7s steps(1, end) infinite;
+  }
+  .gx-result-box {
+    position: relative; z-index: 1;
+    width: min(100%, calc(440px * var(--uiz))); max-width: 100%; max-height: 100%; overflow-y: auto;
+    padding: 22px 20px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    animation: gx-pop .25s steps(3, end) both;
+  }
+  .gx-banner { display: none; margin: 4px 0 6px; line-height: 1.1; }
+  .gx-result[data-outcome] .gx-banner { display: block; }
+  .gx-banner span {
+    display: none;
+    font-size: clamp(36px, calc(48px * var(--uiz)), 96px); font-weight: 900; letter-spacing: .08em;
+    text-shadow: 3px 3px 0 var(--ink), 6px 6px 0 var(--title-edge);
+    animation: gx-banner .4s steps(4, end) both;
+  }
+  .gx-result[data-outcome="win"] .gx-banner [data-for="win"] { display: inline-block; color: var(--gold-hi); }
+  .gx-result[data-outcome="lose"] .gx-banner [data-for="lose"] { display: inline-block; color: var(--lose); }
+  .gx-result[data-outcome="draw"] .gx-banner [data-for="draw"] { display: inline-block; color: var(--draw); }
+  .gx-result-box h2 { font-size: 1.3em; margin: 0; }
+  .gx-result-box p { font-size: 1em; margin: 0 0 6px; color: var(--muted); }
+  .gx-result[data-outcome="win"] .gx-result-box { box-shadow: var(--ink-box), inset 0 0 0 var(--px) var(--gold-hi), var(--px) calc(3 * var(--px)) 0 0 var(--ink); }
+  .gx-result[data-outcome="lose"] .gx-result-box { box-shadow: var(--ink-box), inset 0 0 0 var(--px) var(--lose), var(--px) calc(3 * var(--px)) 0 0 var(--ink); }
+
+  /* ===== 프로필 아바타 (K1): .gx-avatar 안에 JS 가 8×8 픽셀 SVG 를 넣음. 비어 있으면 숨김 ===== */
+  .gx-avatar {
+    flex: none; width: 32px; height: 32px; display: inline-flex;
+    background: var(--panel-hi);
+    box-shadow: 0 0 0 2px var(--ink);
+    image-rendering: pixelated;
+  }
+  .gx-avatar:empty { display: none; }
+  .gx-avatar svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; }
+  .gx-avatar + .pl-icon.piece { font-size: 20px; }
+  .gx-avatar { --av-c: var(--av-red); }
+  .gx-avatar[data-av-color="orange"] { --av-c: var(--av-orange); }
+  .gx-avatar[data-av-color="yellow"] { --av-c: var(--av-yellow); }
+  .gx-avatar[data-av-color="green"]  { --av-c: var(--av-green); }
+  .gx-avatar[data-av-color="cyan"]   { --av-c: var(--av-cyan); }
+  .gx-avatar[data-av-color="blue"]   { --av-c: var(--av-blue); }
+  .gx-avatar[data-av-color="purple"] { --av-c: var(--av-purple); }
+  .gx-avatar[data-av-color="pink"]   { --av-c: var(--av-pink); }
+  .gx-avatar .av-x { fill: var(--av-c); }
+  .gx-avatar .av-o { fill: var(--ink); }
+  .gx-avatar .av-w { fill: var(--av-white); }
+
+  /* ===== 판 테마 (K3): .board[data-board] — wood(기본)는 --light/--dark 그대로 ===== */
+  .board[data-board="marble"] { --light: var(--bd-marble-l); --dark: var(--bd-marble-d); }
+  .board[data-board="retro"]  { --light: var(--bd-retro-l);  --dark: var(--bd-retro-d); }
+  .board[data-board="ocean"]  { --light: var(--bd-ocean-l);  --dark: var(--bd-ocean-d); }
+  .board[data-board="marble"], .board[data-board="retro"], .board[data-board="ocean"] {
+    --coord-on-light: var(--dark); --coord-on-dark: var(--light);
+  }
+  /* ===== 말 세트 (K3): [data-pieces] 를 .board 또는 .app 에 달면 적용 (승진 창 포함, 플레이어 아이콘 제외) =====
+     glyph(기본) = 유니코드 / pixel = .piece 안에 SVG(.pf 몸통, .pe 외곽선) / letter = .piece 글자 K Q R B N P */
+  [data-pieces="pixel"] .piece:not(.pl-icon) {
+    width: 80%; height: 80%; display: flex; font-size: 0; text-shadow: none; transform: none;
+  }
+  [data-pieces="pixel"] .piece:not(.pl-icon) svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; overflow: visible; }
+  [data-pieces="pixel"] .piece.w svg .pf { fill: var(--piece-w); }
+  [data-pieces="pixel"] .piece.b svg .pf { fill: var(--piece-b); }
+  [data-pieces="pixel"] .piece svg .pe { fill: var(--ink); }
+  [data-pieces="pixel"] .piece.b svg .pe { fill: var(--piece-b-edge); }
+  [data-pieces="letter"] .piece:not(.pl-icon) {
+    width: 62%; height: 62%; display: flex; align-items: center; justify-content: center; transform: none;
+    font-family: var(--mono); font-weight: 900; font-size: calc(var(--bw) / 8 * .42); text-shadow: none;
+    box-shadow: 0 0 0 2px var(--ink), 0 4px 0 2px var(--ink);
+  }
+  [data-pieces="letter"] .piece.w:not(.pl-icon) { background: var(--piece-w); color: var(--piece-b); }
+  [data-pieces="letter"] .piece.b:not(.pl-icon) { background: var(--piece-b); color: var(--piece-w); }
+  [data-pieces="letter"] .promo-row .piece, [data-pieces="pixel"] .promo-row .piece { width: 70%; height: 70%; }
+
+  /* ===== 꾸미기 스와치 (#uiThemeSwatches, #skinBoard) — 선택은 aria-pressed="true" ===== */
+  #skinPieces button[aria-pressed="true"] {
+    background: var(--primary); color: var(--primary-text); font-weight: 900;
+    box-shadow: inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .gx-sec { margin: 6px 0 0; font-size: 1.05em; font-weight: 900; letter-spacing: .08em; color: var(--primary); margin-top: 6px; text-shadow: 2px 2px 0 var(--ink); }
+  .gx-swatches { display: flex; flex-wrap: wrap; gap: 12px; padding: var(--px); }
+  .gx-swatch {
+    flex-direction: column; gap: 6px; min-width: calc(68px * var(--uiz)); padding: 8px 8px 10px;
+    font-size: .8em; letter-spacing: .02em;
+  }
+  .gx-swatch[aria-pressed="true"] {
+    background: var(--primary); color: var(--primary-text);
+    box-shadow: var(--ink-box), inset 0 calc(-1 * var(--px)) 0 0 var(--primary-lo), inset 0 var(--px) 0 0 var(--primary-hi);
+  }
+  .sw-chip { width: 36px; height: 22px; box-shadow: 0 0 0 2px var(--ink); background: linear-gradient(90deg, var(--a) 0 50%, var(--b) 50% 100%); }
+  .sw-chip.board { width: 28px; height: 28px; background: conic-gradient(var(--a) 0 25%, var(--b) 0 50%, var(--a) 0 75%, var(--b) 0); background-size: 14px 14px; }
+  .sw-chip[data-v="classic"] { --a: var(--sw-classic-a); --b: var(--sw-classic-b); }
+  .sw-chip[data-v="gameboy"] { --a: var(--sw-gameboy-a); --b: var(--sw-gameboy-b); }
+  .sw-chip[data-v="neon"]    { --a: var(--sw-neon-a);    --b: var(--sw-neon-b); }
+  .sw-chip[data-v="famicom"] { --a: var(--sw-famicom-a); --b: var(--sw-famicom-b); }
+  .sw-chip[data-v="wood"]    { --a: var(--light);        --b: var(--dark); }
+  .sw-chip[data-v="marble"]  { --a: var(--bd-marble-l);  --b: var(--bd-marble-d); }
+  .sw-chip[data-v="retro"]   { --a: var(--bd-retro-l);   --b: var(--bd-retro-d); }
+  .sw-chip[data-v="ocean"]   { --a: var(--bd-ocean-l);   --b: var(--bd-ocean-d); }
+  .gx-opt.stack { flex-direction: column; align-items: stretch; }
+  .gx-opt.stack > .seg, .gx-opt.stack > .gx-swatches { margin: var(--px) 0; }
+
+  /* ===== 페이지 진입/퇴장 (JS 가 html 에 class 를 붙임, 250ms) ===== */
+  html.gx-enter body { animation: gx-in .25s steps(4, end) both; }
+  html.gx-leave body { animation: gx-out .25s steps(4, end) forwards; }
+
+  /* ===== 좁은 화면 (body 폭 ≤ 820: 모바일 배치(body 480) 또는 좁은 PC 창) — 1열 ===== */
   @container (max-width: 820px) {
     .app {
+      --side-w: 0px; --col-gap: 0px;
+      --pad-y: 8px; --gap: 8px;
+      --pl-h: 40px; --dock-h: 56px; --fw: 8px;
+      --bw-w: calc(100cqw - var(--gut-l) - var(--gut-r) - 2 * var(--fw));
       grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "head" "board" "side";
-      grid-template-rows: auto;
-      padding: 12px 8px 28px;
-      gap: 10px;
+      grid-template-areas: "hud" "top" "board" "bottom" "dock";
     }
-    .board-wrap { --bw: min(calc(100cqw - 16px), 70vh, 580px); justify-self: center; }
-    .head { gap: 8px; }
-    h1 { font-size: 19px; }
-    .card { padding: 12px; }
-    .status { font-size: 16px; }
-    .moves { max-height: 160px; }
-    .seg button, button.btn { font-size: 13px; }
-    button.btn { white-space: normal; line-height: 1.2; }
-    .board { border-radius: 4px; }
-  }
-
-  /* ===== 도구 막대 / 패널 / 조작 줄 (공 배틀과 같은 모양) ===== */
-  .set-card { display: flex; flex-direction: column; gap: 12px; }
-  .set-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .panel-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .panel-head .field-label, .panel-head .moves-title { margin: 0; }
-  .panel-close {
-    flex: none; width: 44px; height: 44px; margin: -10px -8px -10px auto; padding: 0;
-    border: 0; border-radius: 8px; background: transparent; color: var(--muted);
-    font: inherit; font-size: 22px; line-height: 1; cursor: pointer;
-  }
-  .panel-close:active { background: var(--btn-hover); color: var(--text); }
-  .tool {
-    width: 100%; min-height: 48px; padding: 0; display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--border); border-radius: 10px; background: var(--btn); color: var(--text); cursor: pointer;
-  }
-  .tool svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .tool:active { background: var(--btn-hover); }
-  .tool[aria-expanded="true"] { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-  .tool:focus-visible, .panel-close:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .panel-close:focus-visible { outline-offset: -2px; }
-  .help-card { display: flex; flex-direction: column; gap: 8px; }
-  .help-text { margin: 0; font-size: 14px; line-height: 1.5; }
-  @media (hover: hover) {
-    .tool:hover:not([aria-expanded="true"]), .panel-close:hover { background: var(--btn-hover); color: var(--text); }
-  }
-
-  /* PC: 지금 배치 그대로. 도구 막대·닫기·모바일 전용 요소는 숨김, 모든 카드 보임 */
-  :root[data-layout="pc"] nav.tools,
-  :root[data-layout="pc"] .panel-close,
-  :root[data-layout="pc"] .m-only { display: none; }
-  .panel-head.moves-head { margin-bottom: 8px; }
-  .panel-head.moves-head .moves-title { margin: 0; }
-
-  /* ===== 모바일 배치 (data-layout="mobile") =====
-     [헤더 2줄(도구 / 제목) + 상태]
-     [체스판 | 도구 막대(52px)]
-     [조작 줄: 새 게임 · 무르기 · 판 뒤집기]
-     [열린 패널 1개: .app[data-open] 과 같은 data-panel-id]
-     --bw = min(폭(100cqw = min(화면 폭, 480)) - 여백 32 - 막대 - 8, 화면 높이 - 헤더 - 조작 줄 - 여백) */
-  :root[data-layout="mobile"] .app {
-    --tools-w: 52px;
-    --head-h: 140px;   /* 헤더 줄 52 + 6 + 제목 22 + 6 + 상태 카드 52 (+2 여유) */
-    --dock-h: 44px;    /* 조작 줄 */
-    --pad-y: 20px;
-    --bw-w: calc(100cqw - 32px - var(--tools-w) - 8px);
-    --bw-m: max(160px, min(var(--bw-w), calc(100vh - var(--pad-y) - var(--head-h) - 8px - 8px - var(--dock-h))));
-    max-width: 480px;
-    padding: 10px 16px;
-    grid-template-columns: minmax(0, 1fr) var(--tools-w);
-    grid-template-areas: "head head" "board tools" "dock dock" "panel panel";
-    grid-template-rows: auto;
-    gap: 8px;
-    justify-content: stretch;
-  }
-  @supports (height: 100dvh) {
-    :root[data-layout="mobile"] .app {
-      --bw-m: max(160px, min(var(--bw-w), calc(100dvh - var(--pad-y) - var(--head-h) - 8px - 8px - var(--dock-h))));
+    .gx-hud { gap: 8px; }
+    .hud-mid { font-size: 15px; }
+    .gx-player { font-size: 14px; }
+    .pl-icon.piece { font-size: 22px; }
+    .pcs { font-size: 16px; }
+    .side { display: none; }
+    #movesBtn { display: inline-flex; }
+    .dock { gap: 10px; }
+    .dock .gx-btn { font-size: 14px; gap: 6px; letter-spacing: .03em; }
+    .dialog { padding: 14px; max-width: 96%; }
+    .dialog h2 { font-size: 17px; }
+    .dialog p { margin-bottom: 10px; font-size: 13px; }
+    .promo-row { gap: 8px; }
+    .promo-row button { min-width: 44px; min-height: 44px; }
+    /* 기보 시트: html[data-menu="moves"] 일 때 화면 가운데에 띄움 */
+    :root[data-menu="moves"] .side {
+      display: flex; position: fixed; z-index: 40;
+      left: 16px; right: 16px; top: 50%; transform: translateY(-50%);
+      max-height: calc(var(--vh) - 48px);
+      box-shadow: 0 0 0 100vmax var(--scrim);
     }
+    :root[data-menu="moves"] .side .gx-card { min-height: 200px; }
+    :root[data-menu="moves"] #movesBack { display: inline-flex; }
   }
-  :root[data-layout="mobile"] .board-wrap { --bw: var(--bw-m); justify-self: end; }
-  /* 헤더 2줄: [←][        ][모바일|PC][언어] / [제목(전체 폭)] / [상태 카드] */
-  :root[data-layout="mobile"] .head {
-    display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; gap: 6px;
-  }
-  :root[data-layout="mobile"] .title-row,
-  :root[data-layout="mobile"] .head-tools { display: contents; }
-  :root[data-layout="mobile"] .head .sub { display: none; }  /* 도움말 패널로 옮김 */
-  :root[data-layout="mobile"] .back {
-    order: 1; width: 44px; height: 44px; margin: 0; padding: 0; border-radius: 8px;
-    display: inline-flex; align-items: center; justify-content: center; color: var(--muted);
-    font-size: 0; /* 글자는 접근성 이름으로 남기고 화살표만 */
-  }
-  :root[data-layout="mobile"] .back::before { content: "\2190"; font-size: 22px; line-height: 1; }
-  :root[data-layout="mobile"] .back:active { background: var(--btn-hover); color: var(--text); }
-  :root[data-layout="mobile"] #layoutSeg { order: 3; grid-column: 3; }
-  :root[data-layout="mobile"] #layoutSeg button { min-width: 44px; padding: 6px 8px; font-size: 12px; }
-  :root[data-layout="mobile"] select.lang { order: 4; grid-column: 4; margin: 0; max-width: 92px; min-height: 44px; padding: 8px 4px; font-size: 16px; }
-  /* 제목: 둘째 줄 전체 폭(가로 모드 왼쪽 열 260px 에서도 7개 언어 모두 한 줄) */
-  :root[data-layout="mobile"] h1 {
-    order: 5; grid-column: 1 / -1; font-size: 17px; line-height: 22px; margin: 0; min-width: 0;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  :root[data-layout="mobile"] .head > .card { order: 6; grid-column: 1 / -1; padding: 6px 10px; }
-  /* 상태 2줄은 한 줄씩 고정(넘치면 말줄임, 전체 문장은 aria-live 로 읽힘) → --head-h 가 정확 */
-  :root[data-layout="mobile"] .status { font-size: 15px; line-height: 20px; min-height: 20px; gap: 8px; }
-  :root[data-layout="mobile"] .turn-dot { width: 14px; height: 14px; }
-  :root[data-layout="mobile"] #status { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  :root[data-layout="mobile"] .status-sub { font-size: 13px; line-height: 16px; min-height: 16px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  /* 도구 막대 */
-  :root[data-layout="mobile"] nav.tools { grid-area: tools; min-width: 0; }
-  :root[data-layout="mobile"] .tool-group {
-    display: flex; flex-direction: column; gap: 6px;
-    max-height: var(--bw-m); overflow-y: auto; overscroll-behavior: contain;
-  }
-  /* 조작 줄: 설정 카드 안에 있지만 모바일에선 판 바로 아래 줄 */
-  :root[data-layout="mobile"] .side,
-  :root[data-layout="mobile"] .set-card { display: contents; }
-  :root[data-layout="mobile"] .ctrl-row { grid-area: dock; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-  :root[data-layout="mobile"] .ctrl-row button.btn { min-width: 0; padding: 6px 4px; font-size: 14px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere; }
-  /* 패널 */
-  :root[data-layout="mobile"] [data-panel-id] .seg button { min-height: 44px; }
-  :root[data-layout="mobile"] [data-panel-id] {
-    grid-area: panel; min-width: 0;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
-    box-shadow: 0 6px 20px var(--shadow);
-  }
-  :root[data-layout="mobile"] .panel-head .field-label,
-  :root[data-layout="mobile"] .panel-head .moves-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  /* 한 번에 하나: .app[data-open] 과 같은 패널만 보인다(속성 없음 = 모두 닫힘) */
-  :root[data-layout="mobile"] .app:not([data-open="controls"]) [data-panel-id="controls"],
-  :root[data-layout="mobile"] .app:not([data-open="captured"]) [data-panel-id="captured"],
-  :root[data-layout="mobile"] .app:not([data-open="moves"]) [data-panel-id="moves"],
-  :root[data-layout="mobile"] .app:not([data-open="help"]) [data-panel-id="help"] { display: none; }
-  /* 판이 작아져도 승진 선택창이 판 안에 들어가게 (기물 버튼 44px × 4) */
-  :root[data-layout="mobile"] .dialog { padding: 14px; max-width: 96%; }
-  :root[data-layout="mobile"] .dialog h2 { font-size: 17px; }
-  :root[data-layout="mobile"] .dialog p { margin-bottom: 10px; font-size: 13px; }
-  :root[data-layout="mobile"] .promo-row { gap: 6px; }
-  :root[data-layout="mobile"] .promo-row button { min-width: 44px; min-height: 44px; }
-  :root[data-layout="mobile"] .promo-cancel { margin-top: 10px; }
 
-  /* 모바일 가로(높이 ≤500px): [헤더 / 조작 / 패널 | 체스판 | 도구 막대] */
+  /* ===== 모바일 가로(높이 ≤500px): [HUD / 플레이어 / 도크 | 판] ===== */
   @media (orientation: landscape) and (max-height: 500px) {
     :root[data-layout="mobile"] body { max-width: none; }
     :root[data-layout="mobile"] .app {
-      --bw-w: calc(100cqw - 32px - var(--tools-w) - 16px - 260px);
-      --bw-m: max(160px, min(var(--bw-w), calc(100vh - var(--pad-y))));
-      max-width: 1000px;
-      grid-template-columns: minmax(260px, 1fr) var(--bw-m) var(--tools-w);
-      grid-template-areas: "head board tools" "dock board tools" "panel board tools";
-      grid-template-rows: auto auto 1fr;
+      --side-w: 0px; --col-gap: 16px; --left-min: 210px;
+      --pad-y: 8px; --gap: 8px; --pl-h: 40px; --dock-h: 52px; --fw: 8px;
+      --bw-w: calc(100cqw - var(--gut-l) - var(--gut-r) - var(--col-gap) - var(--left-min) - 2 * var(--fw));
+      --bw-h: calc(var(--vh) - 2 * var(--pad-y) - env(safe-area-inset-bottom) - 2 * var(--fw) - var(--px));
+      grid-template-columns: minmax(var(--left-min), 340px) calc(var(--bw) + 2 * var(--fw));
+      grid-template-rows: var(--hud-h) var(--pl-h) minmax(0, 1fr) var(--pl-h) var(--dock-h);
+      grid-template-areas: "hud board" "top board" ". board" "bottom board" "dock board";
+      align-content: stretch;
     }
-    @supports (height: 100dvh) {
-      :root[data-layout="mobile"] .app { --bw-m: max(160px, min(var(--bw-w), calc(100dvh - var(--pad-y)))); }
+    :root[data-layout="mobile"] .side { display: none; }
+    :root[data-layout="mobile"] #movesBtn { display: inline-flex; }
+    :root[data-layout="mobile"] .dock { gap: 10px; }
+    :root[data-layout="mobile"] .dock .gx-btn { flex-direction: column; gap: 2px; font-size: 12px; letter-spacing: .02em; padding: 4px; }
+    :root[data-layout="mobile"] .hud-mid { font-size: 14px; }
+    :root[data-menu="moves"][data-layout="mobile"] .side {
+      display: flex; position: fixed; z-index: 40;
+      left: 50%; right: auto; top: 8px; bottom: 8px; width: min(420px, calc(100% - 32px)); transform: translateX(-50%);
+      max-height: none;
+      box-shadow: 0 0 0 100vmax var(--scrim);
     }
-    /* 왼쪽 열 260px: ← 44 + 배치 버튼 + 언어 92 + 간격 → ja「モバイル」가 들어가도록 칸 폭을 글자에 맞추고 안쪽 여백을 줄임 */
-    :root[data-layout="mobile"] #layoutSeg { grid-auto-columns: auto; }
-    :root[data-layout="mobile"] #layoutSeg button { padding: 6px 4px; }
-    :root[data-layout="mobile"] [data-panel-id] {
-      max-height: max(120px, calc(100dvh - var(--pad-y) - var(--head-h) - var(--dock-h) - 24px));
-      overflow-y: auto; overscroll-behavior: contain;
+    :root[data-menu="moves"][data-layout="mobile"] #movesBack { display: inline-flex; }
+  }
+
+  /* ===== 애니메이션 (steps 위주) ===== */
+  @keyframes gx-blink { 50% { opacity: 0; } }
+  @keyframes gx-nudge { 50% { transform: translate(3px, -50%); } }
+  @keyframes gx-bob { 50% { transform: scale(.7); } }
+  @keyframes gx-drop { from { transform: translateY(-28%); } to { transform: translateY(-2%); } }
+  @keyframes gx-flash { 0% { opacity: 1; } 25% { opacity: 0; } 50% { opacity: 1; } 75%, 100% { opacity: 0; } }
+  @keyframes gx-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes gx-banner { from { transform: scale(2.2); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes gx-spin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(20deg); } }
+  @keyframes gx-toast {
+    0% { transform: translate(-50%, -50%) scale(.6); opacity: 1; }
+    16% { transform: translate(-50%, -50%) scale(1.15); }
+    25%, 75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  }
+  @keyframes gx-in { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0); } }
+  @keyframes gx-out { from { opacity: 1; clip-path: inset(0); } to { opacity: 0; clip-path: inset(100% 0 0 0); } }
+
+  /* ===== 낮은 화면(폰 가로 등, 높이 ≤ 420px): 메뉴·시트를 줄여 시트 스크롤 없이 한 화면에 =====
+     메뉴: 여백 8 + 상자 패딩 26 + 제목 ~23 + 간격 6 + 버튼 40×5 + 간격 6×4 + 8 ≈ 295px */
+  @media (max-height: 420px) {
+    .gx-menu { padding: 8px; }
+    .gx-menu-box, .gx-sheet { gap: 6px; padding: 10px 14px 12px; }
+    .gx-title { font-size: 1.2em; text-shadow: 2px 2px 0 var(--ink), 3px 3px 0 var(--title-edge); }
+    .sheet-head .gx-title { font-size: 1.1em; }
+    .gx-menu-list { gap: 6px; padding: var(--px); }
+    .gx-menu-list .gx-btn { min-height: calc(40px * var(--uiz)); padding-top: 4px; padding-bottom: 4px; font-size: 1em; }
+    .sheet-back { min-height: calc(40px * var(--uiz)); padding: 4px 10px; }
+    .gx-row { gap: 10px; }
+    .gx-row .gx-btn, .gx-toggle, .gx-cycle, .gx-sub { min-height: calc(40px * var(--uiz)); }
+    .gx-opt { padding: 6px 0; }
+    .set-body { gap: 8px; }
+    .field-label { margin-bottom: 4px; }
+    .seg button { min-height: calc(40px * var(--uiz)); padding: 4px 3px; font-size: .82em; letter-spacing: 0; }
+    .gx-start { min-height: calc(44px * var(--uiz)); font-size: 1.05em; }
+    .setup-actions { gap: 8px; }
+    .gx-hint { font-size: .78em; }
+  }
+  /* 낮고 넓은 화면: 준비 시트를 2열 [방식·난이도 | 시작·나가기·힌트] 로 → 높이 ≈ 250px */
+  @media (max-height: 420px) and (min-width: 560px) {
+    :root[data-menu="setup"] .gx-menu #gxSetup {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas: "head head" "body acts";
+      align-items: start; column-gap: 16px;
+      width: min(100%, calc(640px * var(--uiz)));
     }
+    #gxSetup > .sheet-head { grid-area: head; }
+    #gxSetup > .set-body { grid-area: body; }
+    #gxSetup > .setup-actions { grid-area: acts; align-self: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .sq.just-moved::before { display: none; }
+    .gx-player.active::before { visibility: visible; }
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="head">
-    <a class="back" href="index.html" data-i18n="back">← 게임 목록</a>
-    <div class="title-row">
-      <h1 data-i18n="title">체스</h1>
-      <p class="sub" data-i18n="hint">기물을 누른 뒤 이동할 칸을 누르세요</p>
-      <div class="head-tools">
-        <select class="lang" id="lang" aria-label="언어"></select>
-        <span class="sr-only" id="layoutLbl" data-i18n="layout">화면 배치</span>
-        <div class="seg layout-seg" id="layoutSeg" role="group" aria-labelledby="layoutLbl">
-          <button type="button" data-v="mobile" data-i18n="layoutMobile" aria-pressed="false">모바일</button>
-          <button type="button" data-v="pc" data-i18n="layoutPc" aria-pressed="false">PC</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="status"><span class="turn-dot w" id="turnDot"></span><span id="status" aria-live="polite">백 차례</span></div>
+  <!-- HUD: [메뉴] [차례/상태] [소리] -->
+  <header class="gx-hud head" id="hud">
+    <button type="button" class="gx-btn gx-icon" id="menuBtn" aria-label="메뉴" data-i18n-aria="menu" aria-haspopup="dialog" aria-controls="gxMenu" aria-expanded="false">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="2" y="3" width="12" height="2"/><rect x="2" y="7" width="12" height="2"/><rect x="2" y="11" width="12" height="2"/></svg>
+    </button>
+    <div class="hud-mid">
+      <h1 class="sr-only" data-i18n="title">체스</h1>
+      <div class="status"><span class="turn-dot w" id="turnDot" aria-hidden="true"></span><span id="status" aria-live="polite">백 차례</span></div>
       <div class="status-sub" id="statusSub"></div>
     </div>
+    <button type="button" class="gx-btn gx-icon" id="soundBtn" aria-label="소리" data-i18n-aria="sound" aria-pressed="true">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+        <rect x="1" y="6" width="3" height="4"/><rect x="4" y="5" width="2" height="6"/><rect x="6" y="3" width="2" height="10"/>
+        <g class="ico-on"><rect x="10" y="6" width="2" height="4"/><rect x="13" y="4" width="2" height="8"/></g>
+        <g class="ico-off"><rect x="10" y="5" width="2" height="2"/><rect x="14" y="5" width="2" height="2"/><rect x="12" y="7" width="2" height="2"/><rect x="10" y="9" width="2" height="2"/><rect x="14" y="9" width="2" height="2"/></g>
+      </svg>
+    </button>
   </header>
+
+  <!-- 플레이어 패널: #plTop = 흑, #plBottom = 백. 판 뒤집기 → .app.flipped 로 자리 교체 -->
+  <section class="gx-player" id="plTop" data-color="b" aria-labelledby="plTopColor plTopName">
+    <span class="gx-avatar" id="plTopAvatar" aria-hidden="true"></span>
+    <span class="pl-icon piece b" aria-hidden="true">&#9818;</span>
+    <span class="pl-who"><span class="pl-color" id="plTopColor" data-i18n="black">흑</span><span class="pl-name" id="plTopName"></span></span>
+    <span class="pl-cap"><span class="sr-only" data-i18n="captured">잡은 기물</span><span class="pcs" id="capB"></span></span>
+    <span class="adv" id="advB"></span>
+  </section>
 
   <div class="board-wrap">
     <div class="board" id="board" role="grid" aria-label="체스판"></div>
+    <div class="gx-toast" id="gxToast" aria-hidden="true"></div>
     <div class="overlay" id="promo">
       <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="promoTitle">
         <h2 id="promoTitle" data-i18n="promoTitle">승진할 기물 선택</h2>
         <p data-i18n="promoText">폰이 끝 줄에 도착했어요</p>
         <div class="promo-row" id="promoRow"></div>
         <div class="row promo-cancel">
-          <button class="btn" id="promoCancel" data-i18n="cancel">취소</button>
-        </div>
-      </div>
-    </div>
-    <div class="overlay" id="endOverlay">
-      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="endTitle" aria-describedby="endText">
-        <h2 id="endTitle"></h2>
-        <p id="endText"></p>
-        <div class="row">
-          <button class="btn" id="endClose" data-i18n="viewBoard">판 보기</button>
-          <button class="btn primary" id="endNew" data-i18n="newGame">새 게임</button>
+          <button type="button" class="gx-btn btn" id="promoCancel" data-i18n="cancel">취소</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 도구 막대: 모바일은 판 오른쪽 세로 열(아이콘), PC는 숨김.
-       .tool[data-panel] 은 아래 [data-panel-id] 패널을 연다(JS: .app[data-open]). -->
-  <nav class="tools" id="tools" aria-label="도구" data-i18n-aria="tools">
-    <div class="tool-group">
-      <button type="button" class="tool" data-panel="controls" aria-controls="panelControls" aria-expanded="false" aria-label="게임 설정" data-i18n-aria="controls">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg>
-      </button>
-      <button type="button" class="tool" data-panel="captured" aria-controls="panelCaptured" aria-expanded="false" aria-label="잡은 기물" data-i18n-aria="captured">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M8 20h8M9 20l1-7M15 20l-1-7M8.5 13h7"/><circle cx="12" cy="8" r="3.5"/></svg>
-      </button>
-      <button type="button" class="tool" data-panel="moves" aria-controls="panelMoves" aria-expanded="false" aria-label="기보" data-i18n-aria="moves">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h1M4 12h1M4 18h1"/></svg>
-      </button>
-      <button type="button" class="tool" data-panel="help" aria-controls="panelHelp" aria-expanded="false" aria-label="도움말" data-i18n-aria="help">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/></svg>
-      </button>
-    </div>
-  </nav>
+  <section class="gx-player" id="plBottom" data-color="w" aria-labelledby="plBottomColor plBottomName">
+    <span class="gx-avatar" id="plBottomAvatar" aria-hidden="true"></span>
+    <span class="pl-icon piece w" aria-hidden="true">&#9818;</span>
+    <span class="pl-who"><span class="pl-color" id="plBottomColor" data-i18n="white">백</span><span class="pl-name" id="plBottomName"></span></span>
+    <span class="pl-cap"><span class="sr-only" data-i18n="captured">잡은 기물</span><span class="pcs" id="capW"></span></span>
+    <span class="adv" id="advW"></span>
+  </section>
 
-  <div class="side">
-    <div class="card set-card">
-      <section class="set-body" id="panelControls" data-panel-id="controls" aria-labelledby="controlsTitle">
-      <div class="panel-head m-only">
-        <span class="field-label" id="controlsTitle" data-i18n="controls">게임 설정</span>
-        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
-      </div>
-      <div>
-        <div class="field-label" data-i18n="level">AI 난이도</div>
-        <div class="seg" id="levelSeg">
-          <button data-v="0" data-i18n="lv0">입문</button>
-          <button data-v="1" data-i18n="lv1">쉬움</button>
-          <button data-v="2" data-i18n="lv2">보통</button>
-          <button data-v="3" data-i18n="lv3">어려움</button>
-        </div>
-      </div>
-      <div>
-        <div class="field-label" data-i18n="mode">대전 방식</div>
-        <div class="seg" id="modeSeg">
-          <button data-v="ai-b" data-i18n="modeW">나: 백</button>
-          <button data-v="ai-w" data-i18n="modeB">나: 흑</button>
-          <button data-v="pvp" data-i18n="modePvp">2인 대전</button>
-        </div>
-      </div>
-      </section>
-      <!-- 조작 줄: PC는 설정 카드 안, 모바일은 판 바로 아래 줄(grid-area: dock) -->
-      <div class="row ctrl-row" id="actionDock">
-        <button class="btn primary" id="newBtn" data-i18n="newGame">새 게임</button>
-        <button class="btn" id="undoBtn" data-i18n="undo">무르기</button>
-        <button class="btn" id="flipBtn" data-i18n="flip">판 뒤집기</button>
-      </div>
-    </div>
+  <!-- 하단 도크 -->
+  <div class="dock ctrl-row" id="actionDock">
+    <button type="button" class="gx-btn" id="undoBtn">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="1" y="6" width="2" height="2"/><rect x="3" y="4" width="2" height="6"/><rect x="5" y="2" width="2" height="10"/><rect x="7" y="6" width="5" height="2"/><rect x="12" y="6" width="2" height="8"/><rect x="7" y="12" width="5" height="2"/></svg>
+      <span data-i18n="undo">무르기</span>
+    </button>
+    <button type="button" class="gx-btn" id="flipBtn">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="3" y="1" width="2" height="2"/><rect x="1" y="3" width="6" height="2"/><rect x="3" y="5" width="2" height="8"/><rect x="11" y="3" width="2" height="8"/><rect x="9" y="11" width="6" height="2"/><rect x="11" y="13" width="2" height="2"/></svg>
+      <span data-i18n="flip">판 뒤집기</span>
+    </button>
+    <button type="button" class="gx-btn" id="movesBtn" aria-haspopup="dialog" aria-controls="panelMoves" aria-expanded="false">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="1" y="2" width="2" height="2"/><rect x="5" y="2" width="10" height="2"/><rect x="1" y="7" width="2" height="2"/><rect x="5" y="7" width="10" height="2"/><rect x="1" y="12" width="2" height="2"/><rect x="5" y="12" width="10" height="2"/></svg>
+      <span data-i18n="moves">기보</span>
+    </button>
+  </div>
 
-    <section class="card captured" id="panelCaptured" data-panel-id="captured" aria-labelledby="capturedTitle">
-      <div class="panel-head m-only">
-        <span class="field-label" id="capturedTitle" data-i18n="captured">잡은 기물</span>
-        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
-      </div>
-      <div class="cap-line"><span class="lbl" data-i18n="white">백</span><span class="pcs" id="capW"></span><span class="adv" id="advW"></span></div>
-      <div class="cap-line"><span class="lbl" data-i18n="black">흑</span><span class="pcs" id="capB"></span><span class="adv" id="advB"></span></div>
-    </section>
-
-    <section class="card" id="panelMoves" data-panel-id="moves" aria-labelledby="movesTitle">
+  <!-- 기보: PC 는 오른쪽 상시, 좁은 화면은 #movesBtn → html[data-menu="moves"] 시트 -->
+  <aside class="side" id="side">
+    <section class="gx-card" id="panelMoves" data-panel-id="moves" aria-labelledby="movesTitle">
       <div class="panel-head moves-head">
-        <div class="moves-title" id="movesTitle" data-i18n="moves">기보</div>
-        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
+        <h2 class="moves-title" id="movesTitle" data-i18n="moves">기보</h2>
+        <button type="button" class="gx-btn sheet-back" id="movesBack" data-i18n="close">닫기</button>
       </div>
       <div class="moves" id="moves"></div>
     </section>
+  </aside>
 
-    <!-- 도움말: 모바일 전용(PC는 헤더 안내 문구로 충분) -->
-    <section class="card help-card m-only" id="panelHelp" data-panel-id="help" aria-labelledby="helpTitle">
-      <div class="panel-head">
-        <span class="field-label" id="helpTitle" data-i18n="help">도움말</span>
-        <button type="button" class="panel-close" aria-label="닫기" data-i18n-aria="close">×</button>
+  <!-- ===== 일시정지 메뉴 (+ 설정 / 도움말 / 준비 시트). html[data-menu] 로 화면 선택 ===== -->
+  <div class="gx-menu" id="gxMenu" role="dialog" aria-modal="true" aria-labelledby="menuTitle" hidden>
+    <div class="gx-menu-box" id="gxPause" data-sheet="pause">
+      <h2 class="gx-title" id="menuTitle" data-i18n="menu">메뉴</h2>
+      <div class="gx-menu-list" id="menuList">
+        <button type="button" class="gx-btn" id="menuResume" data-i18n="resume">계속하기</button>
+        <button type="button" class="gx-btn" id="menuRestart" data-i18n="newGame">새 게임</button>
+        <button type="button" class="gx-btn" id="menuSettings" data-i18n="settings">설정</button>
+        <button type="button" class="gx-btn" id="menuHelp" data-i18n="help">도움말</button>
+        <button type="button" class="gx-btn" id="menuExit" data-i18n="exit">나가기</button>
       </div>
-      <p class="help-text" data-i18n="hint">기물을 누른 뒤 이동할 칸을 누르세요</p>
+      <!-- 나가기 2단계 확인(진행 중일 때 JS 가 hidden 해제) -->
+      <div class="gx-confirm" id="exitConfirm" hidden>
+        <p id="exitConfirmText" data-i18n="exitConfirm">진행 중인 대국은 저장되지 않아요. 나갈까요?</p>
+        <div class="gx-row">
+          <button type="button" class="gx-btn primary" id="exitYes" data-i18n="exit">나가기</button>
+          <button type="button" class="gx-btn" id="exitNo" data-i18n="cancel">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="gx-sheet" id="gxSettings" data-sheet="settings" aria-labelledby="settingsTitle">
+      <div class="sheet-head">
+        <button type="button" class="gx-btn sheet-back" id="settingsBack" data-back><span aria-hidden="true">&#9664;</span><span data-i18n="backBtn">뒤로</span></button>
+        <h2 class="gx-title" id="settingsTitle" data-i18n="settings">설정</h2>
+      </div>
+      <div class="gx-opt">
+        <span class="opt-lbl" id="soundLbl" data-i18n="sound">소리</span>
+        <button type="button" class="gx-btn gx-toggle" id="soundToggle" aria-labelledby="soundLbl" aria-pressed="true"><span class="when-on" data-i18n="on">켜짐</span><span class="when-off" data-i18n="off">꺼짐</span></button>
+      </div>
+      <div class="gx-opt">
+        <span class="opt-lbl" id="langLbl" data-i18n="langLabel">언어</span>
+        <button type="button" class="gx-btn gx-cycle" id="langCycle" aria-labelledby="langLbl langCycleVal"><span class="cyc-arrow" aria-hidden="true">&#9664;</span><span id="langCycleVal">한국어</span><span class="cyc-arrow" aria-hidden="true">&#9654;</span></button>
+        <select class="lang" id="lang" aria-label="언어" hidden></select>
+      </div>
+      <div class="gx-opt">
+        <span class="opt-lbl" id="layoutLbl" data-i18n="layout">화면 배치</span>
+        <div class="seg layout-seg" id="layoutSeg" role="group" aria-labelledby="layoutLbl">
+          <button type="button" data-v="mobile" data-i18n="layoutMobile" aria-pressed="false">모바일</button>
+          <button type="button" data-v="pc" data-i18n="layoutPc" aria-pressed="false">PC</button>
+        </div>
+      </div>
+      <div class="gx-opt stack" id="uiThemeOpt">
+        <span class="opt-lbl" id="uiThemeLbl" data-i18n="uiTheme">화면 테마</span>
+        <div class="gx-swatches" id="uiThemeSwatches" role="group" aria-labelledby="uiThemeLbl">
+          <button type="button" class="gx-btn gx-swatch" data-v="classic" aria-pressed="true"><span class="sw-chip" data-v="classic" aria-hidden="true"></span><span data-i18n="thClassic">클래식</span></button>
+          <button type="button" class="gx-btn gx-swatch" data-v="gameboy" aria-pressed="false"><span class="sw-chip" data-v="gameboy" aria-hidden="true"></span><span data-i18n="thGameboy">게임보이</span></button>
+          <button type="button" class="gx-btn gx-swatch" data-v="neon" aria-pressed="false"><span class="sw-chip" data-v="neon" aria-hidden="true"></span><span data-i18n="thNeon">네온</span></button>
+          <button type="button" class="gx-btn gx-swatch" data-v="famicom" aria-pressed="false"><span class="sw-chip" data-v="famicom" aria-hidden="true"></span><span data-i18n="thFamicom">패미컴</span></button>
+        </div>
+      </div>
+      <h3 class="gx-sec" id="skinTitle" data-i18n="skin">꾸미기</h3>
+      <div class="gx-opt stack">
+        <span class="opt-lbl" id="skinPiecesLbl" data-i18n="skinPieces">말 모양</span>
+        <div class="seg" id="skinPieces" role="group" aria-labelledby="skinPiecesLbl">
+          <button type="button" data-v="glyph" data-i18n="pcGlyph" aria-pressed="true">기호</button>
+          <button type="button" data-v="pixel" data-i18n="pcPixel" aria-pressed="false">픽셀</button>
+          <button type="button" data-v="letter" data-i18n="pcLetter" aria-pressed="false">글자</button>
+        </div>
+      </div>
+      <div class="gx-opt stack">
+        <span class="opt-lbl" id="skinBoardLbl" data-i18n="skinBoard">판 무늬</span>
+        <div class="gx-swatches" id="skinBoard" role="group" aria-labelledby="skinBoardLbl">
+          <button type="button" class="gx-btn gx-swatch" data-v="wood" aria-pressed="true"><span class="sw-chip board" data-v="wood" aria-hidden="true"></span><span data-i18n="bdWood">나무</span></button>
+          <button type="button" class="gx-btn gx-swatch" data-v="marble" aria-pressed="false"><span class="sw-chip board" data-v="marble" aria-hidden="true"></span><span data-i18n="bdMarble">대리석</span></button>
+          <button type="button" class="gx-btn gx-swatch" data-v="retro" aria-pressed="false"><span class="sw-chip board" data-v="retro" aria-hidden="true"></span><span data-i18n="bdRetro">레트로</span></button>
+          <button type="button" class="gx-btn gx-swatch" data-v="ocean" aria-pressed="false"><span class="sw-chip board" data-v="ocean" aria-hidden="true"></span><span data-i18n="bdOcean">바다</span></button>
+        </div>
+      </div>
+      <h3 class="gx-sec" data-i18n="gameSec">대국</h3>
+      <div class="gx-opt">
+        <span class="opt-lbl" data-i18n="level">AI 난이도</span>
+        <button type="button" class="gx-btn" id="settingsSetup" data-i18n="changeLevel">난이도 변경</button>
+      </div>
     </section>
+
+    <section class="gx-sheet" id="gxHelp" data-sheet="help" aria-labelledby="helpTitle">
+      <div class="sheet-head">
+        <button type="button" class="gx-btn sheet-back" id="helpBack" data-back><span aria-hidden="true">&#9664;</span><span data-i18n="backBtn">뒤로</span></button>
+        <h2 class="gx-title" id="helpTitle" data-i18n="help">도움말</h2>
+      </div>
+      <div class="help-body" id="panelHelp" data-panel-id="help">
+        <p class="help-text" data-i18n="hint">기물을 누른 뒤 이동할 칸을 누르세요</p>
+        <p class="help-text" data-i18n="kbdHelp">키보드: 방향키로 칸 이동, Enter·Space로 선택, Esc·P로 메뉴</p>
+      </div>
+    </section>
+
+    <section class="gx-sheet" id="gxSetup" data-sheet="setup" aria-labelledby="setupTitle">
+      <div class="sheet-head">
+        <button type="button" class="gx-btn sheet-back" id="setupBack" data-back><span aria-hidden="true">&#9664;</span><span data-i18n="backBtn">뒤로</span></button>
+        <h2 class="gx-title" id="setupTitle" data-i18n="setup">대국 준비</h2>
+      </div>
+      <div class="set-body" id="panelControls" data-panel-id="controls">
+        <div>
+          <div class="field-label" id="modeLbl" data-i18n="mode">대전 방식</div>
+          <div class="seg" id="modeSeg" role="group" aria-labelledby="modeLbl">
+            <button type="button" data-v="ai-b" data-i18n="modeW">나: 백</button>
+            <button type="button" data-v="ai-w" data-i18n="modeB">나: 흑</button>
+            <button type="button" data-v="pvp" data-i18n="modePvp">2인 대전</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label" id="levelLbl" data-i18n="level">AI 난이도</div>
+          <div class="seg" id="levelSeg" role="group" aria-labelledby="levelLbl">
+            <button type="button" data-v="0" data-i18n="lv0">입문</button>
+            <button type="button" data-v="1" data-i18n="lv1">쉬움</button>
+            <button type="button" data-v="2" data-i18n="lv2">보통</button>
+            <button type="button" data-v="3" data-i18n="lv3">어려움</button>
+          </div>
+        </div>
+      </div>
+      <div class="setup-actions">
+        <button type="button" class="gx-btn primary gx-start" id="setupStart" data-i18n="startMatch">대국 시작</button>
+        <button type="button" class="gx-btn gx-sub" id="setupExit" data-i18n="exit">나가기</button>
+        <p class="gx-hint" data-i18n="setupHint">Enter 키로 바로 시작</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== 결과 화면: .show(JS 기존) + data-outcome="win|lose|draw"(새로) ===== -->
+  <div class="overlay gx-result" id="endOverlay">
+    <div class="gx-result-fx" aria-hidden="true"></div>
+    <div class="dialog gx-result-box" role="dialog" aria-modal="true" aria-labelledby="resultBanner endTitle" aria-describedby="endText">
+      <p class="gx-banner" id="resultBanner"><span data-for="win" data-i18n="victory">승리!</span><span data-for="lose" data-i18n="defeat">패배</span><span data-for="draw" data-i18n="drawResult">무승부</span></p>
+      <h2 id="endTitle"></h2>
+      <p id="endText"></p>
+      <div class="gx-row">
+        <button type="button" class="gx-btn" id="endClose" data-i18n="viewBoard">판 보기</button>
+        <button type="button" class="gx-btn primary" id="endNew" data-i18n="newGame">새 게임</button>
+        <button type="button" class="gx-btn" id="endExit" data-i18n="exit">나가기</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1076,9 +1584,597 @@ function searchRoot(s, moves, depth, noise) {
 const GLYPH = { K: '♚', Q: '♛', R: '♜', B: '♝', N: '♞', P: '♟︎' };
 const $ = id => document.getElementById(id);
 const boardEl = $('board');
+const app = document.querySelector('.app');
+const root = document.documentElement;
 
 let states, moves, keys, legal, over, selected, flipped, thinking, pendingPromo, gen = 0;
 let focusSq = 52; // 키보드 포커스가 있는 칸(보드 인덱스)
+let started = false; // 첫 진입: 준비 시트에서 "대국 시작"을 누르기 전에는 판만 보이고 AI 는 두지 않음
+let justMoved = -1, justMovedAt = 0; // 방금 둔 칸(.just-moved 연출은 한 번만)
+let aiWaiting = -1; // 메뉴가 열려 있어 미뤄 둔 AI 차례의 gen (메뉴를 닫으면 이어서 둠)
+
+// ===== [공유] 효과음 시작 =====
+// WebAudio 로 그 자리에서 만드는 8비트 효과음(외부 파일 없음). 사이트 공통 키 games-sound = 'on'|'off' (기본 on).
+// - 첫 pointerdown/keydown 때 AudioContext 를 만들거나 깨움 → 그 전에는 소리 없음. WebAudio 가 없으면 조용히 무시.
+// - Sfx.play(name, delay?)  : 등록된 소리 재생 (delay 초 뒤).
+// - Sfx.define(name, fn, gapMs?) : 소리 등록. fn(S, t) 안에서 S.tone / S.noise / S.seq 로 t(시작 시각)부터 예약.
+//   gapMs 를 주면 그 간격 안의 반복 재생은 건너뜀 (예: 공 배틀 hit 은 80).
+// - Sfx.toggle() / Sfx.set(on) : 켜기·끄기 + 저장. #soundBtn / #soundToggle 이 있으면 aria-pressed 를 맞춤.
+// - 다른 탭에서 바꾸면 storage 이벤트로 따라감. 블록 끝의 Sfx.boot() 가 이 연결을 모두 함.
+const Sfx = {
+  KEY: 'games-sound',
+  on: true, ctx: null, out: null, defs: {}, gaps: {}, last: {}, noiseBuf: null,
+  load() {
+    try { this.on = localStorage.getItem(this.KEY) !== 'off'; } catch (e) {}
+  },
+  init() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try {
+        this.ctx = new AC();
+        this.out = this.ctx.createGain();
+        this.out.gain.value = 0.25; // 마스터 볼륨
+        this.out.connect(this.ctx.destination);
+      } catch (e) { this.ctx = null; return; }
+    }
+    if (this.ctx.state === 'suspended') { try { this.ctx.resume(); } catch (e) {} }
+  },
+  set(on) {
+    this.on = !!on;
+    try { localStorage.setItem(this.KEY, this.on ? 'on' : 'off'); } catch (e) {}
+    this.sync();
+  },
+  toggle() {
+    this.set(!this.on);
+    if (this.on) { this.init(); this.play('ui-ok'); }
+  },
+  sync() {
+    document.querySelectorAll('#soundBtn, #soundToggle').forEach(b => b.setAttribute('aria-pressed', String(this.on)));
+  },
+  define(name, fn, gapMs) {
+    this.defs[name] = fn;
+    if (gapMs) this.gaps[name] = gapMs;
+  },
+  play(name, delay) {
+    // 깨우는 중(suspended)이어도 예약해 두면 깨어날 때 울림
+    if (!this.on || !this.ctx || this.ctx.state === 'closed') return;
+    const fn = this.defs[name];
+    if (!fn) return;
+    const gap = this.gaps[name];
+    if (gap) {
+      const now = Date.now();
+      if (now - (this.last[name] || 0) < gap) return;
+      this.last[name] = now;
+    }
+    try { fn(this, this.ctx.currentTime + 0.01 + (delay || 0)); } catch (e) {}
+  },
+  // 기본 음 하나: o = { type: square|triangle|sawtooth|sine, vol 0..1, to: 끝 주파수(미끄러짐), hold: 유지 비율 }
+  tone(t, f, dur, o) {
+    o = o || {};
+    const c = this.ctx, osc = c.createOscillator(), g = c.createGain();
+    const v = o.vol == null ? 0.5 : o.vol;
+    osc.type = o.type || 'square';
+    osc.frequency.setValueAtTime(f, t);
+    if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(v, t + 0.005);
+    g.gain.setValueAtTime(v, t + Math.max(0.006, dur * (o.hold == null ? 0.4 : o.hold)));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(this.out);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  },
+  // 잡음(타격·착지 느낌): o = { vol, hp: 고역 통과 Hz, lp: 저역 통과 Hz }
+  noise(t, dur, o) {
+    o = o || {};
+    const c = this.ctx;
+    if (!this.noiseBuf) {
+      const n = (c.sampleRate * 0.5) | 0, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noiseBuf = b;
+    }
+    const src = c.createBufferSource(), g = c.createGain();
+    const v = o.vol == null ? 0.4 : o.vol;
+    src.buffer = this.noiseBuf; src.loop = true;
+    let node = src;
+    if (o.hp || o.lp) {
+      const f = c.createBiquadFilter();
+      f.type = o.hp ? 'highpass' : 'lowpass';
+      f.frequency.value = o.hp || o.lp;
+      src.connect(f); node = f;
+    }
+    g.gain.setValueAtTime(v, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    node.connect(g); g.connect(this.out);
+    src.start(t); src.stop(t + dur + 0.02);
+  },
+  // 음 여러 개를 step 초 간격으로 (0 은 쉼표)
+  seq(t, freqs, step, o) {
+    freqs.forEach((f, i) => { if (f) this.tone(t + i * step, f, (o && o.dur) || step * 0.9, o); });
+  },
+  boot() {
+    this.load();
+    const wake = () => this.init();
+    for (const ev of ['pointerdown', 'pointerup', 'keydown']) window.addEventListener(ev, wake, true);
+    window.addEventListener('storage', e => {
+      if (e.key !== this.KEY && e.key !== null) return;
+      this.load();
+      this.sync();
+    });
+    this.sync();
+  },
+};
+// 공통 소리 (게임별 소리는 각 페이지에서 Sfx.define 으로 추가)
+Sfx.define('ui-move', (S, t) => S.tone(t, 880, 0.04, { vol: 0.22 }));
+Sfx.define('ui-ok', (S, t) => S.seq(t, [660, 990], 0.05, { vol: 0.3, dur: 0.07 }));
+Sfx.define('ui-back', (S, t) => S.seq(t, [520, 330], 0.05, { vol: 0.3, dur: 0.07 }));
+Sfx.define('menu-open', (S, t) => S.tone(t, 300, 0.12, { type: 'triangle', to: 900, vol: 0.5, hold: 0.7 }));
+Sfx.define('menu-close', (S, t) => S.tone(t, 900, 0.12, { type: 'triangle', to: 300, vol: 0.5, hold: 0.7 }));
+Sfx.define('start', (S, t) => {
+  S.seq(t, [523, 659, 784], 0.07, { vol: 0.35, dur: 0.08 });
+  S.tone(t + 0.21, 1047, 0.25, { vol: 0.35 });
+});
+Sfx.define('win', (S, t) => {
+  S.seq(t, [523, 659, 784, 1047, 784, 1047], 0.09, { vol: 0.32, dur: 0.1 });
+  S.tone(t + 0.54, 1319, 0.45, { vol: 0.32, hold: 0.6 });
+  S.tone(t + 0.54, 659, 0.45, { type: 'triangle', vol: 0.4, hold: 0.6 });
+});
+Sfx.define('lose', (S, t) => {
+  S.seq(t, [523, 415, 349], 0.15, { type: 'triangle', vol: 0.5, dur: 0.16 });
+  S.tone(t + 0.45, 262, 0.6, { type: 'triangle', to: 196, vol: 0.5, hold: 0.5 });
+});
+Sfx.define('draw', (S, t) => {
+  S.seq(t, [440, 0, 440], 0.12, { vol: 0.3, dur: 0.1 });
+  S.tone(t + 0.36, 392, 0.35, { vol: 0.3 });
+});
+Sfx.boot();
+// ===== [공유] 효과음 끝 =====
+
+// ===== [공유] 픽셀 아바타 시작 =====
+// 8×8 스프라이트 12종. '.' = 투명, 'x' = 주 색(프로필 색), 'o' = 외곽선(--ink), 'w' = 흰 하이라이트.
+// renderAvatar(box, avatarIndex, colorKey): box(.gx-avatar) 안에 SVG(rect.av-x/.av-o/.av-w, crispEdges)를 넣고
+// box.dataset.avColor = colorKey (CSS 의 .gx-avatar[data-av-color] 가 --av-* 색을 고름).
+const PX_AVATARS = [
+  [ // 0 고양이
+    '.o....o.',
+    'oxo..oxo',
+    'oxxooxxo',
+    'oxoxxoxo',
+    'oxwwwwxo',
+    'oxxooxxo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 1 강아지
+    '.oo..oo.',
+    'oxxooxxo',
+    'oxxxxxxo',
+    'oxoxxoxo',
+    'ooxwwxoo',
+    '.oxooxo.',
+    '.oxwwxo.',
+    '..oooo..',
+  ],
+  [ // 2 로봇
+    '...oo...',
+    '...ow...',
+    'oooooooo',
+    'oxxxxxxo',
+    'oxwxxwxo',
+    'oxxxxxxo',
+    'oxowowxo',
+    'oooooooo',
+  ],
+  [ // 3 유령
+    '..oooo..',
+    '.oxxxxo.',
+    'oxwxxxxo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oo.oo.oo',
+  ],
+  [ // 4 슬라임
+    '........',
+    '...oo...',
+    '..oxxo..',
+    '.oxwxxo.',
+    'oxxxxxxo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    '.oooooo.',
+  ],
+  [ // 5 해골
+    '.oooooo.',
+    'oxxxxxxo',
+    'oxwxxxxo',
+    'oooxxooo',
+    'oooxxooo',
+    'oxxooxxo',
+    '.oxoxox.',
+    '..oooo..',
+  ],
+  [ // 6 기사
+    '...oo...',
+    '.ooxxoo.',
+    'oxxxxxxo',
+    'oxwxxxxo',
+    'oooooooo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    '.oooooo.',
+  ],
+  [ // 7 마법사
+    '....o...',
+    '...oxo..',
+    '..oxxxo.',
+    '.oxxwxxo',
+    'oooooooo',
+    'owowwowo',
+    'owwwwwwo',
+    '.oooooo.',
+  ],
+  [ // 8 개구리
+    '.oo..oo.',
+    'owoxxowo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oxooooxo',
+    'oxxxxxxo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 9 외계인
+    '.o....o.',
+    '..oxxo..',
+    '.oxxxxo.',
+    'oxxxxxxo',
+    'oowxxwoo',
+    'oooxxooo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 10 버섯
+    '..oooo..',
+    '.oxwxxo.',
+    'oxxxxwxo',
+    'oxwxxxxo',
+    'oooooooo',
+    '..owwo..',
+    '..owwo..',
+    '..oooo..',
+  ],
+  [ // 11 별
+    '...oo...',
+    '..oxxo..',
+    'oooxxooo',
+    'oxxwxxxo',
+    '.oxxxxo.',
+    '.oxxxxo.',
+    'oxxooxxo',
+    'oo....oo',
+  ],
+];
+const AV_COLORS = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
+function renderAvatar(box, avatarIndex, colorKey) {
+  if (!box) return;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const grid = PX_AVATARS[avatarIndex] || PX_AVATARS[0];
+  const s = document.createElementNS(SVGNS, 'svg');
+  s.setAttribute('viewBox', '0 0 8 8');
+  s.setAttribute('shape-rendering', 'crispEdges');
+  s.setAttribute('aria-hidden', 'true');
+  s.setAttribute('focusable', 'false');
+  const CLS = { x: 'av-x', o: 'av-o', w: 'av-w' };
+  grid.forEach((row, y) => {
+    // 같은 글자가 이어지면 rect 하나로 합침
+    for (let x = 0; x < row.length;) {
+      const ch = row[x];
+      let n = 1;
+      while (x + n < row.length && row[x + n] === ch) n++;
+      if (CLS[ch]) {
+        const r = document.createElementNS(SVGNS, 'rect');
+        r.setAttribute('x', x); r.setAttribute('y', y);
+        r.setAttribute('width', n); r.setAttribute('height', 1);
+        r.setAttribute('class', CLS[ch]);
+        s.appendChild(r);
+      }
+      x += n;
+    }
+  });
+  box.replaceChildren(s);
+  box.dataset.avColor = AV_COLORS.includes(colorKey) ? colorKey : 'red';
+}
+// ===== [공유] 픽셀 아바타 끝 =====
+
+// ===== [공유] 프로필 시작 =====
+// localStorage games-profile = {"name","avatar":0..11,"color":"red|…|pink"} (허브에서 만듦). 위 아바타 블록 다음에 둘 것.
+// loadProfile() 은 늘 올바른 값을 돌려줌. name 은 앞뒤 공백·제어문자 제거, 최대 12자.
+// name 이 비었거나 기본값 '플레이어' 이면 '' → 화면에서는 각 언어의 기본 이름(I18N player)으로 표시: p.name || t('player')
+const PROFILE_KEY = 'games-profile';
+function loadProfile() {
+  const p = { name: '', avatar: 0, color: 'red' };
+  try {
+    const v = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
+    if (v && typeof v === 'object') {
+      if (typeof v.name === 'string') {
+        const nm = Array.from(v.name.replace(/[\u0000-\u001f\u007f]/g, '').trim()).slice(0, 12).join('').trim();
+        p.name = nm === '플레이어' ? '' : nm;
+      }
+      if (Number.isInteger(v.avatar) && v.avatar >= 0 && v.avatar < PX_AVATARS.length) p.avatar = v.avatar;
+      if (AV_COLORS.includes(v.color)) p.color = v.color;
+    }
+  } catch (e) {}
+  return p;
+}
+// ===== [공유] 프로필 끝 =====
+
+// ===== [공유] UI 테마 시작 =====
+// html[data-ui] = classic|gameboy|neon|famicom (첫 렌더 전 적용은 <head> 스니펫). 저장 키 games-ui-theme.
+// setUiTheme(v): 적용 + 저장 + #uiThemeSwatches 버튼 aria-pressed 동기화. 스와치 클릭·다른 탭 변경도 여기서 연결.
+const UI_THEMES = ['classic', 'gameboy', 'neon', 'famicom'];
+const UI_THEME_KEY = 'games-ui-theme';
+function getUiTheme() {
+  const v = document.documentElement.dataset.ui;
+  return UI_THEMES.includes(v) ? v : 'classic';
+}
+function syncUiTheme() {
+  const v = getUiTheme();
+  document.querySelectorAll('#uiThemeSwatches button[data-v]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+}
+function setUiTheme(v, noSave) {
+  if (!UI_THEMES.includes(v)) v = 'classic';
+  document.documentElement.dataset.ui = v;
+  if (!noSave) { try { localStorage.setItem(UI_THEME_KEY, v); } catch (e) {} }
+  syncUiTheme();
+}
+(function () {
+  const sw = document.getElementById('uiThemeSwatches');
+  if (sw) sw.addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]');
+    if (!b) return;
+    setUiTheme(b.dataset.v);
+    if (typeof Sfx !== 'undefined') Sfx.play('ui-ok');
+  });
+  window.addEventListener('storage', e => {
+    if (e.key !== UI_THEME_KEY && e.key !== null) return;
+    let v = null;
+    try { v = localStorage.getItem(UI_THEME_KEY); } catch (err) {}
+    setUiTheme(v, true);
+  });
+  syncUiTheme();
+})();
+// ===== [공유] UI 테마 끝 =====
+
+// ===== [공유] 메뉴 도우미 시작 =====
+// 페이지 요소에 기대지 않는 범용 도우미.
+// GxUI.modal(root, o)  : 모달 하나(결과 화면 등). 열기/닫기, Tab 가두기, 바깥 포커스 되돌리기, Esc, 닫으면 원래 포커스로.
+//   o = { showClass: 'show'(없으면 hidden 속성으로 열고 닫음), fallbackFocus: () => el, onEscape(e) }
+// GxMenu(root, o)      : .gx-menu 안의 [data-sheet] 하위 화면들을 쌓아 가며 보여 주는 메뉴(modal 위에 만듦).
+//   html[data-menu] = 지금 시트 이름('' = 닫힘). [data-back] = 뒤로. 스크림 클릭 = 닫기.
+//   ↑↓ Home/End = 줄 이동([role=group] 은 한 줄로 취급), ←→ = 그룹 안 이동, Esc = 뒤로/닫기.
+//   .gx-menu-list 버튼은 포커스를 받으면 aria-current="true" (▶ 커서).
+//   o = { button: 메뉴 버튼(aria-expanded), fallbackFocus, focusFor(name, sheet) → el, onShow(name, sheet),
+//         onEscape() → true 면 처리됨, onClose() }
+//   menu.open(name, { locked, returnTo }) — locked 면 첫 시트에서 뒤로 버튼 숨김·Esc/스크림으로 못 닫음
+//   menu.push(name), menu.back(), menu.close({ restore: false, silent: true }), menu.isOpen(), menu.current()
+// GxUI.leave(href)     : html.gx-leave 와이프 후 250ms 뒤 이동(움직임 줄이기면 바로). GxUI.enter(): gx-enter 정리.
+const GxUI = {
+  reduced() {
+    try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  },
+  sfx(name) { if (typeof Sfx !== 'undefined') Sfx.play(name); },
+  shown(el) {
+    return !!el && !el.disabled && !el.closest('[hidden]') && el.getClientRects().length > 0;
+  },
+  focusables(root) {
+    if (!root) return [];
+    return Array.from(root.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(GxUI.shown);
+  },
+  focusSafe(el) {
+    if (!el || !el.isConnected || !GxUI.shown(el)) return false;
+    try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+    return true;
+  },
+  trapTab(root, e) {
+    const list = GxUI.focusables(root);
+    if (!list.length) { e.preventDefault(); return; }
+    const first = list[0], last = list[list.length - 1], a = document.activeElement;
+    if (e.shiftKey && (a === first || !root.contains(a))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (a === last || !root.contains(a))) { e.preventDefault(); first.focus(); }
+  },
+  // 줄 단위 이동: [role=group] 안 버튼들은 한 줄
+  stops(root) {
+    const out = [];
+    for (const el of GxUI.focusables(root)) {
+      const g = el.closest('[role="group"]');
+      const key = g && root.contains(g) ? g : el;
+      if (!out.includes(key)) out.push(key);
+    }
+    return out;
+  },
+  moveStop(root, dir) { // dir: 1 | -1 | 'first' | 'last'
+    const stops = GxUI.stops(root);
+    if (!stops.length) return false;
+    const i = stops.findIndex(s => s.contains(document.activeElement));
+    let n;
+    if (dir === 'first') n = 0;
+    else if (dir === 'last') n = stops.length - 1;
+    else if (i < 0) n = dir > 0 ? 0 : stops.length - 1;
+    else n = (i + dir + stops.length) % stops.length;
+    let target = stops[n];
+    if (target.matches('[role="group"]')) {
+      const btns = GxUI.focusables(target);
+      target = btns.find(b => b.getAttribute('aria-pressed') === 'true' || b.classList.contains('on')) || btns[0];
+    }
+    return GxUI.focusSafe(target);
+  },
+  moveInGroup(group, from, dir) {
+    const btns = GxUI.focusables(group);
+    const i = btns.indexOf(from);
+    if (i < 0 || btns.length < 2) return false;
+    return GxUI.focusSafe(btns[(i + dir + btns.length) % btns.length]);
+  },
+  modal(root, o) {
+    o = o || {};
+    const d = { root, returnTo: null };
+    d.isOpen = () => (o.showClass ? root.classList.contains(o.showClass) : !root.hidden);
+    // focusEl: 요소 또는 요소를 돌려주는 함수(열린 뒤에 계산)
+    d.open = (focusEl, returnTo) => {
+      d.returnTo = returnTo || document.activeElement;
+      if (o.showClass) root.classList.add(o.showClass); else root.hidden = false;
+      const f = typeof focusEl === 'function' ? focusEl() : focusEl;
+      GxUI.focusSafe(f) || GxUI.focusSafe(GxUI.focusables(root)[0]);
+    };
+    d.close = restore => {
+      if (!d.isOpen()) return false;
+      if (o.showClass) root.classList.remove(o.showClass); else root.hidden = true;
+      const r = d.returnTo;
+      d.returnTo = null;
+      if (restore !== false && !GxUI.focusSafe(r) && o.fallbackFocus) GxUI.focusSafe(o.fallbackFocus());
+      return true;
+    };
+    // document 에 걸어 둠: 포커스가 body 로 빠진 경우에도 Tab/Esc 를 잡음
+    document.addEventListener('keydown', e => {
+      if (e.defaultPrevented || !d.isOpen()) return;
+      if (e.key === 'Tab') GxUI.trapTab(root, e);
+      else if (e.key === 'Escape') {
+        e.preventDefault();
+        if (o.onEscape) o.onEscape(e); else d.close();
+      }
+    });
+    document.addEventListener('focusin', e => {
+      if (d.isOpen() && !root.contains(e.target)) GxUI.focusSafe(GxUI.focusables(root)[0]);
+    });
+    return d;
+  },
+  leave(href) {
+    const h = document.documentElement;
+    if (h.classList.contains('gx-leave')) return;
+    if (GxUI.reduced()) { location.href = href; return; }
+    h.classList.add('gx-leave');
+    setTimeout(() => { location.href = href; }, 250);
+  },
+  enter() {
+    const h = document.documentElement;
+    setTimeout(() => h.classList.remove('gx-enter'), 300);
+    // 뒤로 가기로 돌아온 경우(bfcache) 퇴장 덮개를 걷음
+    window.addEventListener('pageshow', e => { if (e.persisted) h.classList.remove('gx-leave', 'gx-enter'); });
+  },
+};
+function GxMenu(root, o) {
+  o = o || {};
+  const html = document.documentElement;
+  const sheets = {};
+  root.querySelectorAll('[data-sheet]').forEach(s => { sheets[s.dataset.sheet] = s; });
+  let stack = [], locked = false;
+  const atLockedRoot = () => locked && stack.length <= 1;
+  const m = GxUI.modal(root, {
+    fallbackFocus: o.fallbackFocus,
+    onEscape: () => { if (o.onEscape && o.onEscape()) return; m.back(); },
+  });
+  const baseOpen = m.open, baseClose = m.close;
+  m.current = () => (stack.length ? stack[stack.length - 1].name : '');
+  function showSheet(name) {
+    const s = sheets[name];
+    for (const k in sheets) sheets[k].hidden = k !== name;
+    const title = s.querySelector('.gx-title[id]');
+    if (title) root.setAttribute('aria-labelledby', title.id);
+    html.dataset.menu = name;
+    s.querySelectorAll('[data-back]').forEach(b => { b.hidden = atLockedRoot(); });
+    if (o.onShow) o.onShow(name, s);
+  }
+  function sheetFocus(name) {
+    const s = sheets[name], list = GxUI.focusables(s);
+    return [o.focusFor && o.focusFor(name, s), s.querySelector('.gx-menu-list [aria-current="true"]'),
+      list.find(b => !b.hasAttribute('data-back')), list[0]].find(x => x && GxUI.shown(x));
+  }
+  m.open = (name, opt) => {
+    opt = opt || {};
+    if (!sheets[name]) return;
+    if (m.isOpen()) { m.push(name); return; }
+    locked = !!opt.locked;
+    stack = [{ name, from: null }];
+    // 커서 ▶ 는 목록 첫 항목에서 시작
+    root.querySelectorAll('.gx-menu-list').forEach(l => l.querySelectorAll('.gx-btn').forEach((b, i) => {
+      if (i === 0) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+    }));
+    showSheet(name);
+    baseOpen(() => sheetFocus(name), opt.returnTo);
+    if (o.button) o.button.setAttribute('aria-expanded', 'true');
+    GxUI.sfx('menu-open');
+  };
+  m.push = name => {
+    if (!sheets[name]) return;
+    stack.push({ name, from: document.activeElement });
+    showSheet(name);
+    GxUI.focusSafe(sheetFocus(name));
+    GxUI.sfx('ui-ok');
+  };
+  m.back = () => {
+    if (stack.length > 1) {
+      const top = stack.pop();
+      showSheet(m.current());
+      GxUI.focusSafe(top.from) || GxUI.focusSafe(sheetFocus(m.current()));
+      GxUI.sfx('ui-back');
+    } else if (!locked) m.close();
+  };
+  m.close = opt => {
+    opt = opt || {};
+    if (!m.isOpen()) return false;
+    stack = []; locked = false;
+    html.dataset.menu = '';
+    baseClose(opt.restore);
+    if (o.button) o.button.setAttribute('aria-expanded', 'false');
+    if (!opt.silent) GxUI.sfx('menu-close');
+    if (o.onClose) o.onClose();
+    return true;
+  };
+  html.dataset.menu = '';
+  root.addEventListener('click', e => {
+    if (e.target === root) { if (!atLockedRoot()) m.close(); return; }
+    if (e.target.closest('[data-back]')) m.back();
+  });
+  root.addEventListener('focusin', e => {
+    const b = e.target.closest && e.target.closest('.gx-menu-list .gx-btn');
+    if (!b) return;
+    b.parentNode.querySelectorAll('.gx-btn').forEach(x => {
+      if (x === b) x.setAttribute('aria-current', 'true'); else x.removeAttribute('aria-current');
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented || !m.isOpen() || e.altKey || e.ctrlKey || e.metaKey) return;
+    const s = sheets[m.current()];
+    if (!s) return;
+    const k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowUp' || k === 'Home' || k === 'End') {
+      e.preventDefault();
+      if (GxUI.moveStop(s, k === 'ArrowDown' ? 1 : k === 'ArrowUp' ? -1 : k === 'Home' ? 'first' : 'last')) GxUI.sfx('ui-move');
+    } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
+      const g = e.target.closest && e.target.closest('[role="group"]');
+      if (g && s.contains(g)) {
+        e.preventDefault();
+        if (GxUI.moveInGroup(g, e.target, k === 'ArrowRight' ? 1 : -1)) GxUI.sfx('ui-move');
+      }
+    }
+  });
+  return m;
+}
+// ===== [공유] 메뉴 도우미 끝 =====
+
+// 체스 전용 소리
+Sfx.define('move', (S, t) => { S.tone(t, 330, 0.05, { type: 'triangle', vol: 0.5 }); S.noise(t, 0.04, { vol: 0.25, lp: 1800 }); });
+Sfx.define('capture', (S, t) => { S.noise(t, 0.09, { vol: 0.45, lp: 2600 }); S.tone(t, 220, 0.1, { to: 110, vol: 0.4 }); });
+Sfx.define('check', (S, t) => S.seq(t, [988, 0, 988], 0.06, { vol: 0.35, dur: 0.06 }));
+Sfx.define('castle', (S, t) => {
+  S.tone(t, 330, 0.05, { type: 'triangle', vol: 0.5 });
+  S.tone(t + 0.09, 392, 0.06, { type: 'triangle', vol: 0.5 });
+  S.noise(t + 0.09, 0.04, { vol: 0.2, lp: 1800 });
+});
+Sfx.define('promote', (S, t) => S.seq(t, [523, 659, 784, 1047], 0.05, { vol: 0.3, dur: 0.06 }));
+Sfx.define('illegal', (S, t) => S.tone(t, 140, 0.12, { type: 'sawtooth', vol: 0.25, hold: 0.6 }));
+
 // ----- 다국어 -----
 const I18N = {
   ko: {
@@ -1095,7 +2191,14 @@ const I18N = {
     pK: '킹', pP: '폰', canMove: '이동 가능', cancel: '취소', langLabel: '언어',
     layout: '화면 배치', layoutMobile: '모바일', layoutPc: 'PC',
     controls: '게임 설정', tools: '도구', close: '닫기', captured: '잡은 기물', help: '도움말',
-    confirmMode: '대전 방식을 바꾸면 새 게임이 시작돼요. 계속할까요?',
+    menu: '메뉴', sound: '소리', resume: '계속하기', settings: '설정', exit: '나가기',
+    exitConfirm: '진행 중인 대국은 저장되지 않아요. 나갈까요?', on: '켜짐', off: '꺼짐', backBtn: '뒤로',
+    victory: '승리!', defeat: '패배', drawResult: '무승부', setup: '대국 준비', startMatch: '대국 시작',
+    setupHint: 'Enter 키로 바로 시작', kbdHelp: '키보드: 방향키로 칸 이동, Enter·Space로 선택, Esc·P로 메뉴',
+    changeLevel: '난이도 변경', uiTheme: '화면 테마', thClassic: '클래식', thGameboy: '게임보이', thNeon: '네온', thFamicom: '패미컴',
+    skin: '꾸미기', skinPieces: '말 모양', pcGlyph: '기호', pcPixel: '픽셀', pcLetter: '글자',
+    skinBoard: '판 무늬', bdWood: '나무', bdMarble: '대리석', bdRetro: '레트로', bdOcean: '바다', gameSec: '대국',
+    checkToast: '체크!', ai: 'AI', player: '플레이어',
   },
   en: {
     name: 'English', title: 'Chess', hint: 'Tap a piece, then tap where to move', board: 'Chessboard',
@@ -1111,7 +2214,14 @@ const I18N = {
     pK: 'King', pP: 'Pawn', canMove: 'can move here', cancel: 'Cancel', langLabel: 'Language',
     layout: 'Layout', layoutMobile: 'Mobile', layoutPc: 'PC',
     controls: 'Game settings', tools: 'Tools', close: 'Close', captured: 'Captured pieces', help: 'Help',
-    confirmMode: 'Changing the mode starts a new game. Continue?',
+    menu: 'Menu', sound: 'Sound', resume: 'Resume', settings: 'Settings', exit: 'Exit',
+    exitConfirm: 'The game in progress will not be saved. Leave anyway?', on: 'On', off: 'Off', backBtn: 'Back',
+    victory: 'VICTORY!', defeat: 'DEFEAT', drawResult: 'DRAW', setup: 'Match setup', startMatch: 'Start match',
+    setupHint: 'Press Enter to start', kbdHelp: 'Keyboard: arrow keys to move, Enter/Space to select, Esc/P for the menu',
+    changeLevel: 'Change level', uiTheme: 'UI theme', thClassic: 'Classic', thGameboy: 'Game Boy', thNeon: 'Neon', thFamicom: 'Famicom',
+    skin: 'Customize', skinPieces: 'Pieces', pcGlyph: 'Symbols', pcPixel: 'Pixel', pcLetter: 'Letters',
+    skinBoard: 'Board', bdWood: 'Wood', bdMarble: 'Marble', bdRetro: 'Retro', bdOcean: 'Ocean', gameSec: 'Game',
+    checkToast: 'CHECK!', ai: 'AI', player: 'Player',
   },
   ja: {
     name: '日本語', title: 'チェス', hint: '駒をタップして、移動先をタップしてください', board: 'チェス盤',
@@ -1127,7 +2237,14 @@ const I18N = {
     pK: 'キング', pP: 'ポーン', canMove: '移動可能', cancel: 'キャンセル', langLabel: '言語',
     layout: '画面レイアウト', layoutMobile: 'モバイル', layoutPc: 'PC',
     controls: 'ゲーム設定', tools: 'ツール', close: '閉じる', captured: '取った駒', help: 'ヘルプ',
-    confirmMode: 'モードを変えると新しいゲームが始まります。続けますか？',
+    menu: 'メニュー', sound: 'サウンド', resume: '続ける', settings: '設定', exit: 'やめる',
+    exitConfirm: '対局中のゲームは保存されません。やめますか？', on: 'オン', off: 'オフ', backBtn: '戻る',
+    victory: '勝利！', defeat: '敗北', drawResult: '引き分け', setup: '対局の準備', startMatch: '対局開始',
+    setupHint: 'Enterキーですぐ開始', kbdHelp: 'キーボード: 矢印キーでマス移動、Enter・Spaceで選択、Esc・Pでメニュー',
+    changeLevel: '強さを変更', uiTheme: '画面テーマ', thClassic: 'クラシック', thGameboy: 'ゲームボーイ', thNeon: 'ネオン', thFamicom: 'ファミコン',
+    skin: 'カスタマイズ', skinPieces: '駒の形', pcGlyph: '記号', pcPixel: 'ドット', pcLetter: '文字',
+    skinBoard: '盤の柄', bdWood: '木目', bdMarble: '大理石', bdRetro: 'レトロ', bdOcean: '海', gameSec: '対局',
+    checkToast: 'チェック！', ai: 'AI', player: 'プレイヤー',
   },
   zh: {
     name: '中文', title: '国际象棋', hint: '点击棋子，再点击目标格', board: '棋盘',
@@ -1143,7 +2260,14 @@ const I18N = {
     pK: '王', pP: '兵', canMove: '可走到此处', cancel: '取消', langLabel: '语言',
     layout: '界面布局', layoutMobile: '手机', layoutPc: '电脑',
     controls: '游戏设置', tools: '工具', close: '关闭', captured: '吃掉的棋子', help: '帮助',
-    confirmMode: '切换模式将开始新游戏。是否继续？',
+    menu: '菜单', sound: '声音', resume: '继续', settings: '设置', exit: '退出',
+    exitConfirm: '进行中的对局不会保存。确定退出吗？', on: '开', off: '关', backBtn: '返回',
+    victory: '胜利！', defeat: '失败', drawResult: '和棋', setup: '对局准备', startMatch: '开始对局',
+    setupHint: '按 Enter 键直接开始', kbdHelp: '键盘：方向键移动，Enter/空格键选择，Esc/P 打开菜单',
+    changeLevel: '更改难度', uiTheme: '界面主题', thClassic: '经典', thGameboy: '掌机', thNeon: '霓虹', thFamicom: '红白机',
+    skin: '装扮', skinPieces: '棋子样式', pcGlyph: '符号', pcPixel: '像素', pcLetter: '字母',
+    skinBoard: '棋盘花纹', bdWood: '木纹', bdMarble: '大理石', bdRetro: '复古', bdOcean: '海洋', gameSec: '对局',
+    checkToast: '将军！', ai: 'AI', player: '玩家',
   },
   es: {
     name: 'Español', title: 'Ajedrez', hint: 'Toca una pieza y luego la casilla de destino', board: 'Tablero de ajedrez',
@@ -1159,7 +2283,14 @@ const I18N = {
     pK: 'Rey', pP: 'Peón', canMove: 'movimiento posible', cancel: 'Cancelar', langLabel: 'Idioma',
     layout: 'Diseño', layoutMobile: 'Móvil', layoutPc: 'PC',
     controls: 'Ajustes de juego', tools: 'Herramientas', close: 'Cerrar', captured: 'Piezas capturadas', help: 'Ayuda',
-    confirmMode: 'Cambiar el modo inicia una nueva partida. ¿Continuar?',
+    menu: 'Menú', sound: 'Sonido', resume: 'Continuar', settings: 'Ajustes', exit: 'Salir',
+    exitConfirm: 'La partida en curso no se guardará. ¿Salir de todos modos?', on: 'Sí', off: 'No', backBtn: 'Atrás',
+    victory: '¡VICTORIA!', defeat: 'DERROTA', drawResult: 'TABLAS', setup: 'Preparar partida', startMatch: 'Empezar partida',
+    setupHint: 'Pulsa Intro para empezar', kbdHelp: 'Teclado: flechas para moverte, Intro/Espacio para elegir, Esc/P para el menú',
+    changeLevel: 'Cambiar nivel', uiTheme: 'Tema de pantalla', thClassic: 'Clásico', thGameboy: 'Game Boy', thNeon: 'Neón', thFamicom: 'Famicom',
+    skin: 'Personalizar', skinPieces: 'Piezas', pcGlyph: 'Símbolos', pcPixel: 'Píxel', pcLetter: 'Letras',
+    skinBoard: 'Tablero', bdWood: 'Madera', bdMarble: 'Mármol', bdRetro: 'Retro', bdOcean: 'Océano', gameSec: 'Partida',
+    checkToast: '¡JAQUE!', ai: 'IA', player: 'Jugador',
   },
   fr: {
     name: 'Français', title: 'Échecs', hint: "Touchez une pièce, puis la case d'arrivée", board: 'Échiquier',
@@ -1175,7 +2306,14 @@ const I18N = {
     pK: 'Roi', pP: 'Pion', canMove: 'déplacement possible', cancel: 'Annuler', langLabel: 'Langue',
     layout: 'Affichage', layoutMobile: 'Mobile', layoutPc: 'PC',
     controls: 'Réglages du jeu', tools: 'Outils', close: 'Fermer', captured: 'Pièces prises', help: 'Aide',
-    confirmMode: 'Changer de mode lance une nouvelle partie. Continuer ?',
+    menu: 'Menu', sound: 'Son', resume: 'Reprendre', settings: 'Réglages', exit: 'Quitter',
+    exitConfirm: 'La partie en cours ne sera pas sauvegardée. Quitter quand même ?', on: 'Activé', off: 'Coupé', backBtn: 'Retour',
+    victory: 'VICTOIRE !', defeat: 'DÉFAITE', drawResult: 'NULLE', setup: 'Préparer la partie', startMatch: 'Commencer',
+    setupHint: 'Appuyez sur Entrée pour commencer', kbdHelp: 'Clavier : flèches pour se déplacer, Entrée/Espace pour choisir, Échap/P pour le menu',
+    changeLevel: 'Changer le niveau', uiTheme: "Thème d'écran", thClassic: 'Classique', thGameboy: 'Game Boy', thNeon: 'Néon', thFamicom: 'Famicom',
+    skin: 'Personnaliser', skinPieces: 'Pièces', pcGlyph: 'Symboles', pcPixel: 'Pixel', pcLetter: 'Lettres',
+    skinBoard: 'Échiquier', bdWood: 'Bois', bdMarble: 'Marbre', bdRetro: 'Rétro', bdOcean: 'Océan', gameSec: 'Partie',
+    checkToast: 'ÉCHEC !', ai: 'IA', player: 'Joueur',
   },
   de: {
     name: 'Deutsch', title: 'Schach', hint: 'Tippe auf eine Figur und dann auf das Zielfeld', board: 'Schachbrett',
@@ -1191,18 +2329,20 @@ const I18N = {
     pK: 'König', pP: 'Bauer', canMove: 'Zug möglich', cancel: 'Abbrechen', langLabel: 'Sprache',
     layout: 'Ansicht', layoutMobile: 'Mobil', layoutPc: 'PC',
     controls: 'Spieleinstellungen', tools: 'Werkzeuge', close: 'Schließen', captured: 'Geschlagene Figuren', help: 'Hilfe',
-    confirmMode: 'Ein Moduswechsel startet ein neues Spiel. Fortfahren?',
+    menu: 'Menü', sound: 'Ton', resume: 'Weiterspielen', settings: 'Einstellungen', exit: 'Beenden',
+    exitConfirm: 'Die laufende Partie wird nicht gespeichert. Trotzdem beenden?', on: 'An', off: 'Aus', backBtn: 'Zurück',
+    victory: 'SIEG!', defeat: 'NIEDERLAGE', drawResult: 'REMIS', setup: 'Partie vorbereiten', startMatch: 'Partie starten',
+    setupHint: 'Mit Enter direkt starten', kbdHelp: 'Tastatur: Pfeiltasten zum Bewegen, Enter/Leertaste zum Wählen, Esc/P für das Menü',
+    changeLevel: 'Stärke ändern', uiTheme: 'Farbschema', thClassic: 'Klassisch', thGameboy: 'Game Boy', thNeon: 'Neon', thFamicom: 'Famicom',
+    skin: 'Anpassen', skinPieces: 'Figuren', pcGlyph: 'Symbole', pcPixel: 'Pixel', pcLetter: 'Buchstaben',
+    skinBoard: 'Brett', bdWood: 'Holz', bdMarble: 'Marmor', bdRetro: 'Retro', bdOcean: 'Ozean', gameSec: 'Partie',
+    checkToast: 'SCHACH!', ai: 'KI', player: 'Spieler',
   },
 };
 const t = k => (I18N[lang] && I18N[lang][k]) || I18N.ko[k] || k;
 
 function detectLang() {
-  const list = navigator.languages || [navigator.language || 'ko'];
-  for (const l of list) {
-    const code = String(l).toLowerCase().slice(0, 2);
-    if (I18N[code]) return code;
-  }
-  return 'ko'; // 지원하지 않는 언어면 기본 한국어
+  return 'ko'; // 기본 언어는 한국어. 언어 선택(games-lang)을 저장하면 그 값을 씀
 }
 
 let mode = 'ai-b', level = 2, lang = detectLang();
@@ -1210,10 +2350,10 @@ try {
   const sv = JSON.parse(localStorage.getItem('chess-settings') || '{}');
   if (['ai-b', 'ai-w', 'pvp'].includes(sv.mode)) mode = sv.mode;
   if ([0, 1, 2, 3].includes(sv.level)) level = sv.level;
-  if (I18N[sv.lang]) lang = sv.lang;
   const gl = localStorage.getItem('games-lang'); // 모든 게임이 공유하는 언어 설정
   if (I18N[gl]) lang = gl;
 } catch (e) {}
+let pendMode = mode; // 준비 시트에서 고른 대전 방식("대국 시작"을 눌러야 적용)
 function saveSettings() {
   try {
     localStorage.setItem('chess-settings', JSON.stringify({ mode, level, lang }));
@@ -1229,6 +2369,7 @@ function applyLang() {
   boardEl.setAttribute('aria-label', t('board'));
   $('lang').setAttribute('aria-label', t('langLabel'));
   $('lang').value = lang;
+  $('langCycleVal').textContent = I18N[lang].name;
   labelPromo(); // 승진 선택창이 열려 있으면 버튼 라벨도 새 언어로
 }
 
@@ -1244,17 +2385,178 @@ $('lang').addEventListener('change', e => {
   applyLang();
   render();
 });
+// 설정 시트의 ◀ 한국어 ▶ : 누를 때마다 다음 언어로 (숨긴 #lang 값을 바꾸고 change 발생)
+$('langCycle').addEventListener('click', () => {
+  const codes = Object.keys(I18N);
+  const sel = $('lang');
+  sel.value = codes[(codes.indexOf(lang) + 1) % codes.length];
+  sel.dispatchEvent(new Event('change'));
+  Sfx.play('ui-move');
+});
 function syncSeg() {
+  // 준비 시트는 아직 적용 안 한 pendMode 를 보여 줌. 2인 대전이면 난이도는 비활성
   for (const b of $('levelSeg').children) {
-    b.classList.toggle('on', +b.dataset.v === level);
-    b.disabled = mode === 'pvp';
+    const on = +b.dataset.v === level;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+    b.disabled = pendMode === 'pvp';
   }
-  $('levelSeg').classList.toggle('disabled', mode === 'pvp');
-  for (const b of $('modeSeg').children) b.classList.toggle('on', b.dataset.v === mode);
+  $('levelSeg').classList.toggle('disabled', pendMode === 'pvp');
+  for (const b of $('modeSeg').children) {
+    const on = b.dataset.v === pendMode;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  }
 }
 
 function aiColor() { return mode === 'ai-b' ? 'b' : mode === 'ai-w' ? 'w' : null; }
 function cur() { return states[states.length - 1]; }
+
+// ----- 말 세트·판 무늬 (K3): 저장 키 chess-skin = {"pieces":"glyph|pixel|letter","board":"wood|marble|retro|ocean"} -----
+const SKIN_PIECES = ['glyph', 'pixel', 'letter'];
+const SKIN_BOARDS = ['wood', 'marble', 'retro', 'ocean'];
+function readSkin(raw) {
+  const s = { pieces: 'glyph', board: 'wood' };
+  try {
+    const v = JSON.parse(raw || '{}') || {};
+    if (SKIN_PIECES.includes(v.pieces)) s.pieces = v.pieces;
+    if (SKIN_BOARDS.includes(v.board)) s.board = v.board;
+  } catch (e) {}
+  return s;
+}
+let skin = { pieces: 'glyph', board: 'wood' };
+try { skin = readSkin(localStorage.getItem('chess-skin')); } catch (e) {}
+function saveSkin() {
+  try { localStorage.setItem('chess-skin', JSON.stringify(skin)); } catch (e) {}
+}
+// .app 에 달면 판과 승진 창 모두 적용(플레이어 아이콘·잡은 기물은 기호 그대로)
+function applySkin() {
+  app.dataset.pieces = skin.pieces;
+  boardEl.dataset.board = skin.board;
+  for (const b of $('skinPieces').querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.v === skin.pieces));
+  for (const b of $('skinBoard').querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.v === skin.board));
+}
+
+// 픽셀 말: 12×12 몸통 격자('x'). 외곽선은 몸통 둘레 8칸(구멍 포함)에서 자동으로 만들어 14×14 SVG 로 그림
+// SVG 의 rect: 몸통 class="pf", 외곽선 class="pe" (색은 CSS 가 백/흑에 따라 칠함)
+const PX_PIECES = {
+  P: ['............',
+      '............',
+      '.....xx.....',
+      '....xxxx....',
+      '....xxxx....',
+      '.....xx.....',
+      '....xxxx....',
+      '.....xx.....',
+      '.....xx.....',
+      '....xxxx....',
+      '...xxxxxx...',
+      '..xxxxxxxx..'],
+  R: ['............',
+      '..xx.xx.xx..',
+      '..xx.xx.xx..',
+      '..xxxxxxxx..',
+      '...xxxxxx...',
+      '....xxxx....',
+      '....xxxx....',
+      '....xxxx....',
+      '....xxxx....',
+      '...xxxxxx...',
+      '..xxxxxxxx..',
+      '..xxxxxxxx..'],
+  N: ['............',
+      '.....x......',
+      '....xxxx....',
+      '...xxxxxx...',
+      '..xxx.xxxx..',
+      '.xxxxxxxxx..',
+      '.xxx..xxxx..',
+      '......xxxx..',
+      '.....xxxxx..',
+      '....xxxxx...',
+      '...xxxxxxx..',
+      '..xxxxxxxx..'],
+  B: ['.....xx.....',
+      '....xxxx....',
+      '....xx.x....',
+      '...xxx.xx...',
+      '...xxxxxx...',
+      '....xxxx....',
+      '.....xx.....',
+      '....xxxx....',
+      '....xxxx....',
+      '...xxxxxx...',
+      '..xxxxxxxx..',
+      '..xxxxxxxx..'],
+  Q: ['.x..x..x..x.',
+      '.x..x..x..x.',
+      '.xx.xxxx.xx.',
+      '.xxxxxxxxxx.',
+      '..xxxxxxxx..',
+      '...xxxxxx...',
+      '....xxxx....',
+      '....xxxx....',
+      '...xxxxxx...',
+      '..xxxxxxxx..',
+      '.xxxxxxxxxx.',
+      '.xxxxxxxxxx.'],
+  K: ['.....xx.....',
+      '....xxxx....',
+      '.....xx.....',
+      '..xx.xx.xx..',
+      '.xxxxxxxxxx.',
+      '.xxxxxxxxxx.',
+      '..xxxxxxxx..',
+      '...xxxxxx...',
+      '...xxxxxx...',
+      '..xxxxxxxx..',
+      '.xxxxxxxxxx.',
+      '.xxxxxxxxxx.'],
+};
+function pixelSprite(rows) {
+  const W = 14, H = 14, g = [];
+  for (let y = 0; y < H; y++) g.push(Array(W).fill('.'));
+  rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) if (row[x] === 'x') g[y + 1][x + 1] = 'x'; });
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (g[y][x] !== '.') continue;
+      let near = false;
+      for (let dy = -1; dy <= 1 && !near; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const yy = y + dy, xx = x + dx;
+          if (yy >= 0 && yy < H && xx >= 0 && xx < W && g[yy][xx] === 'x') { near = true; break; }
+        }
+      }
+      if (near) g[y][x] = 'o';
+    }
+  }
+  // 같은 색이 이어지는 가로 칸은 rect 하나로
+  let out = '';
+  for (let y = 0; y < H; y++) {
+    let x = 0;
+    while (x < W) {
+      const ch = g[y][x];
+      if (ch === '.') { x++; continue; }
+      let e = x;
+      while (e < W && g[y][e] === ch) e++;
+      out += '<rect class="' + (ch === 'x' ? 'pf' : 'pe') + '" x="' + x + '" y="' + y + '" width="' + (e - x) + '" height="1"/>';
+      x = e;
+    }
+  }
+  return '<svg viewBox="0 0 14 14" shape-rendering="crispEdges" aria-hidden="true" focusable="false">' + out + '</svg>';
+}
+const PX_SVG = {};
+for (const k of Object.keys(PX_PIECES)) PX_SVG[k] = pixelSprite(PX_PIECES[k]);
+
+// 판·승진 창의 기물 하나 (말 세트에 따라 기호 / 픽셀 SVG / 글자)
+function pieceEl(p) {
+  const sp = document.createElement('span');
+  sp.className = 'piece ' + p[0];
+  sp.setAttribute('aria-hidden', 'true');
+  if (skin.pieces === 'pixel') sp.innerHTML = PX_SVG[p[1]];
+  else sp.textContent = skin.pieces === 'letter' ? p[1] : GLYPH[p[1]];
+  return sp;
+}
 
 function newGame() {
   gen++;
@@ -1264,6 +2566,7 @@ function newGame() {
   selected = null;
   thinking = false;
   pendingPromo = null;
+  justMoved = -1;
   flipped = mode === 'ai-w';
   focusSq = flipped ? 12 : 52; // 키보드 커서: 내 쪽 e폰
   closeDialog($('promo'));
@@ -1272,9 +2575,19 @@ function newGame() {
   maybeAI();
 }
 
+// 결과 화면 종류: AI 전은 사람 기준 승/패, 2인 대전은 누가 이기든 win, 비기면 draw
+function outcome() {
+  if (!over) return '';
+  if (over.title !== 'checkmate') return 'draw';
+  const winner = over.text === 'winW' ? 'w' : 'b';
+  const ai = aiColor();
+  return ai && winner === ai ? 'lose' : 'win';
+}
+
 function refresh() {
   const s = cur();
   legal = legalMoves(s);
+  const wasOver = !!over;
   over = null;
   if (legal.length === 0) {
     // over 에는 번역 키를 저장 → 언어를 바꾸면 결과 문구도 바로 바뀜
@@ -1289,7 +2602,41 @@ function refresh() {
     over = { title: 'draw', text: 'material' };
   }
   render();
-  if (over) openDialog($('endOverlay'));
+  if (over) {
+    const oc = outcome();
+    $('endOverlay').dataset.outcome = oc;
+    if (!wasOver) Sfx.play(oc);
+    openDialog($('endOverlay'));
+  }
+}
+
+// 플레이어 패널: #plTop 은 늘 흑, #plBottom 은 늘 백. 뒤집으면 .app.flipped 로 자리만 바뀜
+const ROBOT_AVATAR = 2; // PX_AVATARS 의 로봇
+function syncPlayers() {
+  const s = cur();
+  const ai = aiColor();
+  const prof = loadProfile();
+  for (const [col, key] of [['w', 'plBottom'], ['b', 'plTop']]) {
+    let name, av, avColor;
+    if (!ai) {
+      // 2인 대전: 백 = 1P(내 프로필 아바타), 흑 = 2P(기본 아바타)
+      name = col === 'w' ? '1P' : '2P';
+      av = col === 'w' ? prof.avatar : 0;
+      avColor = col === 'w' ? prof.color : 'blue';
+    } else if (col === ai) {
+      name = t('ai') + ' · ' + t('lv' + level);
+      av = ROBOT_AVATAR;
+      avColor = 'cyan';
+    } else {
+      name = prof.name || t('player');
+      av = prof.avatar;
+      avColor = prof.color;
+    }
+    $(key + 'Name').textContent = name;
+    renderAvatar($(key + 'Avatar'), av, avColor);
+    $(key).classList.toggle('active', !over && s.turn === col);
+  }
+  app.classList.toggle('flipped', !!flipped);
 }
 
 function render() {
@@ -1297,6 +2644,8 @@ function render() {
   const last = moves.length ? moves[moves.length - 1].m : null;
   const checkSq = inCheck(s, s.turn) ? s.board.indexOf(s.turn + 'K') : -1;
   const targets = selected != null ? legal.filter(m => m.from === selected) : [];
+  // 방금 둔 칸 연출은 둔 직후 한 번만(이후 다시 그릴 때는 붙이지 않음)
+  const jm = Date.now() - justMovedAt < 400 ? justMoved : -1;
   // 다시 그리면 칸 요소가 바뀌므로, 판에 포커스가 있었다면 그린 뒤 같은 칸으로 되돌림
   const hadFocus = boardEl.contains(document.activeElement);
   const frag = document.createDocumentFragment();
@@ -1317,19 +2666,14 @@ function render() {
     el.tabIndex = i === focusSq ? 0 : -1; // 로빙 tabindex: 판 전체에서 한 칸만 Tab 으로 들어옴
     el.setAttribute('aria-selected', selected === i ? 'true' : 'false');
     if (last && (last.from === i || last.to === i)) el.classList.add('last');
+    if (jm === i) el.classList.add('just-moved');
     if (selected === i) el.classList.add('sel');
     if (checkSq === i) el.classList.add('check');
     const tm = targets.find(m => m.to === i);
     if (tm) { el.classList.add('target'); if (tm.captured) el.classList.add('cap'); }
     const p = s.board[i];
     el.setAttribute('aria-label', sqLabel(i, p, !!tm));
-    if (p) {
-      const sp = document.createElement('span');
-      sp.className = 'piece ' + p[0];
-      sp.textContent = GLYPH[p[1]];
-      sp.setAttribute('aria-hidden', 'true');
-      el.appendChild(sp);
-    }
+    if (p) el.appendChild(pieceEl(p));
     if (di % 8 === 0) {
       const lab = document.createElement('span');
       lab.className = 'coord r';
@@ -1345,6 +2689,7 @@ function render() {
       el.appendChild(lab);
     }
     el.addEventListener('click', () => {
+      if (menuOpen()) return;
       focusSq = i;
       updateRoving();
       onSquare(i);
@@ -1366,7 +2711,7 @@ function render() {
     $('statusSub').textContent = thinking ? t('thinking') : (aiColor() && s.turn !== aiColor() ? t('yourTurn') : '');
   }
 
-  // captured
+  // captured (플레이어 패널: 백이 잡은 기물은 백 쪽, 흑이 잡은 기물은 흑 쪽)
   const capBy = { w: [], b: [] };
   for (const { m } of moves) if (m.captured) capBy[m.piece[0]].push(m.captured[1]);
   const order = 'QRBNP';
@@ -1378,6 +2723,7 @@ function render() {
   $('capB').textContent = pcs(capBy.b);
   $('advW').textContent = diff > 0 ? '+' + diff : '';
   $('advB').textContent = diff < 0 ? '+' + (-diff) : '';
+  syncPlayers();
 
   // move list
   const ml = $('moves');
@@ -1412,7 +2758,8 @@ function humanTurn() {
 }
 
 function onSquare(i) {
-  if (!humanTurn() || pendingPromo) return;
+  // 메뉴·시트가 열려 있으면 판 입력은 무시
+  if (root.dataset.menu || !humanTurn() || pendingPromo) return;
   const s = cur();
   const p = s.board[i];
   if (selected != null) {
@@ -1423,7 +2770,11 @@ function onSquare(i) {
       return;
     }
   }
-  selected = (p && p[0] === s.turn && selected !== i) ? i : null;
+  const pick = !!(p && p[0] === s.turn && selected !== i);
+  if (pick) Sfx.play('ui-move');
+  else if (selected != null && selected !== i) Sfx.play('illegal'); // 갈 수 없는 칸
+  else if (selected === i) Sfx.play('ui-back');                      // 같은 기물 다시 누름 → 선택 해제
+  selected = pick ? i : null;
   render();
 }
 
@@ -1446,6 +2797,7 @@ function updateRoving() {
 // 키보드: 방향키는 화면 기준(판을 뒤집어도 ↑ 는 항상 화면 위쪽), Enter/Space 는 클릭과 같음
 const ARROWS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 boardEl.addEventListener('keydown', e => {
+  if (root.dataset.menu) return;
   const d = ARROWS[e.key];
   if (d) {
     e.preventDefault();
@@ -1468,7 +2820,7 @@ boardEl.addEventListener('keyup', e => {
   if (e.key === ' ') { e.preventDefault(); onSquare(focusSq); }
 });
 
-// ----- 대화상자(승진·종료): 열 때 첫 버튼으로 포커스, 닫을 때 원래 자리로 -----
+// ----- 대화상자(승진·결과): 열 때 첫 버튼으로 포커스, 닫을 때 원래 자리로 -----
 let returnFocus = null;
 function openDialog(ov) {
   if (ov.classList.contains('show')) return;
@@ -1494,26 +2846,6 @@ function openOverlay() {
   if ($('endOverlay').classList.contains('show')) return $('endOverlay');
   return null;
 }
-// 열린 대화상자 안에서 Tab 순환, Esc 로 닫기(승진은 이동 취소)
-document.addEventListener('keydown', e => {
-  const ov = openOverlay();
-  if (!ov) return;
-  if (e.key === 'Escape') {
-    e.preventDefault();
-    if (ov.id === 'promo') cancelPromo();
-    else closeDialog(ov);
-  } else if (e.key === 'Tab') {
-    const btns = [...ov.querySelectorAll('button')];
-    if (!btns.length) return;
-    const k = btns.indexOf(document.activeElement), last = btns.length - 1;
-    let next = -1;
-    if (k < 0) next = e.shiftKey ? last : 0;
-    else if (e.shiftKey && k === 0) next = last;
-    else if (!e.shiftKey && k === last) next = 0;
-    if (next >= 0) { e.preventDefault(); btns[next].focus(); }
-  }
-});
-
 function showPromo(cands) {
   pendingPromo = cands;
   const row = $('promoRow');
@@ -1521,12 +2853,9 @@ function showPromo(cands) {
   const col = cur().turn;
   for (const pc of ['Q', 'R', 'B', 'N']) {
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.dataset.p = pc;
-    const sp = document.createElement('span');
-    sp.className = 'piece ' + col;
-    sp.textContent = GLYPH[pc];
-    sp.setAttribute('aria-hidden', 'true');
-    btn.appendChild(sp);
+    btn.appendChild(pieceEl(col + pc));
     btn.addEventListener('click', () => {
       const m = pendingPromo.find(x => x.promo === pc);
       pendingPromo = null;
@@ -1536,6 +2865,7 @@ function showPromo(cands) {
     row.appendChild(btn);
   }
   labelPromo();
+  Sfx.play('ui-ok');
   openDialog($('promo'));
 }
 function labelPromo() {
@@ -1551,7 +2881,20 @@ function cancelPromo() {
   pendingPromo = null;
   selected = null;
   closeDialog($('promo'));
+  Sfx.play('ui-back');
   render();
+}
+
+// ----- 토스트("체크!"): 판 위에 잠깐. 애니메이션이 꺼져 있어도 약 1.2초 뒤 JS 가 지움 -----
+let toastTimer = 0;
+function showToast(text) {
+  const el = $('gxToast');
+  el.textContent = text;
+  el.classList.remove('show');
+  void el.offsetWidth; // 다시 붙여 애니메이션을 처음부터
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1250);
 }
 
 function play(m) {
@@ -1562,17 +2905,29 @@ function play(m) {
   moves.push({ m, san });
   keys.push(posKey(ns));
   selected = null;
+  justMoved = m.to;
+  justMovedAt = Date.now();
   refresh();
+  // 끝났으면 결과 소리(refresh)만. 아니면 체크 > 승진 > 캐슬링 > 잡기 > 이동
+  if (!over) {
+    if (inCheck(ns, ns.turn)) {
+      Sfx.play('check');
+      showToast(t('checkToast'));
+    } else {
+      Sfx.play(m.promo ? 'promote' : (m.flag === 'castleK' || m.flag === 'castleQ') ? 'castle' : m.captured ? 'capture' : 'move');
+    }
+  }
   maybeAI();
 }
 
 function maybeAI() {
-  if (over || cur().turn !== aiColor()) return;
+  if (!started || over || cur().turn !== aiColor()) return;
   thinking = true;
   render();
   const myGen = gen;
   setTimeout(() => {
     if (myGen !== gen) return;
+    if (menuOpen()) { aiWaiting = myGen; return; } // 메뉴 중에는 두지 않고 닫을 때 이어서
     const m = bestMove(cur(), level);
     if (myGen !== gen) return;
     thinking = false;
@@ -1588,35 +2943,238 @@ function undo() {
   if (aiColor() && cur().turn === aiColor() && moves.length) pop();
   selected = null;
   pendingPromo = null;
+  justMoved = -1;
   closeDialog($('promo'));
   closeDialog($('endOverlay'));
+  Sfx.play('ui-back');
   refresh();
   maybeAI();
 }
 
-$('newBtn').addEventListener('click', newGame);
-$('endNew').addEventListener('click', newGame);
-$('endClose').addEventListener('click', () => closeDialog($('endOverlay')));
+$('endNew').addEventListener('click', () => { Sfx.play('start'); newGame(); });
+$('endClose').addEventListener('click', () => { Sfx.play('ui-back'); closeDialog($('endOverlay')); });
+$('endExit').addEventListener('click', leaveGame);
 $('promoCancel').addEventListener('click', cancelPromo);
 $('undoBtn').addEventListener('click', undo);
-$('flipBtn').addEventListener('click', () => { flipped = !flipped; render(); });
+$('flipBtn').addEventListener('click', () => { flipped = !flipped; Sfx.play('ui-move'); render(); });
 // 난이도는 게임 도중에도 바로 바뀜 (다음 AI 수부터 적용)
 $('levelSeg').addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b || b.disabled) return;
   level = +b.dataset.v;
   saveSettings();
-  syncSeg();
+  Sfx.play('ui-move');
+  render();
 });
-// 대전 방식을 바꾸면 새 게임 (진행 중이면 확인)
+// 대전 방식은 준비 시트에서 고르기만 하고, "대국 시작"을 누르면 새 게임으로 적용
 $('modeSeg').addEventListener('click', e => {
   const b = e.target.closest('button');
-  if (!b || b.dataset.v === mode) return;
-  if (moves.length && !over && !confirm(t('confirmMode'))) return;
-  mode = b.dataset.v;
-  saveSettings();
-  newGame();
+  if (!b) return;
+  pendMode = b.dataset.v;
+  Sfx.play('ui-move');
+  syncSeg();
 });
+
+// ===== 메뉴·시트: html[data-menu] = 'pause'|'settings'|'help'|'setup' (#gxMenu, 공유 GxMenu) | 'moves'(기보 시트) =====
+const Menu = GxMenu($('gxMenu'), {
+  button: $('menuBtn'),
+  fallbackFocus: () => sqEl(focusSq),
+  focusFor: name => (name === 'setup' ? $('setupStart') : null),
+  onShow(name) {
+    $('exitConfirm').hidden = true;
+    $('menuList').hidden = false;
+    if (name === 'setup') pendMode = mode; // 준비 시트는 지금 대전 방식에서 시작
+    syncSeg();
+  },
+  onEscape() {
+    if ($('exitConfirm').hidden) return false;
+    hideExitConfirm();
+    return true;
+  },
+  onClose() {
+    // 메뉴 때문에 미뤄 둔 AI 차례를 이어서
+    if (aiWaiting === gen) { aiWaiting = -1; maybeAI(); }
+  },
+});
+const menuOpen = () => Menu.isOpen();
+const movesOpen = () => root.dataset.menu === 'moves';
+function rememberFocus() {
+  const a = document.activeElement;
+  return boardEl.contains(a) ? 'board' : a;
+}
+function restoreFocus(r) {
+  if (r === 'board') focusSquare();
+  else GxUI.focusSafe(r);
+}
+// 일시정지 메뉴 열기. 결과 화면이 떠 있으면 그쪽이 먼저, 승진 선택 중이면 승진을 취소하고 연다
+function openPause() {
+  if (Menu.isOpen() || $('endOverlay').classList.contains('show')) return;
+  if (pendingPromo) cancelPromo();
+  if (movesOpen()) closeMoves(false);
+  Menu.open('pause', { returnTo: document.activeElement });
+}
+function showExitConfirm() {
+  $('menuList').hidden = true;
+  $('exitConfirm').hidden = false;
+  GxUI.focusSafe($('exitNo'));
+  Sfx.play('ui-move');
+}
+function hideExitConfirm() {
+  $('exitConfirm').hidden = true;
+  $('menuList').hidden = false;
+  GxUI.focusSafe($('menuExit'));
+  Sfx.play('ui-back');
+}
+// 진행 중(한 수라도 두었고 끝나지 않음)이면 나가기 전에 한 번 더 묻는다
+function inProgress() { return started && moves.length > 0 && !over; }
+function leaveGame() {
+  Sfx.play('ui-ok');
+  GxUI.leave('index.html#select');
+}
+// 준비 시트의 "대국 시작": 고른 대전 방식을 적용하고 새 게임
+function startMatch() {
+  mode = pendMode;
+  saveSettings();
+  started = true;
+  aiWaiting = -1;
+  Menu.close({ restore: false, silent: true });
+  newGame();
+  Sfx.play('start');
+  focusSquare();
+}
+
+$('menuBtn').addEventListener('click', openPause);
+$('menuResume').addEventListener('click', () => Menu.close());
+$('menuRestart').addEventListener('click', () => Menu.push('setup'));
+$('menuSettings').addEventListener('click', () => Menu.push('settings'));
+$('menuHelp').addEventListener('click', () => Menu.push('help'));
+$('settingsSetup').addEventListener('click', () => Menu.push('setup'));
+$('setupStart').addEventListener('click', startMatch);
+// 준비 시트의 나가기: 대국 전 화면이므로 확인 없이 바로
+$('setupExit').addEventListener('click', () => { Sfx.play('ui-ok'); GxUI.leave('index.html#select'); });
+$('menuExit').addEventListener('click', () => {
+  if (inProgress()) showExitConfirm();
+  else leaveGame();
+});
+$('exitYes').addEventListener('click', leaveGame);
+$('exitNo').addEventListener('click', hideExitConfirm);
+// 마우스를 올리면 그 항목으로 커서 ▶ 이동
+$('menuList').addEventListener('pointerover', e => {
+  if (e.pointerType !== 'mouse') return;
+  const b = e.target.closest('.gx-btn');
+  if (b && b !== document.activeElement) GxUI.focusSafe(b);
+});
+
+// ----- 기보 시트(좁은 화면): html[data-menu="moves"] → .side 가 가운데 시트로 -----
+let movesReturn = null;
+function openMoves() {
+  if (Menu.isOpen()) return;
+  movesReturn = rememberFocus();
+  root.dataset.menu = 'moves';
+  $('movesBtn').setAttribute('aria-expanded', 'true');
+  Sfx.play('menu-open');
+  const ml = $('moves');
+  ml.scrollTop = ml.scrollHeight;
+  GxUI.focusSafe($('movesBack'));
+}
+function closeMoves(restore = true) {
+  if (!movesOpen()) return;
+  root.dataset.menu = '';
+  $('movesBtn').setAttribute('aria-expanded', 'false');
+  Sfx.play('menu-close');
+  const r = movesReturn;
+  movesReturn = null;
+  if (restore) restoreFocus(r);
+}
+$('movesBtn').addEventListener('click', () => { if (movesOpen()) closeMoves(); else openMoves(); });
+$('movesBack').addEventListener('click', () => closeMoves());
+// 넓은 화면으로 바뀌어 기보가 오른쪽 패널로 돌아가면(#movesBack 안 보임) 시트 상태도 닫음
+function checkMovesSheet() {
+  if (movesOpen() && !$('movesBack').getClientRects().length) closeMoves(false);
+}
+window.addEventListener('resize', checkMovesSheet);
+// 기보 시트 바깥을 누르면 닫기. 그 누름이 판 클릭으로 이어지지 않게 다음 click 한 번은 삼킴
+let swallowClick = false;
+document.addEventListener('pointerdown', e => {
+  swallowClick = false;
+  if (!movesOpen() || !e.target.closest) return;
+  if (e.target.closest('#side, #movesBtn')) return;
+  closeMoves(false);
+  swallowClick = true;
+  setTimeout(() => { swallowClick = false; }, 600);
+});
+document.addEventListener('click', e => {
+  if (!swallowClick) return;
+  swallowClick = false;
+  e.stopPropagation();
+  e.preventDefault();
+}, true);
+
+// ----- 키보드 (우선순위: 승진 창 → 결과 화면 → 메뉴(GxMenu 가 Esc·Tab·↑↓ 처리) → 기보 시트 → 판) -----
+const isTyping = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"]'));
+document.addEventListener('keydown', e => {
+  const ov = openOverlay();
+  if (ov) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (ov.id === 'promo') cancelPromo();
+      else { Sfx.play('ui-back'); closeDialog(ov); }
+    } else if (e.key === 'Tab') {
+      GxUI.trapTab(ov, e);
+    }
+    return;
+  }
+  if (Menu.isOpen()) {
+    // 준비 시트: Enter = 대국 시작. 단 대전 방식·난이도 버튼([role=group] 안), 뒤로, 나가기 버튼에서는
+    // 막지 않음 → 브라우저 기본 동작으로 그 버튼이 눌림
+    const a = document.activeElement;
+    if (e.key === 'Enter' && !e.repeat && !e.defaultPrevented && Menu.current() === 'setup' &&
+        !(a && a.closest && (a.closest('[role="group"], [data-back]') || a.id === 'setupExit'))) {
+      e.preventDefault();
+      startMatch();
+    }
+    return;
+  }
+  if (e.defaultPrevented) return;
+  if (movesOpen()) {
+    if (e.key === 'Escape') { e.preventDefault(); closeMoves(); }
+    else if (e.key === 'Tab') GxUI.trapTab($('side'), e);
+    return;
+  }
+  if (e.isComposing || e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
+  if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+    if (e.repeat) return;
+    e.preventDefault();
+    openPause();
+  }
+});
+
+// ----- 설정: 소리 / 꾸미기 (화면 테마 스와치는 공유 UI 테마 블록이 연결) -----
+$('soundBtn').addEventListener('click', () => Sfx.toggle());
+$('soundToggle').addEventListener('click', () => Sfx.toggle());
+$('skinPieces').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]');
+  if (!b || !SKIN_PIECES.includes(b.dataset.v)) return;
+  skin.pieces = b.dataset.v;
+  saveSkin();
+  applySkin();
+  Sfx.play('ui-move');
+  render();
+  if (pendingPromo) showPromoPieces();
+});
+$('skinBoard').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]');
+  if (!b || !SKIN_BOARDS.includes(b.dataset.v)) return;
+  skin.board = b.dataset.v;
+  saveSkin();
+  applySkin();
+  Sfx.play('ui-move');
+});
+// 승진 창이 열린 채 말 세트를 바꾸면 창 안 그림도 바꿈
+function showPromoPieces() {
+  const col = cur().turn;
+  for (const btn of $('promoRow').children) btn.replaceChildren(pieceEl(col + btn.dataset.p));
+}
 
 // 화면 배치(모바일/PC): 상태는 html[data-layout], 저장은 사이트 공통 키 games-layout
 function syncLayoutSeg() {
@@ -1629,66 +3187,36 @@ document.getElementById('layoutSeg').addEventListener('click', e => {
   if (!b) return;
   applyLayout(b.dataset.v);
   try { localStorage.setItem('games-layout', b.dataset.v); } catch (err) {}
-  closePanel(false);
+  Sfx.play('ui-move');
   syncLayoutSeg();
 });
 // 다른 탭에서 바꾸면 따라감
 window.addEventListener('storage', e => {
   if (e.key === 'games-layout' && (e.newValue === 'mobile' || e.newValue === 'pc')) {
     applyLayout(e.newValue);
-    closePanel(false);
     syncLayoutSeg();
+    checkMovesSheet();
+  } else if (e.key === 'chess-skin') {
+    skin = readSkin(e.newValue);
+    applySkin();
+    render();
+    if (pendingPromo) showPromoPieces();
+  } else if (e.key === 'games-profile' || e.key === null) {
+    syncPlayers();
+  } else if (e.key === 'games-lang' && I18N[e.newValue] && e.newValue !== lang) {
+    lang = e.newValue;
+    applyLang();
+    render();
   }
 });
 syncLayoutSeg();
 
-// ===== 모바일 패널 (.app[data-open] = 열린 패널 id, 한 번에 하나. PC 배치에선 무효) =====
-const app = document.querySelector('.app');
-const isMobileLayout = () => document.documentElement.dataset.layout === 'mobile';
-let panelOpener = null; // 패널을 연 도구 버튼 → 닫을 때 포커스 복귀
-function syncTools() {
-  const open = app.dataset.open || '';
-  document.querySelectorAll('.tool[data-panel]').forEach(b => b.setAttribute('aria-expanded', b.dataset.panel === open ? 'true' : 'false'));
-}
-function openPanel(id, opener) {
-  const panel = document.querySelector('[data-panel-id="' + id + '"]');
-  if (!isMobileLayout() || !panel) return;
-  app.dataset.open = id;
-  panelOpener = opener || document.querySelector('.tool[data-panel="' + id + '"]');
-  syncTools();
-  const f = panel.querySelector('.panel-close') || panel.querySelector('button:not([disabled])');
-  if (f) f.focus();
-}
-function closePanel(restoreFocus) {
-  const o = panelOpener;
-  panelOpener = null;
-  if (!app.hasAttribute('data-open')) return;
-  app.removeAttribute('data-open');
-  syncTools();
-  if (restoreFocus && o && isMobileLayout()) o.focus({ preventScroll: true });
-}
-document.querySelector('.tool-group').addEventListener('click', e => {
-  const b = e.target.closest('.tool[data-panel]');
-  if (!b) return;
-  if (app.dataset.open === b.dataset.panel) closePanel(true);
-  else openPanel(b.dataset.panel, b);
-});
-document.querySelectorAll('[data-panel-id] .panel-close').forEach(b => b.addEventListener('click', () => closePanel(true)));
-document.addEventListener('keydown', e => {
-  if (e.defaultPrevented) return; // 대화상자 Esc가 먼저 처리했으면 패널은 그대로 둔다
-  if (e.key !== 'Escape' || !app.hasAttribute('data-open')) return;
-  e.preventDefault();
-  closePanel(true);
-});
-// 패널·도구 막대 바깥 탭 → 닫기. 판(.board-wrap: 판과 그 위 대화상자)은 제외 → 패널을 연 채로 수를 둘 수 있음
-document.addEventListener('pointerdown', e => {
-  if (!app.hasAttribute('data-open') || !e.target.closest) return;
-  if (e.target.closest('[data-panel-id], .tool-group, .board-wrap')) return;
-  closePanel(false);
-});
-
+// ----- 시작: 판은 초기 배치로 그려 두고, 준비 시트(뒤로 없음)를 연다 -----
 applyLang();
+applySkin();
 newGame();
+Menu.open('setup', { locked: true, returnTo: sqEl(focusSq) });
+GxUI.enter();
 </script>
 </body>
 </html>

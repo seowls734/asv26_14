@@ -42,7 +42,15 @@ st.setProperty('--page-bg',hex);st.setProperty('--on-page',c.main);st.setPropert
 (function(){var b=null;
 try{b=localStorage.getItem('games-hub-bg')}catch(e){}
 try{applyPageBg(b&&HUB_BG_RE.test(b)?b.toLowerCase():'')}catch(e){}
-})();</script>
+})();
+// ===== [공유] UI 테마 head 시작 =====
+// 첫 렌더 전에 html[data-ui] 적용(깜빡임 방지). 사이트 공통 키 games-ui-theme = classic|gameboy|neon|famicom
+(function(){var v;try{v=localStorage.getItem('games-ui-theme')}catch(e){}
+document.documentElement.setAttribute('data-ui',(v==='gameboy'||v==='neon'||v==='famicom')?v:'classic');
+})();
+// ===== [공유] UI 테마 head 끝 =====
+/* 게임에서 index.html#select 로 돌아올 때: 첫 렌더부터 와이프로 덮고 본문 스크립트가 걷어냄 (reduced-motion 이면 생략) */
+(function(){try{if(location.hash==='#select'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('gx-enter')}catch(e){}})();</script>
 <style>
   :root {
     --bg: #f4f1ea;
@@ -83,7 +91,19 @@ try{applyPageBg(b&&HUB_BG_RE.test(b)?b.toLowerCase():'')}catch(e){}
     --title-from: #d9531a; --title-to: #8b5e34; --title-edge: #5e3d1f;
     --gold: #b86e00; --gold-hi: #f2b632; --gold-lo: #7a4100; --ray: rgba(242, 182, 50, .30);
     --row-alt: rgba(139, 94, 52, .07);
-    /* 사용자 배경색: --page-bg 는 페이지 바탕, --on-page / --on-page-muted 는 바탕 위에 직접 놓이는 것(카드·헤더 패널 밖).
+    /* 레트로 픽셀 공통 (4파일 같은 이름) */
+    --px: 4px;
+    --ink: #1b1622; --hud-bg: #2b2238; --hud-text: #f4ead2; --hud-muted: #b9ab90; --hud-edge: #0f0b14;
+    --win: #2f8f3c; --lose: #c8323c; --draw: #6e6452; --scanline: rgba(0, 0, 0, .05);
+    /* 프로필 아바타 색 (K1, 라이트/다크 같은 값) */
+    --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+    --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+    /* UI 테마 미리보기 칩 (K2): 1 = primary, 2 = hud-bg */
+    --th-classic-1: #b93a0a; --th-classic-2: #2b2238;
+    --th-gameboy-1: #306230; --th-gameboy-2: #0f380f;
+    --th-neon-1: #7b2ff7; --th-neon-2: #1a0b2e;
+    --th-famicom-1: #b21f2d; --th-famicom-2: #3a3a3a;
+    /* 사용자 배경색: --page-bg 는 페이지 바탕, --on-page / --on-page-muted 는 바탕 위에 직접 놓이는 것(패널 밖).
        JS 가 사용자 색을 고르면 documentElement.style 에 세 값을 덮어씀 (글자색은 배경 휘도로 계산) */
     --page-bg: var(--bg); --on-page: var(--text); --on-page-muted: var(--muted);
   }
@@ -107,6 +127,15 @@ try{applyPageBg(b&&HUB_BG_RE.test(b)?b.toLowerCase():'')}catch(e){}
       --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
       --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
       --row-alt: rgba(255, 255, 255, .04);
+      --px: 4px;
+      --ink: #0b0910; --hud-bg: #17121f; --hud-text: #f4ead2; --hud-muted: #a89c86; --hud-edge: #000000;
+      --win: #5fd46d; --lose: #ff5a64; --draw: #b8ad96; --scanline: rgba(0, 0, 0, .18);
+      --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+      --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+      --th-classic-1: #ff8a3d; --th-classic-2: #17121f;
+      --th-gameboy-1: #8bac0f; --th-gameboy-2: #0f380f;
+      --th-neon-1: #00e5ff; --th-neon-2: #12061f;
+      --th-famicom-1: #ff5a66; --th-famicom-2: #222222;
       --page-bg: var(--bg); --on-page: var(--text); --on-page-muted: var(--muted);
     }
   }
@@ -129,384 +158,857 @@ try{applyPageBg(b&&HUB_BG_RE.test(b)?b.toLowerCase():'')}catch(e){}
     --title-from: #ffd27a; --title-to: #ff8a3d; --title-edge: #5a2a0a;
     --gold: #ffc94d; --gold-hi: #ffe08a; --gold-lo: #e09a1a; --ray: rgba(255, 201, 77, .16);
     --row-alt: rgba(255, 255, 255, .04);
+    --px: 4px;
+    --ink: #0b0910; --hud-bg: #17121f; --hud-text: #f4ead2; --hud-muted: #a89c86; --hud-edge: #000000;
+    --win: #5fd46d; --lose: #ff5a64; --draw: #b8ad96; --scanline: rgba(0, 0, 0, .18);
+    --av-red: #e04848; --av-orange: #f08c2a; --av-yellow: #e8c020; --av-green: #3fae4a;
+    --av-cyan: #2bb8c8; --av-blue: #3a6ee8; --av-purple: #8a52e0; --av-pink: #e85aa8; --av-white: #ffffff;
+    --th-classic-1: #ff8a3d; --th-classic-2: #17121f;
+    --th-gameboy-1: #8bac0f; --th-gameboy-2: #0f380f;
+    --th-neon-1: #00e5ff; --th-neon-2: #12061f;
+    --th-famicom-1: #ff5a66; --th-famicom-2: #222222;
     --page-bg: var(--bg); --on-page: var(--text); --on-page-muted: var(--muted);
   }
+
+  /* ===== UI 테마 팔레트 (K2) — html[data-ui]. 기본 블록들 뒤에 두어 라이트 값이 다크에서도 기본값을 덮고,
+     다크 전용 값은 아래 다크 2곳(우선순위 0,3,0)에서 다시 덮음 ===== */
+  :root[data-ui="gameboy"] {
+    --primary: #306230; --primary-hi: #4a7f3a; --primary-lo: #0f380f; --primary-text: #e0f8d0;
+    --hud-bg: #0f380f; --hud-text: #e0f8d0; --hud-muted: #9bbc0f; --hud-edge: #071c07;
+    --frame: #8bac0f; --glow: rgba(139, 172, 15, .45);
+    --title-from: #9bbc0f; --title-to: #306230; --title-edge: #0f380f;
+  }
+  :root[data-ui="neon"] {
+    --primary: #7b2ff7; --primary-hi: #9a5cff; --primary-lo: #4a10a8; --primary-text: #ffffff;
+    --hud-bg: #1a0b2e; --hud-text: #f0e6ff; --hud-muted: #c3a6ff; --hud-edge: #0a0414;
+    --frame: #c3a6ff; --glow: rgba(0, 229, 255, .40);
+    --title-from: #00b8d4; --title-to: #7b2ff7; --title-edge: #2a0a5e;
+  }
+  :root[data-ui="famicom"] {
+    --primary: #b21f2d; --primary-hi: #d23a46; --primary-lo: #6e0f18; --primary-text: #ffffff;
+    --hud-bg: #3a3a3a; --hud-text: #f2ead8; --hud-muted: #c8bea8; --hud-edge: #1a1a1a;
+    --frame: #c8bea8; --glow: rgba(178, 31, 45, .35);
+    --title-from: #d23a46; --title-to: #8a1420; --title-edge: #3a0a0f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-ui="gameboy"]:not([data-theme="light"]) {
+      --primary: #8bac0f; --primary-hi: #9bbc0f; --primary-lo: #306230; --primary-text: #0f380f;
+      --title-from: #e0f8d0; --title-to: #9bbc0f;
+    }
+    :root[data-ui="neon"]:not([data-theme="light"]) {
+      --primary: #00e5ff; --primary-hi: #6ff6ff; --primary-lo: #008ba3; --primary-text: #0a0414;
+      --hud-bg: #12061f; --frame: #4a2a7a;
+      --title-from: #6ff6ff; --title-to: #ff4fd8;
+    }
+    :root[data-ui="famicom"]:not([data-theme="light"]) {
+      --primary: #ff5a66; --primary-hi: #ff8a92; --primary-lo: #a8202c; --primary-text: #1a1a1a;
+      --hud-bg: #222222; --frame: #4a4440;
+      --title-from: #ffd27a; --title-to: #ff5a66;
+    }
+  }
+  :root[data-ui="gameboy"][data-theme="dark"] {
+    --primary: #8bac0f; --primary-hi: #9bbc0f; --primary-lo: #306230; --primary-text: #0f380f;
+    --title-from: #e0f8d0; --title-to: #9bbc0f;
+  }
+  :root[data-ui="neon"][data-theme="dark"] {
+    --primary: #00e5ff; --primary-hi: #6ff6ff; --primary-lo: #008ba3; --primary-text: #0a0414;
+    --hud-bg: #12061f; --frame: #4a2a7a;
+    --title-from: #6ff6ff; --title-to: #ff4fd8;
+  }
+  :root[data-ui="famicom"][data-theme="dark"] {
+    --primary: #ff5a66; --primary-hi: #ff8a92; --primary-lo: #a8202c; --primary-text: #1a1a1a;
+    --hud-bg: #222222; --frame: #4a4440;
+    --title-from: #ffd27a; --title-to: #ff5a66;
+  }
+
+  /* 색 아닌 레이아웃 변수: --vh = 화면 높이(dvh 지원 시 dvh), --icon = 아이콘 버튼 한 변 */
+  :root { --vh: 100vh; --icon: 44px; }
+  @supports (height: 100dvh) { :root { --vh: 100dvh; } }
+  /* 폰에서 PC 모드(viewport 1280 축소)일 때만 --vp-zoom 이 있음 → 실제 손가락 크기 유지 */
+  :root[data-layout="pc"] { --icon: calc(44px * var(--vp-zoom, 1)); }
+
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  [hidden] { display: none !important; }
+  /* 한 화면 고정: 페이지 스크롤 없음 */
+  html, body { margin: 0; height: 100%; overflow: hidden; }
   body {
     background-color: var(--page-bg);
-    background-image:
-      radial-gradient(ellipse at 50% 0%, transparent 45%, var(--vignette) 100%),
-      radial-gradient(var(--pattern) 1.5px, transparent 2px);
-    background-size: 100% 100%, 22px 22px;
+    background-image: radial-gradient(var(--pattern) 0 2px, transparent 2px);
+    background-size: 22px 22px;
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-    min-height: 100vh;
-    /* 좁은 폭 규칙은 @container 로 body 폭을 기준으로 적용 → 모바일 모드에서 body 폭을 줄이면 같은 규칙이 그대로 적용됨 */
-    container-type: inline-size;
   }
   /* 화면 배치: 모바일 모드는 화면 폭과 관계없이 폭 480px 세로 배치, 가운데 정렬 */
   :root[data-layout="mobile"] body { max-width: 480px; margin: 0 auto; }
+  /* 얇은 스캔라인 (가독성 해치지 않게 약하게) */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none;
+    background: repeating-linear-gradient(0deg, var(--scanline) 0 1px, transparent 1px 3px);
+  }
+  /* 페이지 진입/퇴장 블록 와이프 (html.gx-enter / html.gx-leave, 250ms) */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
+    background: var(--ink); clip-path: inset(0 0 100% 0);
+  }
+  html.gx-leave body::after { animation: gx-wipe-out .25s steps(5) forwards; }
+  html.gx-enter body::after { animation: gx-wipe-in .25s steps(5) forwards; }
+  @keyframes gx-wipe-out { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+  @keyframes gx-wipe-in { from { clip-path: inset(0); } to { clip-path: inset(100% 0 0 0); } }
+
   .sr-only {
     position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
     overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
   }
-  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .sprites { position: absolute; width: 0; height: 0; overflow: hidden; }
+  /* 픽셀 포커스 링: 바깥 4px 픽셀 테두리에 가리지 않게 띄움 */
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: calc(var(--px) + 3px); }
   :focus:not(:focus-visible) { outline: none; }
-  .wrap { max-width: 900px; margin: 0 auto; padding: 28px 16px 48px; }
 
-  /* ===== 타이틀 화면 헤더 ===== */
-  .top {
-    position: relative; display: flex; align-items: center; gap: 14px 16px; flex-wrap: wrap;
-    margin-bottom: 30px; padding: 30px 22px 26px;
-    border: 3px solid var(--frame); border-radius: 22px;
-    background:
-      radial-gradient(ellipse at 15% 0%, var(--panel-hi), transparent 65%),
-      repeating-linear-gradient(135deg, var(--pattern) 0 10px, transparent 10px 20px),
-      var(--panel);
-    box-shadow: inset 0 1px 0 var(--frame-hi), 0 6px 0 var(--frame), 0 16px 32px var(--shadow);
+  /* ===== 픽셀 박스 공통: 모서리 1칸 깎인 테두리 + 위 밝은 면/아래 어두운 면 + 딱딱한 바닥 그림자 =====
+     요소별로 --edge(테두리) --lit(위 면) --shade(아래 면) --drop(바닥 두께) 만 바꿈 */
+  :where(.gx-btn, .gx-icon, .gx-profile, .gx-menu-box, .gx-input, .marquee, .slot, .info-bar, select.lang, .seg,
+         .swatch, .swatch-custom, .play, .ui-sw, .av-cell, .av-color, .gx-avatar) {
+    --edge: var(--ink); --lit: transparent; --shade: transparent; --drop: 0px;
+    border-radius: 0;
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--edge),
+      0 var(--px) 0 0 var(--edge),
+      calc(-1 * var(--px)) 0 0 0 var(--edge),
+      var(--px) 0 0 0 var(--edge),
+      0 calc(var(--px) + var(--drop)) 0 0 var(--ink),
+      inset 0 calc(-1 * var(--px)) 0 0 var(--shade),
+      inset 0 var(--px) 0 0 var(--lit);
   }
-  /* 아케이드 마키 전구 (위·아래) */
-  .top::before, .top::after {
-    content: ""; position: absolute; left: 18px; right: 18px; height: 10px; pointer-events: none;
-    background: radial-gradient(circle, var(--gold-hi) 0 2.5px, var(--gold) 2.5px 3.5px, transparent 4px) 0 50% / 16px 10px repeat-x;
-    animation: gx-marquee 1.2s steps(2) infinite;
+
+  /* ===== 버튼 ===== */
+  .gx-btn {
+    font: inherit; font-weight: 900; letter-spacing: .06em;
+    display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+    min-height: 44px; padding: 8px 18px; margin: var(--px);
+    color: var(--text); background: var(--btn); border: 0; cursor: pointer;
+    --lit: var(--btn-hi); --shade: var(--btn-edge); --drop: var(--px);
+    -webkit-tap-highlight-color: transparent;
   }
-  .top::before { top: 7px; }
-  .top::after { bottom: 7px; animation-direction: reverse; }
-  @keyframes gx-marquee { to { background-position: 16px 50%; } }
-  .brand { min-width: 0; flex: 1 1 auto; }   /* 기준 폭 = 제목 길이 → 긴 제목(de)은 잘리지 않고 버튼 줄이 아래로 내려감 */
-  h1 {
-    font-size: clamp(32px, 8cqw, 46px); margin: 0; font-weight: 900; letter-spacing: .02em; line-height: 1.1;
-    color: var(--title-to);
-    filter: drop-shadow(0 3px 0 var(--title-edge)) drop-shadow(0 6px 8px var(--shadow));
+  .gx-btn.primary { background: var(--primary); color: var(--primary-text); --lit: var(--primary-hi); --shade: var(--primary-lo); }
+  .gx-btn:active:not(:disabled) { transform: translateY(var(--px)); --drop: 0px; }
+  .gx-btn:disabled { opacity: .5; cursor: default; }
+  @media (hover: hover) {
+    .gx-btn:not(:disabled):not(.primary):hover { background: var(--btn-hi); }
+    .gx-btn.primary:not(:disabled):hover { background: var(--primary-hi); }
   }
-  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-    h1 {
-      background: linear-gradient(180deg, var(--title-from) 20%, var(--title-to) 85%);
-      -webkit-background-clip: text; background-clip: text;
-      -webkit-text-fill-color: transparent;
+  /* ON/OFF 토글: aria-pressed 로 글자·색이 바뀜 (JS 는 aria-pressed 만 바꾸면 됨) */
+  .gx-toggle { min-width: 5.5em; }
+  .gx-toggle[aria-pressed="true"] { background: var(--primary); color: var(--primary-text); --lit: var(--primary-hi); --shade: var(--primary-lo); }
+  .gx-toggle[aria-pressed="true"] .t-off, .gx-toggle:not([aria-pressed="true"]) .t-on { display: none; }
+
+  .gx-icon {
+    width: var(--icon); height: var(--icon); padding: 0; margin: var(--px);
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    color: var(--text); background: var(--btn); border: 0; cursor: pointer;
+    --lit: var(--btn-hi); --shade: var(--btn-edge); --drop: var(--px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .gx-icon svg { width: calc(var(--icon) * .55); height: calc(var(--icon) * .55); display: block; }
+  .gx-icon:active { transform: translateY(var(--px)); --drop: 0px; }
+  .gx-icon[aria-expanded="true"] { background: var(--primary); color: var(--primary-text); --lit: var(--primary-hi); --shade: var(--primary-lo); }
+  @media (hover: hover) { .gx-icon:not([aria-expanded="true"]):hover { background: var(--btn-hi); } }
+  /* 소리 아이콘: aria-pressed="false" 면 X 표시 */
+  #soundBtn[aria-pressed="false"] .snd-on, #soundBtn:not([aria-pressed="false"]) .snd-off { display: none; }
+  #soundBtn[aria-pressed="false"] { color: var(--muted); }
+
+  /* ===== 무대 / 화면 ===== */
+  .stage {
+    position: relative; height: 100%; height: var(--vh); overflow: hidden;
+    /* 좁은 폭 규칙은 @container 로 무대 폭 기준 → 모바일 모드(480px)에서도 같은 규칙 */
+    container-type: inline-size;
+  }
+  @media (min-width: 540px) {
+    :root[data-layout="mobile"] .stage { box-shadow: calc(-1 * var(--px)) 0 0 0 var(--ink), var(--px) 0 0 0 var(--ink); }
+  }
+  /* 위쪽 고정 막대: 왼쪽 프로필 칩, 오른쪽 설정·소리 */
+  .corner { position: absolute; top: 8px; z-index: 10; display: flex; align-items: center; gap: 4px; }
+  .corner-r { right: 8px; }
+  .corner-l { left: 8px; max-width: calc(100% - var(--icon) * 2 - 48px); }
+  .screen {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    animation: gx-screen-in .24s steps(4) both;
+  }
+  @keyframes gx-screen-in { from { opacity: 0; } }
+
+  /* ===== 프로필 칩 (K1) ===== */
+  .gx-profile {
+    font: inherit; font-size: 14px; font-weight: 900; letter-spacing: .04em;
+    display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%;
+    min-height: var(--icon); margin: var(--px); padding: 4px 12px 4px 6px;
+    color: var(--hud-text); background: var(--hud-bg); border: 0; cursor: pointer;
+    --shade: var(--hud-edge); --lit: var(--primary); --drop: var(--px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  :root[data-layout="pc"] .gx-profile { font-size: calc(14px * min(var(--vp-zoom, 1), 2.8)); padding: calc(4px * var(--vp-zoom, 1)) calc(12px * var(--vp-zoom, 1)); }
+  .gx-profile:active { transform: translateY(var(--px)); --drop: 0px; }
+  .gx-profile[aria-expanded="true"] { --edge: var(--primary); }
+  .gx-profile-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gx-profile .gx-avatar { --av-size: calc(var(--icon) - 16px); --px: 2px; margin: 2px; }
+  /* 아바타 칸: JS 가 안에 픽셀 SVG(crispEdges)를 그림 */
+  .gx-avatar {
+    --av-size: 32px;
+    display: inline-block; flex: none; width: var(--av-size); height: var(--av-size);
+    background: var(--panel-hi); overflow: hidden;
+  }
+  .gx-avatar svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
+  /* 공유 renderAvatar 가 넣는 rect.av-x / .av-o / .av-w 와 data-av-color (게임 페이지와 같은 규칙, 프로필 시트 .av-cell 포함) */
+  .gx-avatar, .av-cell { --av-c: var(--av-red); }
+  :is(.gx-avatar, .av-cell)[data-av-color="orange"] { --av-c: var(--av-orange); }
+  :is(.gx-avatar, .av-cell)[data-av-color="yellow"] { --av-c: var(--av-yellow); }
+  :is(.gx-avatar, .av-cell)[data-av-color="green"] { --av-c: var(--av-green); }
+  :is(.gx-avatar, .av-cell)[data-av-color="cyan"] { --av-c: var(--av-cyan); }
+  :is(.gx-avatar, .av-cell)[data-av-color="blue"] { --av-c: var(--av-blue); }
+  :is(.gx-avatar, .av-cell)[data-av-color="purple"] { --av-c: var(--av-purple); }
+  :is(.gx-avatar, .av-cell)[data-av-color="pink"] { --av-c: var(--av-pink); }
+  :is(.gx-avatar, .av-cell) .av-x { fill: var(--av-c); }
+  :is(.gx-avatar, .av-cell) .av-o { fill: var(--ink); }
+  :is(.gx-avatar, .av-cell) .av-w { fill: var(--av-white); }
+
+  /* ===== 타이틀 화면 ===== */
+  .scr-title {
+    align-items: center; justify-content: center; text-align: center;
+    gap: clamp(12px, calc(var(--vh) * .04), 40px);
+    padding: calc(var(--icon) + 28px) 16px 24px;
+    cursor: pointer; -webkit-user-select: none; user-select: none;
+  }
+  .floaters { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .fl { position: absolute; width: var(--s, 24px); height: auto; animation: gx-bob 1.4s steps(2, jump-none) infinite alternate; }
+  .fl1 { --s: 28px; left: 6%; top: 18%; color: var(--gold-hi); }
+  .fl2 { --s: 22px; right: 9%; top: 26%; color: var(--c-charger); animation-delay: -.7s; }
+  .fl3 { --s: 26px; left: 11%; bottom: 14%; color: var(--c-healer); animation-delay: -.35s; }
+  .fl4 { --s: 30px; right: 13%; bottom: 18%; color: var(--c-twin); }
+  .fl5 { --s: 18px; left: 47%; bottom: 5%; color: var(--c-spike); animation-delay: -.5s; }
+  .fl6 { --s: 16px; left: 30%; top: 9%; color: var(--c-shooter); animation-delay: -.9s; }
+  @keyframes gx-bob { to { transform: translateY(calc(-2 * var(--px))); } }
+
+  .marquee {
+    position: relative; z-index: 1;
+    width: min(calc(100% - 2 * var(--px)), 760px); margin: var(--px);
+    padding: clamp(24px, calc(var(--vh) * .055), 48px) clamp(14px, 4cqw, 44px);
+    background: var(--hud-bg); color: var(--hud-text);
+    --lit: var(--primary); --shade: var(--hud-edge); --drop: calc(var(--px) * 2);
+  }
+  /* 아케이드 마키 전구 (네모 도트, 밝은/어두운 전구가 번갈아 깜빡임) */
+  .marquee::before, .marquee::after {
+    content: ""; position: absolute; left: 14px; right: 14px; height: 6px; pointer-events: none;
+    background: linear-gradient(90deg, var(--gold-hi) 0 6px, transparent 6px 8px, var(--gold-lo) 8px 14px, transparent 14px 16px) 0 0 / 16px 6px repeat-x;
+    animation: gx-marquee .8s steps(2, jump-none) infinite;
+  }
+  .marquee::before { top: 10px; }
+  .marquee::after { bottom: 10px; animation-direction: reverse; }
+  @keyframes gx-marquee { to { background-position: 8px 0; } }
+  .logo-deco { display: block; width: clamp(140px, 34cqw, 260px); height: auto; margin: 0 auto clamp(10px, 2.4vh, 18px); }
+  .logo {
+    margin: 0; font-weight: 900; letter-spacing: .06em; line-height: 1.15;
+    font-size: clamp(26px, min(8.5cqw, calc(var(--vh) * .11)), 76px);
+    color: var(--hud-text);
+    text-shadow: 3px 3px 0 var(--title-from), 6px 6px 0 var(--title-to);
+    overflow-wrap: anywhere;
+  }
+  .sub { margin: .9em 0 0; color: var(--hud-text); font-weight: 700; font-size: clamp(13px, 2.6cqw, 18px); letter-spacing: .04em; }
+  .press {
+    position: relative; z-index: 1;
+    font: inherit; font-weight: 900; letter-spacing: .08em; font-size: clamp(15px, 3.6cqw, 22px);
+    display: inline-flex; align-items: center; gap: .6em;
+    min-height: 44px; padding: 8px 16px; color: var(--on-page); background: transparent; border: 0; cursor: pointer;
+    animation: gx-blink 1.2s steps(2, jump-none) infinite alternate;
+  }
+  .press::before {
+    content: ""; flex: none; width: 12px; height: 20px; background: currentColor;
+    clip-path: polygon(0 0, 4px 0, 4px 4px, 8px 4px, 8px 8px, 12px 8px, 12px 12px, 8px 12px, 8px 16px, 4px 16px, 4px 20px, 0 20px);
+    animation: gx-nudge .5s steps(2, jump-none) infinite alternate;
+  }
+  @keyframes gx-blink { to { opacity: .5; } }
+  @keyframes gx-nudge { to { transform: translateX(var(--px)); } }
+
+  /* ===== 게임 선택 화면 ===== */
+  .scr-select {
+    padding: calc(var(--icon) + 20px) 16px 16px; gap: 10px;
+    --slot-gap: clamp(16px, 3cqw, 44px);
+    --slot-w: max(150px, min(calc((100cqw - 32px - 2 * var(--slot-gap)) / 3.25), calc((var(--vh) - 420px) * 1.6), 380px));
+    --row-thumb: clamp(64px, min(calc((var(--vh) - 400px) * .45), 30cqw), 140px);
+  }
+  .sel-head { flex: none; text-align: center; }
+  .mini-logo { margin: 0 0 2px; font-size: 12px; font-weight: 900; letter-spacing: .14em; color: var(--on-page-muted); }
+  .sel-title {
+    margin: 0; font-size: clamp(20px, 3.4cqw, 32px); font-weight: 900; letter-spacing: .06em; line-height: 1.2;
+    color: var(--on-page); text-shadow: 2px 2px 0 var(--primary);
+  }
+  .slots {
+    flex: 1 1 auto; min-height: 0; margin: 0;
+    display: flex; align-items: center; justify-content: center; gap: var(--slot-gap);
+    padding: 36px 0 12px;
+  }
+  a.slot {
+    position: relative; flex: 0 0 auto; width: var(--slot-w); margin: var(--px); padding: var(--px);
+    display: flex; flex-direction: column;
+    background: var(--panel); color: var(--text); text-decoration: none;
+    --lit: var(--panel-hi); --shade: var(--frame); --drop: var(--px);
+    transition: transform .12s steps(2);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .thumb { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; flex: none; }
+  .slot .body {
+    display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+    margin-top: var(--px); padding: 10px 10px 8px;
+    box-shadow: 0 calc(-1 * var(--px)) 0 0 var(--ink);
+  }
+  .slot .name { font-size: clamp(15px, 1.7cqw, 22px); font-weight: 900; letter-spacing: .06em; line-height: 1.2; text-align: center; }
+  /* PLAY 표시 (슬롯 전체가 링크, 이건 시각 표시) — 선택 슬롯에만 보임, 자리는 유지해 높이가 같게 */
+  .play {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 40px; margin: var(--px); padding: 4px 12px;
+    background: var(--gold-hi); color: var(--ink);
+    font-size: 16px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
+    --shade: var(--gold); --drop: var(--px);
+    visibility: hidden;
+  }
+  .play::before {
+    content: ""; flex: none; width: 6px; height: 12px; background: currentColor;
+    clip-path: polygon(0 0, 2px 0, 2px 2px, 4px 2px, 4px 4px, 6px 4px, 6px 8px, 4px 8px, 4px 10px, 2px 10px, 2px 12px, 0 12px);
+  }
+  /* 선택 커서: 슬롯 위 ▼ (픽셀 계단 모양) */
+  .slot .cursor {
+    position: absolute; left: 50%; top: calc(-1 * (var(--px) + 26px)); width: 20px; height: 12px; margin-left: -10px;
+    background: var(--on-page); visibility: hidden; pointer-events: none;
+    clip-path: polygon(0 0, 20px 0, 20px 4px, 16px 4px, 16px 8px, 12px 8px, 12px 12px, 8px 12px, 8px 8px, 4px 8px, 4px 4px, 0 4px);
+  }
+  /* 선택 상태 = a.slot[aria-current="true"] (JS 가 커서 이동 때 하나에만 붙임) */
+  a.slot[aria-current="true"] { transform: scale(1.06); z-index: 1; }
+  a.slot[aria-current="true"] .body { background: var(--primary); color: var(--primary-text); }
+  a.slot[aria-current="true"] .play { visibility: visible; }
+  a.slot[aria-current="true"] .cursor { visibility: visible; animation: gx-cursor-y .5s steps(2, jump-none) infinite alternate; }
+  @keyframes gx-cursor-y { to { transform: translateY(var(--px)); } }
+  @keyframes gx-cursor-x { to { transform: translateX(var(--px)); } }
+  .slots:has(.slot[aria-current="true"]) .slot:not([aria-current="true"]) .thumb { filter: saturate(.5) brightness(.85); }
+  a.slot:active .play { transform: translateY(var(--px)); --drop: 0px; }
+  @media (hover: hover) { a.slot:not([aria-current="true"]):hover { --edge: var(--primary); } }
+  /* 슬롯 포커스 링은 페이지 바탕 위에 그려지므로 --on-page (사용자 배경색에서도 보임) */
+  a.slot:focus-visible { outline: 3px solid var(--on-page); outline-offset: calc(var(--px) + 4px); }
+
+  /* 아래 정보 바: 커서 게임의 이름·설명 + 조작 안내 */
+  .info-bar {
+    flex: none; width: min(calc(100% - 2 * var(--px)), 980px); margin: var(--px) auto;
+    padding: 10px 16px 12px; display: grid; gap: 4px;
+    background: var(--hud-bg); color: var(--hud-text);
+    --lit: var(--primary); --shade: var(--hud-edge);
+  }
+  .info-bar p { margin: 0; }
+  .info-name { font-size: 17px; font-weight: 900; letter-spacing: .06em; text-shadow: 2px 2px 0 var(--hud-edge); }
+  .info-desc {
+    font-size: 14px; line-height: 1.45; min-height: 2.9em;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .info-hint { font-size: 13px; font-weight: 800; letter-spacing: .04em; color: var(--hud-muted); }
+
+  /* 무대 폭 ≤520px (모바일 모드는 항상): 세로 목록, 썸네일 왼쪽, ▶ 커서 왼쪽 */
+  @container (max-width: 520px) {
+    .slots { flex-direction: column; align-items: stretch; justify-content: center; gap: 12px; padding: 4px 0 4px 24px; }
+    a.slot { width: auto; flex-direction: row; align-items: center; gap: 10px; padding: 6px; }
+    a.slot[aria-current="true"] {
+      transform: translateX(var(--px));
+      background: var(--primary); color: var(--primary-text); --lit: var(--primary-hi); --shade: var(--primary-lo);
     }
+    .slot .thumb { width: var(--row-thumb); }
+    .slot .body { flex: 1; min-width: 0; flex-direction: row; align-items: center; gap: 8px; margin: 0; padding: 2px; box-shadow: none; }
+    a.slot[aria-current="true"] .body { background: transparent; }
+    .slot .name { flex: 1; min-width: 0; text-align: left; font-size: 17px; overflow-wrap: anywhere; }
+    .play { display: none; min-height: 34px; padding: 2px 10px; font-size: 14px; }
+    a.slot[aria-current="true"] .play { display: flex; }
+    .slot .cursor {
+      left: calc(-1 * (var(--px) + 22px)); top: 50%; width: 12px; height: 20px; margin: -10px 0 0;
+      clip-path: polygon(0 0, 4px 0, 4px 4px, 8px 4px, 8px 8px, 12px 8px, 12px 12px, 8px 12px, 8px 16px, 4px 16px, 4px 20px, 0 20px);
+    }
+    a.slot[aria-current="true"] .cursor { animation-name: gx-cursor-x; }
+    .scr-select { gap: 8px; }
   }
-  @media (forced-colors: active) { h1 { -webkit-text-fill-color: CanvasText; background: none; filter: none; } }
-  .sub { color: var(--muted); margin: 10px 0 0; font-size: 15px; font-weight: 600; }
-  /* 오른쪽 액션 영역: 언어 선택 + (예정) 로그인 프로필 칩 */
-  .top-actions {
-    margin-left: auto; display: flex; align-items: center; justify-content: flex-end;
-    gap: 8px; flex-wrap: wrap; min-width: 0;
-    position: relative; /* 배경색 팝오버 기준 (오른쪽 끝에 맞춤 → 좁은 화면에서도 안 넘침) */
+  /* 낮은 화면(가로 폰 등): 정보 바를 줄이고 제목을 숨겨 스크롤 없이 */
+  @media (max-height: 560px) {
+    .info-hint { display: none; }
+    .info-desc { -webkit-line-clamp: 1; min-height: 1.45em; }
+    .scr-select { padding-top: calc(var(--icon) + 14px); gap: 6px; }
+    .mini-logo { display: none; }
   }
+  @media (max-height: 440px) {
+    .info-desc { display: none; }
+    .info-bar { padding: 6px 12px; }
+    .sel-head { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+    .slots { gap: 8px; }
+    .scr-title { padding-top: calc(var(--icon) + 16px); }
+  }
+
+  /* ===== 메뉴 / 시트 (설정, 프로필) ===== */
+  .gx-menu {
+    position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
+    padding: 16px; background: var(--scrim);
+  }
+  .gx-menu-box {
+    font-size: 15px;
+    width: min(34em, calc(100% - 2 * var(--px))); max-height: calc(var(--vh) - 32px); overflow: auto;
+    margin: var(--px); padding: 0 0 1em;
+    background: var(--panel); color: var(--text);
+    --lit: var(--panel-hi); --shade: var(--frame); --drop: var(--px);
+    animation: gx-pop .2s steps(3) both;
+  }
+  :root[data-layout="pc"] .gx-menu-box { font-size: calc(15px * min(var(--vp-zoom, 1), 2.8)); }
+  @keyframes gx-pop { from { transform: scale(.88); opacity: 0; } }
+  .sheet-title {
+    margin: 0 0 .7em; padding: .7em 1em;
+    background: var(--hud-bg); color: var(--hud-text);
+    font-size: 1.15em; font-weight: 900; letter-spacing: .06em; text-shadow: 2px 2px 0 var(--hud-edge);
+  }
+  .sheet-title::before { content: "▶ "; content: "▶ " / ""; color: var(--primary-hi); }
+  .gx-menu-list { display: flex; flex-direction: column; gap: .2em; padding: 0 1.1em; }
+  .sheet-col { display: flex; flex-direction: column; gap: .2em; min-width: 0; }
+  .gx-opt {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5em 1em;
+    padding: .4em 0 .6em;
+    background: linear-gradient(90deg, var(--border) 50%, transparent 50%) 0 100% / 8px 2px repeat-x;
+  }
+  .gx-opt.col { flex-direction: column; align-items: stretch; }
+  .opt-label { font-weight: 900; letter-spacing: .06em; }
+  .gx-opt-bg .swatches, #uiThemeSwatches { flex-basis: 100%; }
+  .sheet-foot { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .4em .8em; padding: 1em 1.1em 0; }
+  .gx-menu-box .gx-btn { min-height: 2.93em; padding: .45em 1.1em; }
+
+  /* 언어 선택 (픽셀 상자 + 픽셀 ▼) */
+  .select-wrap { position: relative; display: inline-block; max-width: 100%; }
   select.lang {
-    font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
-    background: linear-gradient(180deg, var(--btn-hi), var(--btn));
-    border: 2px solid var(--btn-edge); border-radius: 10px; padding: 8px 8px; min-height: 44px;
-    box-shadow: 0 3px 0 var(--btn-edge); cursor: pointer;
+    font: inherit; font-weight: 800; color: var(--text); background: var(--btn); border: 0; cursor: pointer;
+    min-height: 2.93em; max-width: 100%; margin: var(--px); padding: .4em 2.4em .4em .8em;
+    -webkit-appearance: none; appearance: none;
+    --lit: var(--btn-hi); --shade: var(--btn-edge);
   }
-  /* 화면 배치 세그먼트 (언어 선택과 같은 버튼 모양) */
+  .select-wrap::after {
+    content: ""; position: absolute; right: calc(var(--px) + .8em); top: 50%; width: 10px; height: 6px; margin-top: -3px;
+    background: var(--text); pointer-events: none;
+    clip-path: polygon(0 0, 10px 0, 10px 2px, 8px 2px, 8px 4px, 6px 4px, 6px 6px, 4px 6px, 4px 4px, 2px 4px, 2px 2px, 0 2px);
+  }
+  /* 화면 배치 세그먼트 — 선택 표시는 html[data-layout] 기준 (JS 연결 전에도 맞게 보임) */
   .seg {
     display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr;
-    background: var(--btn); border: 2px solid var(--btn-edge); border-radius: 10px;
-    padding: 0; gap: 2px; box-shadow: 0 3px 0 var(--btn-edge); overflow: hidden;
+    margin: var(--px); padding: 0; gap: 0; background: var(--btn);
+    --lit: var(--btn-hi); --shade: var(--btn-edge);
   }
   .seg button {
-    font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
+    font: inherit; font-weight: 800; letter-spacing: .04em; color: var(--text);
     background: transparent; border: 0; border-radius: 0;
-    min-height: 44px; min-width: 52px; padding: 4px 10px; cursor: pointer; white-space: nowrap;
+    min-height: 2.93em; min-width: 3.5em; padding: .3em .9em; cursor: pointer; white-space: nowrap;
   }
+  .seg button + button { box-shadow: inset 2px 0 0 var(--ink); }
   @media (hover: hover) { .seg button:hover { background: var(--btn-hi); } }
-  /* 폰에서 PC 모드(viewport 1280 축소)일 때만 --vp-zoom 이 있음 → 실제 손가락 크기 유지 */
-  :root[data-layout="pc"] .seg button {
-    min-height: calc(44px * var(--vp-zoom, 1)); min-width: calc(52px * var(--vp-zoom, 1));
-    font-size: calc(13px * min(var(--vp-zoom, 1), 2.8));
-  }
-  .seg button:focus-visible { outline-offset: -3px; } /* .seg 의 overflow 에 잘리지 않게 안쪽으로 */
-  /* 선택 표시는 html[data-layout] 기준 (JS 연결 전에도 맞게 보임) */
+  .seg button:focus-visible { outline-offset: -5px; }
   :root[data-layout="mobile"] .seg button[data-v="mobile"],
-  :root[data-layout="pc"] .seg button[data-v="pc"] {
-    background: linear-gradient(180deg, var(--primary-hi), var(--primary) 55%); color: var(--primary-text);
-  }
+  :root[data-layout="pc"] .seg button[data-v="pc"] { background: var(--primary); color: var(--primary-text); }
 
-  /* ===== 배경색 버튼 + 팝오버 (언어 선택 옆) ===== */
-  /* 언어 선택과 같은 버튼 모양. 폰 PC 모드(--vp-zoom)에서도 손가락 크기 유지 */
-  .hub-btn {
-    font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
-    background: linear-gradient(180deg, var(--btn-hi), var(--btn));
-    border: 2px solid var(--btn-edge); border-radius: 10px; min-height: 44px; padding: 4px 12px;
-    box-shadow: 0 3px 0 var(--btn-edge); cursor: pointer;
+  /* 배경색 스와치 (네모 픽셀 칸) */
+  .swatches { --hub-sw: 2.93em; --px: 3px; display: flex; flex-wrap: wrap; gap: .75em; padding: var(--px); }
+  .swatch, .swatch-custom {
+    flex: none; width: var(--hub-sw); height: var(--hub-sw); padding: 0; margin: 0; border: 0;
+    cursor: pointer; position: relative;
   }
-  .hub-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--btn-edge); }
-  .hub-btn:disabled { opacity: .5; cursor: default; transform: none; box-shadow: 0 3px 0 var(--btn-edge); }
-  @media (hover: hover) { .hub-btn:not(:disabled):hover { background: var(--btn-hi); } }
-  .hub-btn.icon {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 44px; height: 44px; padding: 0;
-  }
-  .hub-btn.icon svg { width: 24px; height: 24px; display: block; }
-  .hub-btn[aria-expanded="true"] { border-color: var(--primary); box-shadow: 0 3px 0 var(--primary-lo); }
-  :root[data-layout="pc"] .hub-btn.icon {
-    width: calc(44px * var(--vp-zoom, 1)); height: calc(44px * var(--vp-zoom, 1));
-  }
-  :root[data-layout="pc"] .hub-btn.icon svg { width: calc(24px * var(--vp-zoom, 1)); height: calc(24px * var(--vp-zoom, 1)); }
-  .bg-pop {
-    --hub-sw: 44px;
-    position: absolute; top: calc(100% + 10px); right: 0; z-index: 20;
-    width: calc(var(--hub-sw) * 5 + 8px * 4 + 28px); max-width: calc(100vw - 32px);
-    padding: 12px; color: var(--text);
-    background: var(--panel); border: 2px solid var(--frame); border-radius: 14px;
-    box-shadow: inset 0 1px 0 var(--frame-hi), 0 4px 0 var(--frame), 0 14px 28px var(--shadow);
-  }
-  .bg-pop[hidden] { display: none; }
-  :root[data-layout="pc"] .bg-pop { --hub-sw: calc(44px * var(--vp-zoom, 1)); }
-  .bg-pop-head {
-    display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px;
-  }
-  .bg-pop-title { font-size: 14px; font-weight: 800; }
-  :root[data-layout="pc"] .bg-pop-title,
-  :root[data-layout="pc"] .bg-pop .hub-btn { font-size: calc(13px * min(var(--vp-zoom, 1), 2.8)); min-height: calc(44px * var(--vp-zoom, 1)); }
-  .bg-pop .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
-  .bg-pop .swatch, .bg-pop .swatch-custom {
-    flex: none; width: var(--hub-sw); height: var(--hub-sw); padding: 0; margin: 0; border-radius: 50%;
-    border: 1px solid var(--border); cursor: pointer; position: relative;
-  }
-  .bg-pop .swatch { background: var(--sw, var(--bg)); font: inherit; }
+  .swatch { background: var(--sw, var(--bg)); font: inherit; }
   /* 기본 스와치: 테마 배경 + 대각선 */
-  .bg-pop .swatch.default {
+  .swatch.default {
     background:
-      linear-gradient(135deg, transparent calc(50% - 1px), var(--muted) calc(50% - 1px), var(--muted) calc(50% + 1px), transparent calc(50% + 1px)),
+      linear-gradient(135deg, transparent calc(50% - 2px), var(--muted) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)),
       var(--bg);
   }
-  .bg-pop .swatch[aria-pressed="true"], .bg-pop .swatch.on, .bg-pop .swatch-custom.on {
-    box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--primary);
+  .swatch:active, .swatch-custom:active { transform: translateY(2px); }
+  /* 선택: 테두리 --primary + 가운데 네모 표식 */
+  .swatch[aria-pressed="true"], .swatch.on, .swatch-custom.on { --edge: var(--primary); }
+  .swatch[aria-pressed="true"]::after, .swatch.on::after, .swatch-custom.on::after,
+  .av-color[aria-checked="true"]::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px;
+    background: var(--primary); box-shadow: 0 0 0 2px var(--panel);
   }
-  .bg-pop .swatch:focus-visible { outline-offset: 4px; }
-  .bg-pop .swatch:active, .bg-pop .swatch-custom:active { transform: scale(.92); }
-  @media (hover: hover) {
-    .bg-pop .swatch:hover, .bg-pop .swatch-custom:hover { box-shadow: 0 0 0 2px var(--btn-edge); }
-    .bg-pop .swatch[aria-pressed="true"]:hover, .bg-pop .swatch.on:hover, .bg-pop .swatch-custom.on:hover {
-      box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--primary);
-    }
-  }
-  /* 사용자 지정: 원형 color input + "+" 표식 */
-  .bg-pop .swatch-custom { display: inline-block; overflow: hidden; background: var(--btn); }
-  .bg-pop .swatch-custom:focus-within { outline: 3px solid var(--focus); outline-offset: 4px; }
-  .bg-pop .swatch-custom:has(input:focus:not(:focus-visible)) { outline: none; }
-  .bg-pop .swatch-custom input[type="color"] {
+  /* 사용자 지정: color input + "+" 표식 */
+  .swatch-custom { display: inline-block; overflow: hidden; background: var(--btn); }
+  .swatch-custom:focus-within { outline: 3px solid var(--focus); outline-offset: calc(var(--px) + 3px); }
+  .swatch-custom:has(input:focus:not(:focus-visible)) { outline: none; }
+  .swatch-custom input[type="color"] {
     position: absolute; inset: -6px; width: calc(100% + 12px); height: calc(100% + 12px);
     padding: 0; border: 0; background: none; cursor: pointer;
     -webkit-appearance: none; appearance: none;
   }
-  .bg-pop .swatch-custom input[type="color"]:focus-visible { outline: none; }
-  .bg-pop .swatch-custom input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-  .bg-pop .swatch-custom input[type="color"]::-webkit-color-swatch { border: 0; }
-  .bg-pop .swatch-custom input[type="color"]::-moz-color-swatch { border: 0; }
-  .bg-pop .swatch-custom::after {
+  .swatch-custom input[type="color"]:focus-visible { outline: none; }
+  .swatch-custom input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .swatch-custom input[type="color"]::-webkit-color-swatch { border: 0; }
+  .swatch-custom input[type="color"]::-moz-color-swatch { border: 0; }
+  .swatch-custom::after {
     content: "+"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 700; line-height: 1; color: var(--text);
-    pointer-events: none; text-shadow: 0 0 3px var(--panel), 0 0 2px var(--panel);
+    font-size: 1.2em; font-weight: 900; line-height: 1; color: var(--text); pointer-events: none;
+    text-shadow: 1px 1px 0 var(--panel), -1px -1px 0 var(--panel);
   }
-  .bg-pop .swatch-custom.on::after { content: none; }
 
-  /* ===== 게임 선택 카드 ===== */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px 18px; }
-  a.card {
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(180deg, var(--panel-hi), var(--panel) 40%);
-    border: 3px solid var(--frame);
-    border-radius: 18px;
-    overflow: hidden;
-    color: inherit;
-    text-decoration: none;
-    box-shadow: inset 0 1px 0 var(--frame-hi), 0 5px 0 var(--frame), 0 12px 24px var(--shadow);
-    transition: transform .2s cubic-bezier(.2, 1.4, .4, 1), box-shadow .2s ease, border-color .2s ease;
+  /* UI 테마 스와치 (K2): 위 = hud-bg, 아래 = primary 의 2단 띠. 선택 표시는 html[data-ui] 기준 + aria-pressed */
+  #uiThemeSwatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9em; padding: var(--px); }
+  .ui-sw {
+    font: inherit; font-size: .8em; font-weight: 800; letter-spacing: .02em; color: var(--text);
+    display: flex; flex-direction: column; align-items: stretch; gap: .35em;
+    min-height: 2.93em; padding: .3em .3em .4em; border: 0; background: var(--btn); cursor: pointer;
+    --px: 3px; --lit: var(--btn-hi); --shade: var(--btn-edge);
   }
-  a.card:focus-visible {
-    transform: translateY(-6px);
-    border-color: var(--primary);
-    box-shadow: inset 0 1px 0 var(--frame-hi), 0 9px 0 var(--primary-lo), 0 0 0 5px var(--glow), 0 24px 38px var(--shadow);
+  .ui-chip { display: block; height: 2em; }
+  .ui-sw[data-v="classic"] .ui-chip { background: linear-gradient(180deg, var(--th-classic-2) 0 55%, var(--th-classic-1) 55% 100%); }
+  .ui-sw[data-v="gameboy"] .ui-chip { background: linear-gradient(180deg, var(--th-gameboy-2) 0 55%, var(--th-gameboy-1) 55% 100%); }
+  .ui-sw[data-v="neon"] .ui-chip { background: linear-gradient(180deg, var(--th-neon-2) 0 55%, var(--th-neon-1) 55% 100%); }
+  .ui-sw[data-v="famicom"] .ui-chip { background: linear-gradient(180deg, var(--th-famicom-2) 0 55%, var(--th-famicom-1) 55% 100%); }
+  .ui-sw-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ui-sw[aria-pressed="true"],
+  :root:not([data-ui]) .ui-sw[data-v="classic"], :root[data-ui="classic"] .ui-sw[data-v="classic"],
+  :root[data-ui="gameboy"] .ui-sw[data-v="gameboy"], :root[data-ui="neon"] .ui-sw[data-v="neon"],
+  :root[data-ui="famicom"] .ui-sw[data-v="famicom"] {
+    background: var(--primary); color: var(--primary-text); --edge: var(--ink); --lit: var(--primary-hi); --shade: var(--primary-lo);
   }
-  @media (hover: hover) {
-    a.card:hover {
-      transform: translateY(-6px);
-      border-color: var(--primary);
-      box-shadow: inset 0 1px 0 var(--frame-hi), 0 9px 0 var(--primary-lo), 0 0 0 5px var(--glow), 0 24px 38px var(--shadow);
-    }
-    a.card:hover .thumb { transform: scale(1.04); }
-    a.card:hover .play { filter: brightness(1.08); }
+  .ui-sw:active { transform: translateY(2px); }
+
+  /* ===== 프로필 시트 (K1) ===== */
+  .profile-top { display: flex; align-items: center; gap: 1em; padding: .4em 0 .6em; }
+  .profile-top .gx-avatar { --av-size: 4.4em; margin: var(--px); }
+  .profile-top .name-field { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .3em; }
+  .gx-input {
+    font: inherit; font-weight: 800; color: var(--text); background: var(--panel-hi); border: 0;
+    width: calc(100% - 2 * var(--px)); min-height: 2.93em; margin: var(--px); padding: .4em .7em;
+    --shade: var(--frame); --lit: var(--border);
   }
-  a.card:active { transform: translateY(-2px); }
-  /* 카드 포커스 링은 카드 밖(페이지 바탕 위)에 그려지므로 --on-page 를 씀 → 사용자 배경색에서도 보임 */
-  a.card:focus-visible { outline: 3px solid var(--on-page); outline-offset: 6px; }
-  .thumb {
-    aspect-ratio: 16 / 9; display: block; width: 100%;
-    border-bottom: 3px solid var(--frame);
-    transition: transform .3s ease;
+  .gx-input::placeholder { color: var(--muted); }
+  .av-grid, .av-colors { display: grid; gap: .6em; padding: var(--px); }
+  .av-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .av-colors { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (min-width: 440px) { .av-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+  @media (min-width: 600px) { .av-colors { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+  :root[data-layout="pc"] .av-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .av-cell, .av-color {
+    position: relative; min-height: 2.93em; padding: 0; margin: 0; border: 0; cursor: pointer;
+    --px: 3px; font: inherit;
   }
-  .body { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; position: relative; background: inherit; }
-  .name { font-size: 21px; font-weight: 900; letter-spacing: .01em; }
-  .desc { color: var(--muted); font-size: 14px; line-height: 1.45; flex: 1; }
-  /* PLAY 버튼 (카드 전체가 링크, 이건 시각 표시) */
-  .play {
-    align-self: stretch;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    margin-top: 10px;
-    min-height: 46px;
-    padding: 8px 16px;
-    background: linear-gradient(180deg, var(--primary-hi), var(--primary) 55%);
-    color: var(--primary-text);
-    border: 2px solid var(--primary-lo);
-    border-radius: 12px;
-    box-shadow: inset 0 1px 0 var(--frame-hi), 0 4px 0 var(--primary-lo);
-    font-size: 17px;
-    font-weight: 900;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    transition: transform .08s ease, box-shadow .08s ease, filter .12s ease;
+  .av-cell { aspect-ratio: 1; padding: .35em; background: var(--btn); --lit: var(--btn-hi); --shade: var(--btn-edge); }
+  .av-cell svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
+  .av-cell[aria-checked="true"] { background: var(--hud-bg); --edge: var(--primary); --lit: var(--primary); --shade: var(--hud-edge); }
+  .av-color { background: var(--sw); }
+  .av-color[aria-checked="true"] { --edge: var(--primary); }
+  .av-cell:active, .av-color:active { transform: translateY(2px); }
+
+  /* 좁거나 낮은 화면: 시트 여백을 줄여 한 화면에 */
+  @media (max-width: 420px), (max-height: 700px) {
+    :root[data-layout="mobile"] .gx-menu-box { font-size: 14px; }
+    .gx-menu { padding: 8px; }
+    .gx-menu-box { max-height: calc(var(--vh) - 16px); padding-bottom: .7em; }
+    .sheet-title { margin-bottom: .3em; padding: .5em 1em; }
+    .gx-opt { padding: .25em 0 .45em; gap: .35em .8em; }
+    .ui-chip { height: 1.4em; }
+    .sheet-foot { padding-top: .5em; }
   }
-  .play::before {
-    content: ""; width: 0; height: 0;
-    border-left: 11px solid currentColor; border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+  /* 낮고 넓은 화면(가로 폰): 시트를 2열로, 아래 버튼은 제목 막대 오른쪽으로 */
+  @media (max-height: 520px) and (min-width: 600px) {
+    .gx-menu-box.wide-ok { position: relative; width: min(50em, calc(100% - 2 * var(--px))); }
+    .gx-menu-box.wide-ok .sheet-rows { display: grid; grid-template-columns: 1fr 1fr; column-gap: 1.6em; }
+    .wide-ok .sheet-title { min-height: 3.8em; display: flex; align-items: center; padding-right: 13em; }
+    .wide-ok .sheet-foot { position: absolute; top: 0; right: 0; padding: .2em .5em; flex-wrap: nowrap; }
+    .av-colors { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
-  a.card:active .play { transform: translateY(3px); box-shadow: inset 0 1px 0 var(--frame-hi), 0 1px 0 var(--primary-lo); }
-  /* body 폭 기준 (모바일 모드면 body 가 480px 이라 항상 적용) */
-  @container (max-width: 520px) {
-    .wrap { padding: 20px 16px 32px; }
-    .top { padding: 26px 16px 22px; border-radius: 18px; }
+
+  /* ===== 강제 색상 모드: 그림자 테두리 대신 실선 ===== */
+  @media (forced-colors: active) {
+    :where(.gx-btn, .gx-icon, .gx-profile, .gx-menu-box, .gx-input, .marquee, .slot, .info-bar, select.lang, .seg,
+           .swatch, .swatch-custom, .play, .ui-sw, .av-cell, .av-color) { border: 2px solid CanvasText; }
+    a.slot[aria-current="true"], .ui-sw[aria-pressed="true"], .av-cell[aria-checked="true"], .av-color[aria-checked="true"],
+    .swatch[aria-pressed="true"] { outline: 3px solid Highlight; }
+    .slot .cursor, .play::before, .press::before, .select-wrap::after { background: CanvasText; }
+    .logo { text-shadow: none; }
+    body::before, body::after { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
-    a.card:hover, a.card:focus-visible, a.card:active, a.card:hover .thumb { transform: none; }
+    a.slot:active .play, .gx-btn:active, .gx-icon:active { transform: none; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand">
-      <h1 data-i18n="title">게임 모음</h1>
+<!-- 픽셀 도트 스프라이트 (타이틀 장식·썸네일에서 <use> 로 재사용) -->
+<svg class="sprites" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <symbol id="pxStar" viewBox="0 0 7 7"><path fill="currentColor" d="M3 0h1v2h-1z M0 2h7v1h-7z M1 3h5v1h-5z M2 4h3v1h-3z M1 5h2v1h-2z M4 5h2v1h-2z M1 6h1v1h-1z M5 6h1v1h-1z"/></symbol>
+    <symbol id="pxHeart" viewBox="0 0 7 6"><path fill="currentColor" d="M1 0h2v1h-2z M4 0h2v1h-2z M0 1h7v2h-7z M1 3h5v1h-5z M2 4h3v1h-3z M3 5h1v1h-1z"/></symbol>
+    <symbol id="pxDisc" viewBox="0 0 12 12"><path fill="currentColor" d="M4 0H8V1H10V2H11V4H12V8H11V10H10V11H8V12H4V11H2V10H1V8H0V4H1V2H2V1H4Z"/></symbol>
+    <symbol id="pxRing" viewBox="0 0 12 12"><path fill="currentColor" fill-rule="evenodd" d="M4 0H8V1H10V2H11V4H12V8H11V10H10V11H8V12H4V11H2V10H1V8H0V4H1V2H2V1H4Z M4 1H8V2H10V4H11V8H10V10H8V11H4V10H2V8H1V4H2V2H4Z"/></symbol>
+    <symbol id="pxBall" viewBox="0 0 12 12">
+      <path style="fill: var(--ball-outline)" d="M4 0H8V1H10V2H11V4H12V8H11V10H10V11H8V12H4V11H2V10H1V8H0V4H1V2H2V1H4Z"/>
+      <path fill="currentColor" d="M4 1H8V2H10V4H11V8H10V10H8V11H4V10H2V8H1V4H2V2H4Z"/>
+      <rect x="3" y="3" width="2" height="2" style="fill: var(--hud-text)" opacity=".6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="stage" id="stage">
+  <!-- 왼쪽 위: 프로필 칩 (K1). 아바타 그림·이름은 JS 가 채움 -->
+  <div class="corner corner-l">
+    <button type="button" class="gx-profile" id="profileChip" aria-haspopup="dialog" aria-controls="gxProfile" aria-expanded="false">
+      <span class="gx-avatar" id="profileChipAvatar" aria-hidden="true"></span>
+      <span class="gx-profile-name" id="profileChipName">플레이어</span>
+    </button>
+  </div>
+  <!-- 오른쪽 위: 설정 · 소리 -->
+  <div class="corner corner-r">
+    <button type="button" class="gx-icon" id="settingsBtn" aria-haspopup="dialog" aria-controls="gxSettings" aria-expanded="false"
+            aria-label="설정" data-i18n-aria="settings">
+      <svg viewBox="0 0 11 11" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M4 0h3v1h-3z M1 1h2v1h-2z M4 1h3v1h-3z M8 1h2v1h-2z M1 2h9v1h-9z M2 3h2v1h-2z M7 3h2v1h-2z M0 4h3v3h-3z M8 4h3v3h-3z M2 7h2v1h-2z M7 7h2v1h-2z M1 8h9v1h-9z M1 9h2v1h-2z M4 9h3v1h-3z M8 9h2v1h-2z M4 10h3v1h-3z"/>
+      </svg>
+    </button>
+    <button type="button" class="gx-icon" id="soundBtn" aria-pressed="true" aria-label="소리" data-i18n-aria="sound">
+      <svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M0 4h2v4h-2z M2 3h1v6h-1z M3 2h1v8h-1z M4 1h1v10h-1z"/>
+        <path class="snd-on" fill="currentColor" d="M6 4h1v4h-1z M8 2h1v1h-1z M9 3h1v6h-1z M8 9h1v1h-1z"/>
+        <path class="snd-off" fill="currentColor" d="M7 3h1v1h-1z M8 4h1v1h-1z M9 5h1v1h-1z M10 6h1v1h-1z M11 7h1v1h-1z M11 3h1v1h-1z M10 4h1v1h-1z M8 6h1v1h-1z M7 7h1v1h-1z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- 화면 1: 타이틀 (기본 hidden — JS 가 세션 첫 방문이고 #select 해시가 없을 때만 보이게 함) -->
+  <section class="screen scr-title" id="scrTitle" aria-labelledby="hubTitle" hidden>
+    <div class="floaters" aria-hidden="true">
+      <svg class="fl fl1" viewBox="0 0 7 7" shape-rendering="crispEdges"><use href="#pxStar"/></svg>
+      <svg class="fl fl2" viewBox="0 0 7 6" shape-rendering="crispEdges"><use href="#pxHeart"/></svg>
+      <svg class="fl fl3" viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#pxDisc"/></svg>
+      <svg class="fl fl4" viewBox="0 0 7 7" shape-rendering="crispEdges"><use href="#pxStar"/></svg>
+      <svg class="fl fl5" viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#pxDisc"/></svg>
+      <svg class="fl fl6" viewBox="0 0 7 6" shape-rendering="crispEdges"><use href="#pxHeart"/></svg>
+    </div>
+    <div class="marquee">
+      <svg class="logo-deco" viewBox="0 0 76 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+        <use href="#pxStar" x="0" y="0" width="7" height="7" style="color: var(--gold-hi)"/>
+        <use href="#pxHeart" x="12" y="1" width="7" height="6" style="color: var(--c-charger)"/>
+        <use href="#pxBall" x="24" y="0" width="8" height="8" style="color: var(--c-healer)"/>
+        <use href="#pxBall" x="34" y="0" width="8" height="8" style="color: var(--c-twin)"/>
+        <use href="#pxBall" x="44" y="0" width="8" height="8" style="color: var(--c-spike)"/>
+        <use href="#pxHeart" x="57" y="1" width="7" height="6" style="color: var(--c-charger)"/>
+        <use href="#pxStar" x="69" y="0" width="7" height="7" style="color: var(--gold-hi)"/>
+      </svg>
+      <h1 class="logo" id="hubTitle" data-i18n="title">게임 모음</h1>
       <p class="sub" data-i18n="sub">하고 싶은 게임을 골라 보세요</p>
     </div>
-    <div class="top-actions">
-      <select class="lang" id="lang" aria-label="언어"></select>
-      <button type="button" class="hub-btn icon" id="hubBgBtn" aria-expanded="false" aria-controls="hubBgPop"
-              aria-label="배경색" data-i18n-aria="bgColor">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3z"
-                style="fill: var(--page-bg); stroke: currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-          <circle cx="7.5" cy="11" r="1.5" style="fill: var(--c-charger)"/>
-          <circle cx="10" cy="7" r="1.5" style="fill: var(--c-shooter)"/>
-          <circle cx="14.5" cy="7" r="1.5" style="fill: var(--c-healer)"/>
-          <circle cx="17.5" cy="10.5" r="1.5" style="fill: var(--c-guardian)"/>
+    <button type="button" class="press" id="pressStart" data-i18n="pressStart">터치하거나 아무 키나 누르세요</button>
+  </section>
+
+  <!-- 화면 2: 게임 선택 (기본으로 보임 — JS 없이도 링크로 동작) -->
+  <section class="screen scr-select" id="scrSelect" aria-labelledby="selectTitle">
+    <header class="sel-head">
+      <p class="mini-logo" aria-hidden="true" data-i18n="title">게임 모음</p>
+      <h2 class="sel-title" id="selectTitle" data-i18n="selectGame">게임 선택</h2>
+    </header>
+
+    <main class="slots" id="slots">
+      <a class="slot" href="ball-battle.html" data-index="0" aria-current="true" aria-labelledby="ball-battle-name" aria-describedby="ball-battle-desc">
+        <span class="cursor" aria-hidden="true"></span>
+        <svg class="thumb" viewBox="0 0 320 180" shape-rendering="crispEdges" aria-hidden="true">
+          <rect width="320" height="180" style="fill: var(--arena)"/>
+          <rect x="10" y="10" width="300" height="160" style="fill: none; stroke: var(--arena-line)" stroke-width="4"/>
+          <use href="#pxRing" x="124" y="54" width="72" height="72" style="color: var(--arena-line)"/>
+          <!-- 돌진 궤적 -->
+          <g style="fill: var(--c-charger)" opacity=".45">
+            <rect x="52" y="96" width="28" height="4"/>
+            <rect x="60" y="108" width="24" height="4"/>
+            <rect x="56" y="120" width="20" height="4"/>
+          </g>
+          <!-- 투사체 -->
+          <rect x="194" y="52" width="6" height="4" style="fill: var(--c-shooter)" opacity=".5"/>
+          <rect x="206" y="48" width="12" height="12" style="fill: var(--ball-outline)"/>
+          <rect x="208" y="50" width="8" height="8" style="fill: var(--c-shooter)"/>
+          <!-- 실드 링 -->
+          <use href="#pxDisc" x="208" y="82" width="72" height="72" style="color: var(--shield)" opacity=".14"/>
+          <use href="#pxRing" x="202" y="76" width="84" height="84" style="color: var(--shield)" opacity=".9"/>
+          <!-- 공 -->
+          <use href="#pxBall" x="90" y="80" width="48" height="48" style="color: var(--c-charger)"/>
+          <use href="#pxBall" x="136" y="60" width="48" height="48" style="color: var(--c-spike)"/>
+          <use href="#pxBall" x="220" y="94" width="48" height="48" style="color: var(--c-guardian)"/>
+          <use href="#pxBall" x="234" y="24" width="36" height="36" style="color: var(--c-shooter)"/>
+          <use href="#pxBall" x="40" y="30" width="36" height="36" style="color: var(--c-healer)"/>
+          <!-- 충돌 스파크 -->
+          <g style="fill: var(--c-shooter)">
+            <rect x="132" y="42" width="4" height="12"/>
+            <rect x="146" y="50" width="4" height="4"/>
+            <rect x="150" y="46" width="4" height="4"/>
+            <rect x="118" y="60" width="10" height="4"/>
+            <rect x="146" y="128" width="4" height="8"/>
+            <rect x="134" y="130" width="4" height="10"/>
+          </g>
+          <g font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="central"
+             font-family="ui-monospace, Cascadia Mono, Consolas, monospace" style="fill: var(--ball-label)">
+            <text x="114" y="104">1</text>
+            <text x="160" y="84">2</text>
+            <text x="58" y="48" font-size="15">3</text>
+            <text x="252" y="42" font-size="15">4</text>
+            <text x="244" y="118">5</text>
+          </g>
         </svg>
-      </button>
-      <div class="bg-pop" id="hubBgPop" role="group" aria-labelledby="hubBgTitle" hidden>
-        <div class="bg-pop-head">
-          <span class="bg-pop-title" id="hubBgTitle" data-i18n="bgColor">배경색</span>
-          <button type="button" class="hub-btn" id="hubBgReset" data-i18n="reset" disabled>초기화</button>
+        <div class="body">
+          <div class="name" id="ball-battle-name" data-i18n="ballBattle">공 배틀</div>
+          <div class="desc sr-only" id="ball-battle-desc" data-i18n="ballBattleDesc">20가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 20개까지 넣고 개인전이나 팀전으로 관전하거나 직접 스킬을 써 보세요. 배경 테마도 고를 수 있어요.</div>
+          <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
         </div>
-        <div class="swatches" id="hubBgSwatches" role="group" aria-labelledby="hubBgTitle">
-          <button type="button" class="swatch default" data-color="" aria-pressed="true" aria-label="기본" data-i18n-aria="swDefault"></button>
-          <button type="button" class="swatch" data-color="#1f2a44" style="--sw:#1f2a44" aria-pressed="false" aria-label="남색" data-i18n-aria="swNavy"></button>
-          <button type="button" class="swatch" data-color="#2f4a3a" style="--sw:#2f4a3a" aria-pressed="false" aria-label="숲색" data-i18n-aria="swForest"></button>
-          <button type="button" class="swatch" data-color="#4a2f45" style="--sw:#4a2f45" aria-pressed="false" aria-label="자두색" data-i18n-aria="swPlum"></button>
-          <button type="button" class="swatch" data-color="#2a2a2e" style="--sw:#2a2a2e" aria-pressed="false" aria-label="숯색" data-i18n-aria="swCharcoal"></button>
-          <button type="button" class="swatch" data-color="#e8dcc2" style="--sw:#e8dcc2" aria-pressed="false" aria-label="모래색" data-i18n-aria="swSand"></button>
-          <button type="button" class="swatch" data-color="#cfe3f2" style="--sw:#cfe3f2" aria-pressed="false" aria-label="하늘색" data-i18n-aria="swSky"></button>
-          <button type="button" class="swatch" data-color="#f2d4d7" style="--sw:#f2d4d7" aria-pressed="false" aria-label="장미색" data-i18n-aria="swRose"></button>
-          <label class="swatch-custom" id="hubBgCustom"><input type="color" id="hubBgInput" value="#3a5a78" aria-label="사용자 지정 색" data-i18n-aria="swCustom"></label>
+      </a>
+      <a class="slot" href="chess.html" data-index="1" aria-labelledby="chess-name" aria-describedby="chess-desc">
+        <span class="cursor" aria-hidden="true"></span>
+        <svg class="thumb" viewBox="0 0 320 180" shape-rendering="crispEdges" aria-hidden="true">
+          <defs>
+            <pattern id="chk" width="40" height="40" patternUnits="userSpaceOnUse">
+              <rect width="40" height="40" style="fill: var(--light)"/>
+              <rect width="20" height="20" style="fill: var(--dark)"/>
+              <rect x="20" y="20" width="20" height="20" style="fill: var(--dark)"/>
+            </pattern>
+          </defs>
+          <rect width="320" height="180" fill="url(#chk)"/>
+          <text x="118" y="128" font-size="96" text-anchor="middle" style="fill: var(--piece-dark)"
+                font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265A;</text>
+          <text x="204" y="132" font-size="96" text-anchor="middle" style="fill: var(--piece-light); stroke: var(--piece-edge)" stroke-width="1.5"
+                font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265E;</text>
+        </svg>
+        <div class="body">
+          <div class="name" id="chess-name" data-i18n="chess">체스</div>
+          <div class="desc sr-only" id="chess-desc" data-i18n="chessDesc">상대 킹을 체크메이트하면 승리하는 전략 보드게임. AI 4단계.</div>
+          <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+        </div>
+      </a>
+      <a class="slot" href="gomoku.html" data-index="2" aria-labelledby="gomoku-name" aria-describedby="gomoku-desc">
+        <span class="cursor" aria-hidden="true"></span>
+        <svg class="thumb" viewBox="0 0 320 180" shape-rendering="crispEdges" aria-hidden="true" id="gomokuThumb">
+          <rect width="320" height="180" style="fill: var(--wood)"/>
+        </svg>
+        <div class="body">
+          <div class="name" id="gomoku-name" data-i18n="gomoku">오목</div>
+          <div class="desc sr-only" id="gomoku-desc" data-i18n="gomokuDesc">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.</div>
+          <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+        </div>
+      </a>
+    </main>
+
+    <!-- 커서가 있는 게임의 이름·설명 (JS 가 커서 이동 때 data-i18n 키와 글자를 바꿈) -->
+    <div class="info-bar">
+      <div id="selInfo" aria-live="polite">
+        <p class="info-name" id="selName" data-i18n="ballBattle">공 배틀</p>
+        <p class="info-desc" id="selDesc" data-i18n="ballBattleDesc">20가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 20개까지 넣고 개인전이나 팀전으로 관전하거나 직접 스킬을 써 보세요. 배경 테마도 고를 수 있어요.</p>
+      </div>
+      <p class="info-hint" id="selHint" data-i18n="hintSelect">◀ ▶ 선택 · Enter 시작</p>
+    </div>
+  </section>
+</div>
+
+<!-- 설정 시트 -->
+<div class="gx-menu" id="gxSettings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+  <div class="gx-menu-box gx-sheet wide-ok">
+    <h2 class="sheet-title" id="settingsTitle" data-i18n="settings">설정</h2>
+    <div class="gx-menu-list sheet-rows">
+      <div class="sheet-col">
+        <div class="gx-opt">
+          <label class="opt-label" for="lang" data-i18n="langLabel">언어</label>
+          <span class="select-wrap"><select class="lang" id="lang" aria-label="언어"></select></span>
+        </div>
+        <div class="gx-opt">
+          <span class="opt-label" id="soundLbl" data-i18n="sound">소리</span>
+          <button type="button" class="gx-btn gx-toggle" id="soundToggle" aria-pressed="true" aria-labelledby="soundLbl">
+            <span class="t-on" data-i18n="on">켜짐</span><span class="t-off" data-i18n="off">꺼짐</span>
+          </button>
+        </div>
+        <div class="gx-opt">
+          <span class="opt-label" id="layoutLbl" data-i18n="layout">화면 배치</span>
+          <div class="seg" id="layoutSeg" role="group" aria-labelledby="layoutLbl">
+            <button type="button" data-v="mobile" data-i18n="layoutMobile" aria-pressed="false">모바일</button>
+            <button type="button" data-v="pc" data-i18n="layoutPc" aria-pressed="false">PC</button>
+          </div>
         </div>
       </div>
-      <span class="sr-only" id="layoutLbl" data-i18n="layout">화면 배치</span>
-      <div class="seg" id="layoutSeg" role="group" aria-labelledby="layoutLbl">
-        <button type="button" data-v="mobile" data-i18n="layoutMobile" aria-pressed="false">모바일</button>
-        <button type="button" data-v="pc" data-i18n="layoutPc" aria-pressed="false">PC</button>
+      <div class="sheet-col">
+        <div class="gx-opt" id="uiThemeOpt">
+          <span class="opt-label" id="uiThemeLbl" data-i18n="uiTheme">UI 테마</span>
+          <div id="uiThemeSwatches" role="group" aria-labelledby="uiThemeLbl">
+            <button type="button" class="ui-sw" data-v="classic" aria-pressed="false"><span class="ui-chip" aria-hidden="true"></span><span class="ui-sw-name" data-i18n="thClassic">클래식</span></button>
+            <button type="button" class="ui-sw" data-v="gameboy" aria-pressed="false"><span class="ui-chip" aria-hidden="true"></span><span class="ui-sw-name" data-i18n="thGameboy">게임보이</span></button>
+            <button type="button" class="ui-sw" data-v="neon" aria-pressed="false"><span class="ui-chip" aria-hidden="true"></span><span class="ui-sw-name" data-i18n="thNeon">네온</span></button>
+            <button type="button" class="ui-sw" data-v="famicom" aria-pressed="false"><span class="ui-chip" aria-hidden="true"></span><span class="ui-sw-name" data-i18n="thFamicom">패미컴</span></button>
+          </div>
+        </div>
+        <div class="gx-opt gx-opt-bg">
+          <span class="opt-label" id="hubBgTitle" data-i18n="bgColor">배경색</span>
+          <button type="button" class="gx-btn" id="hubBgReset" data-i18n="reset" disabled>초기화</button>
+          <div class="swatches" id="hubBgSwatches" role="group" aria-labelledby="hubBgTitle">
+            <button type="button" class="swatch default" data-color="" aria-pressed="true" aria-label="기본" data-i18n-aria="swDefault"></button>
+            <button type="button" class="swatch" data-color="#1f2a44" style="--sw:#1f2a44" aria-pressed="false" aria-label="남색" data-i18n-aria="swNavy"></button>
+            <button type="button" class="swatch" data-color="#2f4a3a" style="--sw:#2f4a3a" aria-pressed="false" aria-label="숲색" data-i18n-aria="swForest"></button>
+            <button type="button" class="swatch" data-color="#4a2f45" style="--sw:#4a2f45" aria-pressed="false" aria-label="자두색" data-i18n-aria="swPlum"></button>
+            <button type="button" class="swatch" data-color="#2a2a2e" style="--sw:#2a2a2e" aria-pressed="false" aria-label="숯색" data-i18n-aria="swCharcoal"></button>
+            <button type="button" class="swatch" data-color="#e8dcc2" style="--sw:#e8dcc2" aria-pressed="false" aria-label="모래색" data-i18n-aria="swSand"></button>
+            <button type="button" class="swatch" data-color="#cfe3f2" style="--sw:#cfe3f2" aria-pressed="false" aria-label="하늘색" data-i18n-aria="swSky"></button>
+            <button type="button" class="swatch" data-color="#f2d4d7" style="--sw:#f2d4d7" aria-pressed="false" aria-label="장미색" data-i18n-aria="swRose"></button>
+            <label class="swatch-custom" id="hubBgCustom"><input type="color" id="hubBgInput" value="#3a5a78" aria-label="사용자 지정 색" data-i18n-aria="swCustom"></label>
+          </div>
+        </div>
       </div>
     </div>
-  </header>
+    <div class="sheet-foot">
+      <button type="button" class="gx-btn primary" id="settingsClose" data-i18n="close">닫기</button>
+    </div>
+  </div>
+</div>
 
-  <main class="grid">
-    <a class="card" href="ball-battle.html" aria-labelledby="ball-battle-name" aria-describedby="ball-battle-desc">
-      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true">
-        <rect width="320" height="180" style="fill: var(--arena)"/>
-        <rect x="8" y="8" width="304" height="164" rx="10" style="fill: none; stroke: var(--arena-line)" stroke-width="2"/>
-        <circle cx="160" cy="90" r="34" style="fill: none; stroke: var(--arena-line)" stroke-width="1.5"/>
-        <!-- 돌진 궤적 -->
-        <g style="stroke: var(--c-charger)" stroke-width="3" stroke-linecap="round" opacity=".45">
-          <line x1="56" y1="122" x2="84" y2="112"/>
-          <line x1="62" y1="136" x2="88" y2="126"/>
-          <line x1="70" y1="108" x2="90" y2="101"/>
-        </g>
-        <!-- 투사체 -->
-        <circle cx="214" cy="52" r="5" style="fill: var(--c-shooter); stroke: var(--ball-outline)" stroke-width="1"/>
-        <circle cx="196" cy="58" r="3" style="fill: var(--c-shooter)" opacity=".5"/>
-        <!-- 실드 링 -->
-        <circle cx="244" cy="118" r="35" style="fill: none; stroke: var(--shield)" stroke-width="3" stroke-dasharray="7 5" opacity=".9"/>
-        <circle cx="244" cy="118" r="30" style="fill: var(--shield)" opacity=".12"/>
-        <!-- 공 -->
-        <g stroke-width="1.5" style="stroke: var(--ball-outline)">
-          <circle cx="114" cy="104" r="24" style="fill: var(--c-charger)"/>
-          <circle cx="160" cy="84" r="24" style="fill: var(--c-spike)"/>
-          <circle cx="244" cy="118" r="24" style="fill: var(--c-guardian)"/>
-          <circle cx="252" cy="42" r="19" style="fill: var(--c-shooter)"/>
-          <circle cx="58" cy="48" r="19" style="fill: var(--c-healer)"/>
-        </g>
-        <!-- 충돌 스파크 -->
-        <g style="stroke: var(--c-shooter)" stroke-width="3" stroke-linecap="round">
-          <line x1="137" y1="58" x2="133" y2="46"/>
-          <line x1="146" y1="64" x2="156" y2="54"/>
-          <line x1="128" y1="66" x2="117" y2="60"/>
-          <line x1="146" y1="122" x2="152" y2="132"/>
-          <line x1="138" y1="124" x2="136" y2="136"/>
-        </g>
-        <g font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central"
-           font-family="system-ui, -apple-system, Segoe UI, sans-serif" style="fill: var(--ball-label)">
-          <text x="114" y="104">1</text>
-          <text x="160" y="84">2</text>
-          <text x="58" y="48" font-size="16">3</text>
-          <text x="252" y="42" font-size="16">4</text>
-          <text x="244" y="118">5</text>
-        </g>
-      </svg>
-      <div class="body">
-        <div class="name" id="ball-battle-name" data-i18n="ballBattle">공 배틀</div>
-        <div class="desc" id="ball-battle-desc" data-i18n="ballBattleDesc">20가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 20개까지 넣고 개인전이나 팀전으로 관전하거나 직접 스킬을 써 보세요. 배경 테마도 고를 수 있어요.</div>
-        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+<!-- 프로필 시트 (K1). 아바타 칸 안의 그림은 JS(PX_AVATARS)가 SVG 로 그림 -->
+<div class="gx-menu" id="gxProfile" role="dialog" aria-modal="true" aria-labelledby="profileTitle" hidden>
+  <div class="gx-menu-box gx-sheet wide-ok">
+    <h2 class="sheet-title" id="profileTitle" data-i18n="profile">프로필</h2>
+    <div class="gx-menu-list sheet-rows">
+      <div class="sheet-col">
+        <div class="profile-top">
+          <span class="gx-avatar" id="avatarPreview" aria-hidden="true"></span>
+          <div class="name-field">
+            <label class="opt-label" for="profileName" data-i18n="profileName">이름</label>
+            <input class="gx-input" type="text" id="profileName" maxlength="12" autocomplete="nickname" spellcheck="false" placeholder="플레이어">
+          </div>
+        </div>
+        <div class="gx-opt col">
+          <span class="opt-label" id="avatarColorLbl" data-i18n="avatarColor">색</span>
+          <div class="av-colors" id="avatarColors" role="radiogroup" aria-labelledby="avatarColorLbl">
+            <button type="button" class="av-color" role="radio" aria-checked="true" data-color="red" style="--sw: var(--av-red)" aria-label="빨강" data-i18n-aria="colRed"></button>
+            <button type="button" class="av-color" role="radio" aria-checked="false" data-color="orange" style="--sw: var(--av-orange)" aria-label="주황" data-i18n-aria="colOrange"></button>
+            <button type="button" class="av-color" role="radio" aria-checked="false" data-color="yellow" style="--sw: var(--av-yellow)" aria-label="노랑" data-i18n-aria="colYellow"></button>
+            <button type="button" class="av-color" role="radio" aria-checked="false" data-color="green" style="--sw: var(--av-green)" aria-label="초록" data-i18n-aria="colGreen"></button>
+            <button type="button" class="av-color" role="radio" aria-checked="false" data-color="cyan" style="--sw: var(--av-cyan)" aria-label="청록" data-i18n-aria="colCyan"></button>
+            <button type="button" class="av-color" role="radio" aria-checked="false" data-color="blue" style="--sw: var(--av-blue)" aria-label="파랑" data-i18n-aria="colBlue"></button>
+            <button type="button" class="av-color" role="radio" aria-checked="false" data-color="purple" style="--sw: var(--av-purple)" aria-label="보라" data-i18n-aria="colPurple"></button>
+            <button type="button" class="av-color" role="radio" aria-checked="false" data-color="pink" style="--sw: var(--av-pink)" aria-label="분홍" data-i18n-aria="colPink"></button>
+          </div>
+        </div>
       </div>
-    </a>
-    <a class="card" href="chess.html" aria-labelledby="chess-name" aria-describedby="chess-desc">
-      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true">
-        <defs>
-          <pattern id="chk" width="40" height="40" patternUnits="userSpaceOnUse">
-            <rect width="40" height="40" style="fill: var(--light)"/>
-            <rect width="20" height="20" style="fill: var(--dark)"/>
-            <rect x="20" y="20" width="20" height="20" style="fill: var(--dark)"/>
-          </pattern>
-        </defs>
-        <rect width="320" height="180" fill="url(#chk)"/>
-        <text x="118" y="128" font-size="96" text-anchor="middle" style="fill: var(--piece-dark)"
-              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265A;</text>
-        <text x="204" y="132" font-size="96" text-anchor="middle" style="fill: var(--piece-light); stroke: var(--piece-edge)" stroke-width="1.5"
-              font-family="Segoe UI Symbol, DejaVu Sans, serif">&#x265E;</text>
-      </svg>
-      <div class="body">
-        <div class="name" id="chess-name" data-i18n="chess">체스</div>
-        <div class="desc" id="chess-desc" data-i18n="chessDesc">상대 킹을 체크메이트하면 승리하는 전략 보드게임. AI 4단계.</div>
-        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
+      <div class="sheet-col">
+        <div class="gx-opt col">
+          <span class="opt-label" id="avatarLbl" data-i18n="avatar">아바타</span>
+          <div class="av-grid" id="avatarGrid" role="radiogroup" aria-labelledby="avatarLbl">
+            <button type="button" class="av-cell" role="radio" aria-checked="true" data-avatar="0" aria-label="고양이" data-i18n-aria="avName0"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="1" aria-label="강아지" data-i18n-aria="avName1"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="2" aria-label="로봇" data-i18n-aria="avName2"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="3" aria-label="유령" data-i18n-aria="avName3"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="4" aria-label="슬라임" data-i18n-aria="avName4"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="5" aria-label="해골" data-i18n-aria="avName5"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="6" aria-label="기사" data-i18n-aria="avName6"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="7" aria-label="마법사" data-i18n-aria="avName7"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="8" aria-label="개구리" data-i18n-aria="avName8"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="9" aria-label="외계인" data-i18n-aria="avName9"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="10" aria-label="버섯" data-i18n-aria="avName10"></button>
+            <button type="button" class="av-cell" role="radio" aria-checked="false" data-avatar="11" aria-label="별" data-i18n-aria="avName11"></button>
+          </div>
+        </div>
       </div>
-    </a>
-
-    <a class="card" href="gomoku.html" aria-labelledby="gomoku-name" aria-describedby="gomoku-desc">
-      <svg class="thumb" viewBox="0 0 320 180" aria-hidden="true" id="gomokuThumb">
-        <rect width="320" height="180" style="fill: var(--wood)"/>
-      </svg>
-      <div class="body">
-        <div class="name" id="gomoku-name" data-i18n="gomoku">오목</div>
-        <div class="desc" id="gomoku-desc" data-i18n="gomokuDesc">가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.</div>
-        <span class="play" data-i18n="play" aria-hidden="true">플레이</span>
-      </div>
-    </a>
-
-  </main>
+    </div>
+    <div class="sheet-foot">
+      <button type="button" class="gx-btn" id="profileCancel" data-i18n="cancel">취소</button>
+      <button type="button" class="gx-btn primary" id="profileSave" data-i18n="save">저장</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -516,56 +1018,101 @@ const I18N = {
         gomoku: '오목', gomokuDesc: '가로·세로·대각선으로 돌 5개를 먼저 이으면 승리. AI 4단계.',
         ballBattle: '공 배틀', ballBattleDesc: '20가지 직업의 공들이 스킬을 쓰며 튕기고 싸우는 자동 전투. 공을 최대 20개까지 넣고 개인전이나 팀전으로 관전하거나 직접 스킬을 써 보세요. 배경 테마도 고를 수 있어요.',
         bgColor: '배경색', reset: '초기화', swDefault: '기본', swNavy: '남색', swForest: '숲색', swPlum: '자두색',
-        swCharcoal: '숯색', swSand: '모래색', swSky: '하늘색', swRose: '장미색', swCustom: '사용자 지정 색' },
+        swCharcoal: '숯색', swSand: '모래색', swSky: '하늘색', swRose: '장미색', swCustom: '사용자 지정 색',
+        pressStart: '터치하거나 아무 키나 누르세요', selectGame: '게임 선택', hintSelect: '◀ ▶ 선택 · Enter 시작',
+        settings: '설정', sound: '소리', on: '켜짐', off: '꺼짐', close: '닫기', back: '뒤로',
+        uiTheme: 'UI 테마', thClassic: '클래식', thGameboy: '게임보이', thNeon: '네온', thFamicom: '패미컴',
+        profile: '프로필', profileName: '이름', avatar: '아바타', avatarColor: '색', cancel: '취소', save: '저장', player: '플레이어',
+        avName0: '고양이', avName1: '강아지', avName2: '로봇', avName3: '유령', avName4: '슬라임', avName5: '해골',
+        avName6: '기사', avName7: '마법사', avName8: '개구리', avName9: '외계인', avName10: '버섯', avName11: '별',
+        colRed: '빨강', colOrange: '주황', colYellow: '노랑', colGreen: '초록', colCyan: '청록', colBlue: '파랑', colPurple: '보라', colPink: '분홍' },
   en: { name: 'English', langLabel: 'Language', layout: 'Layout', layoutMobile: 'Mobile', layoutPc: 'PC', title: 'Game Room', sub: 'Pick a game to play', play: 'Play',
         chess: 'Chess', chessDesc: 'The classic strategy game — checkmate the king. 4 AI levels.',
         gomoku: 'Gomoku', gomokuDesc: 'Get five stones in a row before your opponent. 4 AI levels.',
         ballBattle: 'Ball Battle', ballBattleDesc: 'An auto-battler where balls of 20 classes bounce, clash and use skills. Add up to 20 balls, play free-for-all or in teams, then watch or use a skill yourself. Background themes included.',
         bgColor: 'Background', reset: 'Reset', swDefault: 'Default', swNavy: 'Navy', swForest: 'Forest', swPlum: 'Plum',
-        swCharcoal: 'Charcoal', swSand: 'Sand', swSky: 'Sky', swRose: 'Rose', swCustom: 'Custom color' },
+        swCharcoal: 'Charcoal', swSand: 'Sand', swSky: 'Sky', swRose: 'Rose', swCustom: 'Custom color',
+        pressStart: 'Tap or press any key', selectGame: 'Select Game', hintSelect: '◀ ▶ Select · Enter Start',
+        settings: 'Settings', sound: 'Sound', on: 'On', off: 'Off', close: 'Close', back: 'Back',
+        uiTheme: 'UI theme', thClassic: 'Classic', thGameboy: 'Game Boy', thNeon: 'Neon', thFamicom: 'Famicom',
+        profile: 'Profile', profileName: 'Name', avatar: 'Avatar', avatarColor: 'Color', cancel: 'Cancel', save: 'Save', player: 'Player',
+        avName0: 'Cat', avName1: 'Dog', avName2: 'Robot', avName3: 'Ghost', avName4: 'Slime', avName5: 'Skull',
+        avName6: 'Knight', avName7: 'Wizard', avName8: 'Frog', avName9: 'Alien', avName10: 'Mushroom', avName11: 'Star',
+        colRed: 'Red', colOrange: 'Orange', colYellow: 'Yellow', colGreen: 'Green', colCyan: 'Cyan', colBlue: 'Blue', colPurple: 'Purple', colPink: 'Pink' },
   ja: { name: '日本語', langLabel: '言語', layout: '画面レイアウト', layoutMobile: 'モバイル', layoutPc: 'PC', title: 'ゲームルーム', sub: '遊びたいゲームを選んでください', play: 'プレイ',
         chess: 'チェス', chessDesc: 'キングをチェックメイトすれば勝ちの戦略ボードゲーム。AIは4段階。',
         gomoku: '五目並べ', gomokuDesc: '縦・横・斜めに石を5つ先に並べたら勝ち。AIは4段階。',
         ballBattle: 'ボールバトル', ballBattleDesc: '20種類の職業のボールがスキルを使い、跳ね回って戦うオートバトル。ボールを最大20個入れて、個人戦かチーム戦で観戦するか、自分でスキルを使ってみよう。背景テーマも選べます。',
         bgColor: '背景色', reset: 'リセット', swDefault: 'デフォルト', swNavy: '紺', swForest: '深緑', swPlum: 'プラム',
-        swCharcoal: '炭色', swSand: '砂色', swSky: '空色', swRose: 'ローズ', swCustom: 'カスタム色' },
+        swCharcoal: '炭色', swSand: '砂色', swSky: '空色', swRose: 'ローズ', swCustom: 'カスタム色',
+        pressStart: 'タッチするか、どれかキーを押してください', selectGame: 'ゲーム選択', hintSelect: '◀ ▶ 選択 · Enter 開始',
+        settings: '設定', sound: 'サウンド', on: 'オン', off: 'オフ', close: '閉じる', back: '戻る',
+        uiTheme: 'UIテーマ', thClassic: 'クラシック', thGameboy: 'ゲームボーイ', thNeon: 'ネオン', thFamicom: 'ファミコン',
+        profile: 'プロフィール', profileName: '名前', avatar: 'アバター', avatarColor: '色', cancel: 'キャンセル', save: '保存', player: 'プレイヤー',
+        avName0: 'ネコ', avName1: 'イヌ', avName2: 'ロボット', avName3: 'おばけ', avName4: 'スライム', avName5: 'ガイコツ',
+        avName6: '騎士', avName7: '魔法使い', avName8: 'カエル', avName9: '宇宙人', avName10: 'キノコ', avName11: '星',
+        colRed: '赤', colOrange: 'オレンジ', colYellow: '黄', colGreen: '緑', colCyan: 'シアン', colBlue: '青', colPurple: '紫', colPink: 'ピンク' },
   zh: { name: '中文', langLabel: '语言', layout: '界面布局', layoutMobile: '手机', layoutPc: '电脑', title: '游戏厅', sub: '选择想玩的游戏', play: '开始',
         chess: '国际象棋', chessDesc: '将死对方的王即可获胜的经典策略棋类游戏。AI 共4级。',
         gomoku: '五子棋', gomokuDesc: '横、竖、斜先连成五子者获胜。AI 共4级。',
         ballBattle: '弹球大战', ballBattleDesc: '20种职业的小球施放技能、互相弹撞的自动战斗。最多放入20个球，支持个人战和团队战，可以观战，也可以亲自释放技能。还可选择背景主题。',
         bgColor: '背景色', reset: '重置', swDefault: '默认', swNavy: '藏青', swForest: '森林绿', swPlum: '梅紫',
-        swCharcoal: '炭灰', swSand: '沙色', swSky: '天蓝', swRose: '玫瑰', swCustom: '自定义颜色' },
+        swCharcoal: '炭灰', swSand: '沙色', swSky: '天蓝', swRose: '玫瑰', swCustom: '自定义颜色',
+        pressStart: '触摸屏幕或按任意键', selectGame: '选择游戏', hintSelect: '◀ ▶ 选择 · Enter 开始',
+        settings: '设置', sound: '声音', on: '开', off: '关', close: '关闭', back: '返回',
+        uiTheme: '界面主题', thClassic: '经典', thGameboy: '掌机', thNeon: '霓虹', thFamicom: '红白机',
+        profile: '个人资料', profileName: '名字', avatar: '头像', avatarColor: '颜色', cancel: '取消', save: '保存', player: '玩家',
+        avName0: '猫', avName1: '狗', avName2: '机器人', avName3: '幽灵', avName4: '史莱姆', avName5: '骷髅',
+        avName6: '骑士', avName7: '魔法师', avName8: '青蛙', avName9: '外星人', avName10: '蘑菇', avName11: '星星',
+        colRed: '红', colOrange: '橙', colYellow: '黄', colGreen: '绿', colCyan: '青', colBlue: '蓝', colPurple: '紫', colPink: '粉' },
   es: { name: 'Español', langLabel: 'Idioma', layout: 'Diseño', layoutMobile: 'Móvil', layoutPc: 'PC', title: 'Sala de juegos', sub: 'Elige un juego', play: 'Jugar',
         chess: 'Ajedrez', chessDesc: 'El clásico de estrategia: da jaque mate al rey. 4 niveles de IA.',
         gomoku: 'Gomoku', gomokuDesc: 'Gana quien alinee cinco piedras primero. 4 niveles de IA.',
         ballBattle: 'Batalla de bolas', ballBattleDesc: 'Combate automático de bolas de 20 clases que usan habilidades, rebotan y chocan. Añade hasta 20 bolas, juega todos contra todos o por equipos, y mira la partida o usa tú mismo una habilidad. Incluye temas de fondo.',
         bgColor: 'Color de fondo', reset: 'Restablecer', swDefault: 'Predeterminado', swNavy: 'Marino', swForest: 'Bosque', swPlum: 'Ciruela',
-        swCharcoal: 'Carbón', swSand: 'Arena', swSky: 'Cielo', swRose: 'Rosa', swCustom: 'Color personalizado' },
+        swCharcoal: 'Carbón', swSand: 'Arena', swSky: 'Cielo', swRose: 'Rosa', swCustom: 'Color personalizado',
+        pressStart: 'Toca la pantalla o pulsa una tecla', selectGame: 'Elige un juego', hintSelect: '◀ ▶ Elegir · Enter Empezar',
+        settings: 'Ajustes', sound: 'Sonido', on: 'Sí', off: 'No', close: 'Cerrar', back: 'Atrás',
+        uiTheme: 'Tema de la interfaz', thClassic: 'Clásico', thGameboy: 'Game Boy', thNeon: 'Neón', thFamicom: 'Famicom',
+        profile: 'Perfil', profileName: 'Nombre', avatar: 'Avatar', avatarColor: 'Color', cancel: 'Cancelar', save: 'Guardar', player: 'Jugador',
+        avName0: 'Gato', avName1: 'Perro', avName2: 'Robot', avName3: 'Fantasma', avName4: 'Slime', avName5: 'Calavera',
+        avName6: 'Caballero', avName7: 'Mago', avName8: 'Rana', avName9: 'Alienígena', avName10: 'Seta', avName11: 'Estrella',
+        colRed: 'Rojo', colOrange: 'Naranja', colYellow: 'Amarillo', colGreen: 'Verde', colCyan: 'Cian', colBlue: 'Azul', colPurple: 'Morado', colPink: 'Rosa' },
   fr: { name: 'Français', langLabel: 'Langue', layout: 'Affichage', layoutMobile: 'Mobile', layoutPc: 'PC', title: 'Salle de jeux', sub: 'Choisissez un jeu', play: 'Jouer',
         chess: 'Échecs', chessDesc: 'Le grand classique de stratégie : mettez le roi échec et mat. 4 niveaux d’IA.',
         gomoku: 'Gomoku', gomokuDesc: 'Alignez cinq pierres avant l’adversaire. 4 niveaux d’IA.',
         ballBattle: 'Bataille de boules', ballBattleDesc: 'Un combat automatique où des boules de 20 classes utilisent leurs compétences, rebondissent et s’affrontent. Ajoutez jusqu’à 20 boules, en mode chacun pour soi ou par équipes, puis regardez ou utilisez vous-même une compétence. Thèmes de fond inclus.',
         bgColor: 'Couleur de fond', reset: 'Réinitialiser', swDefault: 'Par défaut', swNavy: 'Marine', swForest: 'Forêt', swPlum: 'Prune',
-        swCharcoal: 'Anthracite', swSand: 'Sable', swSky: 'Ciel', swRose: 'Rose', swCustom: 'Couleur personnalisée' },
+        swCharcoal: 'Anthracite', swSand: 'Sable', swSky: 'Ciel', swRose: 'Rose', swCustom: 'Couleur personnalisée',
+        pressStart: 'Touchez l’écran ou appuyez sur une touche', selectGame: 'Choix du jeu', hintSelect: '◀ ▶ Choisir · Entrée Jouer',
+        settings: 'Paramètres', sound: 'Son', on: 'Activé', off: 'Désactivé', close: 'Fermer', back: 'Retour',
+        uiTheme: 'Thème de l’interface', thClassic: 'Classique', thGameboy: 'Game Boy', thNeon: 'Néon', thFamicom: 'Famicom',
+        profile: 'Profil', profileName: 'Nom', avatar: 'Avatar', avatarColor: 'Couleur', cancel: 'Annuler', save: 'Enregistrer', player: 'Joueur',
+        avName0: 'Chat', avName1: 'Chien', avName2: 'Robot', avName3: 'Fantôme', avName4: 'Slime', avName5: 'Crâne',
+        avName6: 'Chevalier', avName7: 'Magicien', avName8: 'Grenouille', avName9: 'Extraterrestre', avName10: 'Champignon', avName11: 'Étoile',
+        colRed: 'Rouge', colOrange: 'Orange', colYellow: 'Jaune', colGreen: 'Vert', colCyan: 'Cyan', colBlue: 'Bleu', colPurple: 'Violet', colPink: 'Rose' },
   de: { name: 'Deutsch', langLabel: 'Sprache', layout: 'Ansicht', layoutMobile: 'Mobil', layoutPc: 'PC', title: 'Spielesammlung', sub: 'Wähle ein Spiel', play: 'Spielen',
         chess: 'Schach', chessDesc: 'Der Strategieklassiker – setze den König matt. 4 KI-Stufen.',
         gomoku: 'Gomoku', gomokuDesc: 'Wer zuerst fünf Steine in einer Reihe hat, gewinnt. 4 KI-Stufen.',
         ballBattle: 'Ballkampf', ballBattleDesc: 'Automatischer Kampf, in dem Bälle aus 20 Klassen Fähigkeiten einsetzen, abprallen und zusammenstoßen. Bis zu 20 Bälle hinzufügen, jeder gegen jeden oder im Team, dann zuschauen oder selbst eine Fähigkeit einsetzen. Mit Hintergrundthemen.',
         bgColor: 'Hintergrundfarbe', reset: 'Zurücksetzen', swDefault: 'Standard', swNavy: 'Marineblau', swForest: 'Waldgrün', swPlum: 'Pflaume',
-        swCharcoal: 'Anthrazit', swSand: 'Sand', swSky: 'Himmelblau', swRose: 'Rosé', swCustom: 'Eigene Farbe' },
+        swCharcoal: 'Anthrazit', swSand: 'Sand', swSky: 'Himmelblau', swRose: 'Rosé', swCustom: 'Eigene Farbe',
+        pressStart: 'Tippen oder beliebige Taste drücken', selectGame: 'Spielauswahl', hintSelect: '◀ ▶ Wählen · Enter Start',
+        settings: 'Einstellungen', sound: 'Ton', on: 'An', off: 'Aus', close: 'Schließen', back: 'Zurück',
+        uiTheme: 'UI-Design', thClassic: 'Klassisch', thGameboy: 'Game Boy', thNeon: 'Neon', thFamicom: 'Famicom',
+        profile: 'Profil', profileName: 'Name', avatar: 'Avatar', avatarColor: 'Farbe', cancel: 'Abbrechen', save: 'Speichern', player: 'Spieler',
+        avName0: 'Katze', avName1: 'Hund', avName2: 'Roboter', avName3: 'Geist', avName4: 'Schleim', avName5: 'Totenkopf',
+        avName6: 'Ritter', avName7: 'Zauberer', avName8: 'Frosch', avName9: 'Alien', avName10: 'Pilz', avName11: 'Stern',
+        colRed: 'Rot', colOrange: 'Orange', colYellow: 'Gelb', colGreen: 'Grün', colCyan: 'Cyan', colBlue: 'Blau', colPurple: 'Lila', colPink: 'Rosa' },
 };
 
 function detectLang() {
-  const list = navigator.languages && navigator.languages.length ? navigator.languages : (navigator.language ? [navigator.language] : []);
-  for (const l of list) {
-    const code = String(l).toLowerCase().slice(0, 2);
-    if (I18N[code]) return code;
-  }
-  return 'ko';
+  return 'ko'; // 기본 언어는 한국어. 언어 선택(games-lang)을 저장하면 그 값을 씀
 }
 let lang = detectLang();
 try { const gl = localStorage.getItem('games-lang'); if (I18N[gl]) lang = gl; } catch (e) {}
 const t = k => (I18N[lang] && I18N[lang][k]) || I18N.ko[k] || k;
+const $ = id => document.getElementById(id);
 
 function applyLang() {
   document.documentElement.lang = lang;
@@ -574,9 +1121,11 @@ function applyLang() {
   document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
   sel.setAttribute('aria-label', t('langLabel'));
   sel.value = lang;
+  $('profileName').placeholder = t('player');
+  renderProfileChip();
 }
 
-const sel = document.getElementById('lang');
+const sel = $('lang');
 for (const code of Object.keys(I18N)) {
   const o = document.createElement('option');
   o.value = code;
@@ -589,9 +1138,146 @@ sel.addEventListener('change', () => {
   applyLang();
 });
 
+// ===== [공유] 효과음 시작 =====
+// WebAudio 로 그 자리에서 만드는 8비트 효과음(외부 파일 없음). 사이트 공통 키 games-sound = 'on'|'off' (기본 on).
+// - 첫 pointerdown/keydown 때 AudioContext 를 만들거나 깨움 → 그 전에는 소리 없음. WebAudio 가 없으면 조용히 무시.
+// - Sfx.play(name, delay?)  : 등록된 소리 재생 (delay 초 뒤).
+// - Sfx.define(name, fn, gapMs?) : 소리 등록. fn(S, t) 안에서 S.tone / S.noise / S.seq 로 t(시작 시각)부터 예약.
+//   gapMs 를 주면 그 간격 안의 반복 재생은 건너뜀 (예: 공 배틀 hit 은 80).
+// - Sfx.toggle() / Sfx.set(on) : 켜기·끄기 + 저장. #soundBtn / #soundToggle 이 있으면 aria-pressed 를 맞춤.
+// - 다른 탭에서 바꾸면 storage 이벤트로 따라감. 블록 끝의 Sfx.boot() 가 이 연결을 모두 함.
+const Sfx = {
+  KEY: 'games-sound',
+  on: true, ctx: null, out: null, defs: {}, gaps: {}, last: {}, noiseBuf: null,
+  load() {
+    try { this.on = localStorage.getItem(this.KEY) !== 'off'; } catch (e) {}
+  },
+  init() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try {
+        this.ctx = new AC();
+        this.out = this.ctx.createGain();
+        this.out.gain.value = 0.25; // 마스터 볼륨
+        this.out.connect(this.ctx.destination);
+      } catch (e) { this.ctx = null; return; }
+    }
+    if (this.ctx.state === 'suspended') { try { this.ctx.resume(); } catch (e) {} }
+  },
+  set(on) {
+    this.on = !!on;
+    try { localStorage.setItem(this.KEY, this.on ? 'on' : 'off'); } catch (e) {}
+    this.sync();
+  },
+  toggle() {
+    this.set(!this.on);
+    if (this.on) { this.init(); this.play('ui-ok'); }
+  },
+  sync() {
+    document.querySelectorAll('#soundBtn, #soundToggle').forEach(b => b.setAttribute('aria-pressed', String(this.on)));
+  },
+  define(name, fn, gapMs) {
+    this.defs[name] = fn;
+    if (gapMs) this.gaps[name] = gapMs;
+  },
+  play(name, delay) {
+    // 깨우는 중(suspended)이어도 예약해 두면 깨어날 때 울림
+    if (!this.on || !this.ctx || this.ctx.state === 'closed') return;
+    const fn = this.defs[name];
+    if (!fn) return;
+    const gap = this.gaps[name];
+    if (gap) {
+      const now = Date.now();
+      if (now - (this.last[name] || 0) < gap) return;
+      this.last[name] = now;
+    }
+    try { fn(this, this.ctx.currentTime + 0.01 + (delay || 0)); } catch (e) {}
+  },
+  // 기본 음 하나: o = { type: square|triangle|sawtooth|sine, vol 0..1, to: 끝 주파수(미끄러짐), hold: 유지 비율 }
+  tone(t, f, dur, o) {
+    o = o || {};
+    const c = this.ctx, osc = c.createOscillator(), g = c.createGain();
+    const v = o.vol == null ? 0.5 : o.vol;
+    osc.type = o.type || 'square';
+    osc.frequency.setValueAtTime(f, t);
+    if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(v, t + 0.005);
+    g.gain.setValueAtTime(v, t + Math.max(0.006, dur * (o.hold == null ? 0.4 : o.hold)));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(this.out);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  },
+  // 잡음(타격·착지 느낌): o = { vol, hp: 고역 통과 Hz, lp: 저역 통과 Hz }
+  noise(t, dur, o) {
+    o = o || {};
+    const c = this.ctx;
+    if (!this.noiseBuf) {
+      const n = (c.sampleRate * 0.5) | 0, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noiseBuf = b;
+    }
+    const src = c.createBufferSource(), g = c.createGain();
+    const v = o.vol == null ? 0.4 : o.vol;
+    src.buffer = this.noiseBuf; src.loop = true;
+    let node = src;
+    if (o.hp || o.lp) {
+      const f = c.createBiquadFilter();
+      f.type = o.hp ? 'highpass' : 'lowpass';
+      f.frequency.value = o.hp || o.lp;
+      src.connect(f); node = f;
+    }
+    g.gain.setValueAtTime(v, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    node.connect(g); g.connect(this.out);
+    src.start(t); src.stop(t + dur + 0.02);
+  },
+  // 음 여러 개를 step 초 간격으로 (0 은 쉼표)
+  seq(t, freqs, step, o) {
+    freqs.forEach((f, i) => { if (f) this.tone(t + i * step, f, (o && o.dur) || step * 0.9, o); });
+  },
+  boot() {
+    this.load();
+    const wake = () => this.init();
+    for (const ev of ['pointerdown', 'pointerup', 'keydown']) window.addEventListener(ev, wake, true);
+    window.addEventListener('storage', e => {
+      if (e.key !== this.KEY && e.key !== null) return;
+      this.load();
+      this.sync();
+    });
+    this.sync();
+  },
+};
+// 공통 소리 (게임별 소리는 각 페이지에서 Sfx.define 으로 추가)
+Sfx.define('ui-move', (S, t) => S.tone(t, 880, 0.04, { vol: 0.22 }));
+Sfx.define('ui-ok', (S, t) => S.seq(t, [660, 990], 0.05, { vol: 0.3, dur: 0.07 }));
+Sfx.define('ui-back', (S, t) => S.seq(t, [520, 330], 0.05, { vol: 0.3, dur: 0.07 }));
+Sfx.define('menu-open', (S, t) => S.tone(t, 300, 0.12, { type: 'triangle', to: 900, vol: 0.5, hold: 0.7 }));
+Sfx.define('menu-close', (S, t) => S.tone(t, 900, 0.12, { type: 'triangle', to: 300, vol: 0.5, hold: 0.7 }));
+Sfx.define('start', (S, t) => {
+  S.seq(t, [523, 659, 784], 0.07, { vol: 0.35, dur: 0.08 });
+  S.tone(t + 0.21, 1047, 0.25, { vol: 0.35 });
+});
+Sfx.define('win', (S, t) => {
+  S.seq(t, [523, 659, 784, 1047, 784, 1047], 0.09, { vol: 0.32, dur: 0.1 });
+  S.tone(t + 0.54, 1319, 0.45, { vol: 0.32, hold: 0.6 });
+  S.tone(t + 0.54, 659, 0.45, { type: 'triangle', vol: 0.4, hold: 0.6 });
+});
+Sfx.define('lose', (S, t) => {
+  S.seq(t, [523, 415, 349], 0.15, { type: 'triangle', vol: 0.5, dur: 0.16 });
+  S.tone(t + 0.45, 262, 0.6, { type: 'triangle', to: 196, vol: 0.5, hold: 0.5 });
+});
+Sfx.define('draw', (S, t) => {
+  S.seq(t, [440, 0, 440], 0.12, { vol: 0.3, dur: 0.1 });
+  S.tone(t + 0.36, 392, 0.35, { vol: 0.3 });
+});
+Sfx.boot();
+// ===== [공유] 효과음 끝 =====
+
 // 오목 썸네일: 격자 + 돌 몇 개
 (function () {
-  const svg = document.getElementById('gomokuThumb');
+  const svg = $('gomokuThumb');
   const NS = 'http://www.w3.org/2000/svg';
   const mk = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
   const g = 24, ox = 16, oy = 18;
@@ -610,14 +1296,688 @@ function syncLayoutSeg() {
     b.setAttribute('aria-pressed', String(b.dataset.v === document.documentElement.dataset.layout));
   });
 }
-document.getElementById('layoutSeg').addEventListener('click', e => {
+$('layoutSeg').addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b) return;
   applyLayout(b.dataset.v);
   try { localStorage.setItem('games-layout', b.dataset.v); } catch (err) {}
   syncLayoutSeg();
+  Sfx.play('ui-ok');
 });
-// 다른 탭에서 바꾸면 따라감
+syncLayoutSeg();
+
+// 허브 배경색: 상태는 hubBg ('' = 테마 기본), 문서 반영은 head 의 applyPageBg, 저장은 허브 전용 키 games-hub-bg
+const bgSwatches = $('hubBgSwatches');
+const bgInput = $('hubBgInput');
+let hubBg = '';
+try { const v = localStorage.getItem('games-hub-bg'); if (v && HUB_BG_RE.test(v)) hubBg = v.toLowerCase(); } catch (e) {}
+
+// hubBg 를 문서와 UI(.on / aria-pressed / 초기화 버튼)에 반영
+function syncHubBg() {
+  applyPageBg(hubBg);
+  let matched = false;
+  bgSwatches.querySelectorAll('.swatch').forEach(b => {
+    const on = (b.dataset.color || '').toLowerCase() === hubBg;
+    if (on) matched = true;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  $('hubBgCustom').classList.toggle('on', !matched);
+  if (!matched) bgInput.value = hubBg;
+  $('hubBgReset').disabled = !hubBg;
+}
+// save=false 는 색 고르는 중 미리보기 (저장은 change 때)
+function setHubBg(v, save = true) {
+  v = (v || '').toLowerCase();
+  if (v && !HUB_BG_RE.test(v)) return;
+  hubBg = v;
+  syncHubBg();
+  if (!save) return;
+  try { if (v) localStorage.setItem('games-hub-bg', v); else localStorage.removeItem('games-hub-bg'); } catch (e) {}
+}
+bgSwatches.addEventListener('click', e => {
+  const b = e.target.closest('.swatch');
+  if (b) { setHubBg(b.dataset.color); Sfx.play('ui-ok'); }
+});
+bgInput.addEventListener('input', e => setHubBg(e.target.value, false));
+bgInput.addEventListener('change', e => setHubBg(e.target.value));
+$('hubBgReset').addEventListener('click', () => {
+  setHubBg('');
+  Sfx.play('ui-back');
+  bgSwatches.querySelector('.swatch').focus(); // disabled 가 된 초기화 버튼에서 포커스가 사라지지 않게
+});
+syncHubBg();
+
+// ===== [공유] UI 테마 시작 =====
+// html[data-ui] = classic|gameboy|neon|famicom (첫 렌더 전 적용은 <head> 스니펫). 저장 키 games-ui-theme.
+// setUiTheme(v): 적용 + 저장 + #uiThemeSwatches 버튼 aria-pressed 동기화. 스와치 클릭·다른 탭 변경도 여기서 연결.
+const UI_THEMES = ['classic', 'gameboy', 'neon', 'famicom'];
+const UI_THEME_KEY = 'games-ui-theme';
+function getUiTheme() {
+  const v = document.documentElement.dataset.ui;
+  return UI_THEMES.includes(v) ? v : 'classic';
+}
+function syncUiTheme() {
+  const v = getUiTheme();
+  document.querySelectorAll('#uiThemeSwatches button[data-v]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+}
+function setUiTheme(v, noSave) {
+  if (!UI_THEMES.includes(v)) v = 'classic';
+  document.documentElement.dataset.ui = v;
+  if (!noSave) { try { localStorage.setItem(UI_THEME_KEY, v); } catch (e) {} }
+  syncUiTheme();
+}
+(function () {
+  const sw = document.getElementById('uiThemeSwatches');
+  if (sw) sw.addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]');
+    if (!b) return;
+    setUiTheme(b.dataset.v);
+    if (typeof Sfx !== 'undefined') Sfx.play('ui-ok');
+  });
+  window.addEventListener('storage', e => {
+    if (e.key !== UI_THEME_KEY && e.key !== null) return;
+    let v = null;
+    try { v = localStorage.getItem(UI_THEME_KEY); } catch (err) {}
+    setUiTheme(v, true);
+  });
+  syncUiTheme();
+})();
+// ===== [공유] UI 테마 끝 =====
+
+// ===== [공유] 픽셀 아바타 시작 =====
+// 8×8 스프라이트 12종. '.' = 투명, 'x' = 주 색(프로필 색), 'o' = 외곽선(--ink), 'w' = 흰 하이라이트.
+// renderAvatar(box, avatarIndex, colorKey): box(.gx-avatar) 안에 SVG(rect.av-x/.av-o/.av-w, crispEdges)를 넣고
+// box.dataset.avColor = colorKey (CSS 의 .gx-avatar[data-av-color] 가 --av-* 색을 고름).
+const PX_AVATARS = [
+  [ // 0 고양이
+    '.o....o.',
+    'oxo..oxo',
+    'oxxooxxo',
+    'oxoxxoxo',
+    'oxwwwwxo',
+    'oxxooxxo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 1 강아지
+    '.oo..oo.',
+    'oxxooxxo',
+    'oxxxxxxo',
+    'oxoxxoxo',
+    'ooxwwxoo',
+    '.oxooxo.',
+    '.oxwwxo.',
+    '..oooo..',
+  ],
+  [ // 2 로봇
+    '...oo...',
+    '...ow...',
+    'oooooooo',
+    'oxxxxxxo',
+    'oxwxxwxo',
+    'oxxxxxxo',
+    'oxowowxo',
+    'oooooooo',
+  ],
+  [ // 3 유령
+    '..oooo..',
+    '.oxxxxo.',
+    'oxwxxxxo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oo.oo.oo',
+  ],
+  [ // 4 슬라임
+    '........',
+    '...oo...',
+    '..oxxo..',
+    '.oxwxxo.',
+    'oxxxxxxo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    '.oooooo.',
+  ],
+  [ // 5 해골
+    '.oooooo.',
+    'oxxxxxxo',
+    'oxwxxxxo',
+    'oooxxooo',
+    'oooxxooo',
+    'oxxooxxo',
+    '.oxoxox.',
+    '..oooo..',
+  ],
+  [ // 6 기사
+    '...oo...',
+    '.ooxxoo.',
+    'oxxxxxxo',
+    'oxwxxxxo',
+    'oooooooo',
+    'oxoxxoxo',
+    'oxxxxxxo',
+    '.oooooo.',
+  ],
+  [ // 7 마법사
+    '....o...',
+    '...oxo..',
+    '..oxxxo.',
+    '.oxxwxxo',
+    'oooooooo',
+    'owowwowo',
+    'owwwwwwo',
+    '.oooooo.',
+  ],
+  [ // 8 개구리
+    '.oo..oo.',
+    'owoxxowo',
+    'oxxxxxxo',
+    'oxxxxxxo',
+    'oxooooxo',
+    'oxxxxxxo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 9 외계인
+    '.o....o.',
+    '..oxxo..',
+    '.oxxxxo.',
+    'oxxxxxxo',
+    'oowxxwoo',
+    'oooxxooo',
+    '.oxxxxo.',
+    '..oooo..',
+  ],
+  [ // 10 버섯
+    '..oooo..',
+    '.oxwxxo.',
+    'oxxxxwxo',
+    'oxwxxxxo',
+    'oooooooo',
+    '..owwo..',
+    '..owwo..',
+    '..oooo..',
+  ],
+  [ // 11 별
+    '...oo...',
+    '..oxxo..',
+    'oooxxooo',
+    'oxxwxxxo',
+    '.oxxxxo.',
+    '.oxxxxo.',
+    'oxxooxxo',
+    'oo....oo',
+  ],
+];
+const AV_COLORS = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
+function renderAvatar(box, avatarIndex, colorKey) {
+  if (!box) return;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const grid = PX_AVATARS[avatarIndex] || PX_AVATARS[0];
+  const s = document.createElementNS(SVGNS, 'svg');
+  s.setAttribute('viewBox', '0 0 8 8');
+  s.setAttribute('shape-rendering', 'crispEdges');
+  s.setAttribute('aria-hidden', 'true');
+  s.setAttribute('focusable', 'false');
+  const CLS = { x: 'av-x', o: 'av-o', w: 'av-w' };
+  grid.forEach((row, y) => {
+    // 같은 글자가 이어지면 rect 하나로 합침
+    for (let x = 0; x < row.length;) {
+      const ch = row[x];
+      let n = 1;
+      while (x + n < row.length && row[x + n] === ch) n++;
+      if (CLS[ch]) {
+        const r = document.createElementNS(SVGNS, 'rect');
+        r.setAttribute('x', x); r.setAttribute('y', y);
+        r.setAttribute('width', n); r.setAttribute('height', 1);
+        r.setAttribute('class', CLS[ch]);
+        s.appendChild(r);
+      }
+      x += n;
+    }
+  });
+  box.replaceChildren(s);
+  box.dataset.avColor = AV_COLORS.includes(colorKey) ? colorKey : 'red';
+}
+// ===== [공유] 픽셀 아바타 끝 =====
+
+// ===== [공유] 프로필 시작 =====
+// localStorage games-profile = {"name","avatar":0..11,"color":"red|…|pink"} (허브에서 만듦). 위 아바타 블록 다음에 둘 것.
+// loadProfile() 은 늘 올바른 값을 돌려줌. name 은 앞뒤 공백·제어문자 제거, 최대 12자.
+// name 이 비었거나 기본값 '플레이어' 이면 '' → 화면에서는 각 언어의 기본 이름(I18N player)으로 표시: p.name || t('player')
+const PROFILE_KEY = 'games-profile';
+function loadProfile() {
+  const p = { name: '', avatar: 0, color: 'red' };
+  try {
+    const v = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
+    if (v && typeof v === 'object') {
+      if (typeof v.name === 'string') {
+        const nm = Array.from(v.name.replace(/[\u0000-\u001f\u007f]/g, '').trim()).slice(0, 12).join('').trim();
+        p.name = nm === '플레이어' ? '' : nm;
+      }
+      if (Number.isInteger(v.avatar) && v.avatar >= 0 && v.avatar < PX_AVATARS.length) p.avatar = v.avatar;
+      if (AV_COLORS.includes(v.color)) p.color = v.color;
+    }
+  } catch (e) {}
+  return p;
+}
+// ===== [공유] 프로필 끝 =====
+
+// ===== [공유] 메뉴 도우미 시작 =====
+// 페이지 요소에 기대지 않는 범용 도우미.
+// GxUI.modal(root, o)  : 모달 하나(결과 화면 등). 열기/닫기, Tab 가두기, 바깥 포커스 되돌리기, Esc, 닫으면 원래 포커스로.
+//   o = { showClass: 'show'(없으면 hidden 속성으로 열고 닫음), fallbackFocus: () => el, onEscape(e) }
+// GxMenu(root, o)      : .gx-menu 안의 [data-sheet] 하위 화면들을 쌓아 가며 보여 주는 메뉴(modal 위에 만듦).
+//   html[data-menu] = 지금 시트 이름('' = 닫힘). [data-back] = 뒤로. 스크림 클릭 = 닫기.
+//   ↑↓ Home/End = 줄 이동([role=group] 은 한 줄로 취급), ←→ = 그룹 안 이동, Esc = 뒤로/닫기.
+//   .gx-menu-list 버튼은 포커스를 받으면 aria-current="true" (▶ 커서).
+//   o = { button: 메뉴 버튼(aria-expanded), fallbackFocus, focusFor(name, sheet) → el, onShow(name, sheet),
+//         onEscape() → true 면 처리됨, onClose() }
+//   menu.open(name, { locked, returnTo }) — locked 면 첫 시트에서 뒤로 버튼 숨김·Esc/스크림으로 못 닫음
+//   menu.push(name), menu.back(), menu.close({ restore: false, silent: true }), menu.isOpen(), menu.current()
+// GxUI.leave(href)     : html.gx-leave 와이프 후 250ms 뒤 이동(움직임 줄이기면 바로). GxUI.enter(): gx-enter 정리.
+const GxUI = {
+  reduced() {
+    try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  },
+  sfx(name) { if (typeof Sfx !== 'undefined') Sfx.play(name); },
+  shown(el) {
+    return !!el && !el.disabled && !el.closest('[hidden]') && el.getClientRects().length > 0;
+  },
+  focusables(root) {
+    if (!root) return [];
+    return Array.from(root.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(GxUI.shown);
+  },
+  focusSafe(el) {
+    if (!el || !el.isConnected || !GxUI.shown(el)) return false;
+    try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+    return true;
+  },
+  trapTab(root, e) {
+    const list = GxUI.focusables(root);
+    if (!list.length) { e.preventDefault(); return; }
+    const first = list[0], last = list[list.length - 1], a = document.activeElement;
+    if (e.shiftKey && (a === first || !root.contains(a))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (a === last || !root.contains(a))) { e.preventDefault(); first.focus(); }
+  },
+  // 줄 단위 이동: [role=group] 안 버튼들은 한 줄
+  stops(root) {
+    const out = [];
+    for (const el of GxUI.focusables(root)) {
+      const g = el.closest('[role="group"]');
+      const key = g && root.contains(g) ? g : el;
+      if (!out.includes(key)) out.push(key);
+    }
+    return out;
+  },
+  moveStop(root, dir) { // dir: 1 | -1 | 'first' | 'last'
+    const stops = GxUI.stops(root);
+    if (!stops.length) return false;
+    const i = stops.findIndex(s => s.contains(document.activeElement));
+    let n;
+    if (dir === 'first') n = 0;
+    else if (dir === 'last') n = stops.length - 1;
+    else if (i < 0) n = dir > 0 ? 0 : stops.length - 1;
+    else n = (i + dir + stops.length) % stops.length;
+    let target = stops[n];
+    if (target.matches('[role="group"]')) {
+      const btns = GxUI.focusables(target);
+      target = btns.find(b => b.getAttribute('aria-pressed') === 'true' || b.classList.contains('on')) || btns[0];
+    }
+    return GxUI.focusSafe(target);
+  },
+  moveInGroup(group, from, dir) {
+    const btns = GxUI.focusables(group);
+    const i = btns.indexOf(from);
+    if (i < 0 || btns.length < 2) return false;
+    return GxUI.focusSafe(btns[(i + dir + btns.length) % btns.length]);
+  },
+  modal(root, o) {
+    o = o || {};
+    const d = { root, returnTo: null };
+    d.isOpen = () => (o.showClass ? root.classList.contains(o.showClass) : !root.hidden);
+    // focusEl: 요소 또는 요소를 돌려주는 함수(열린 뒤에 계산)
+    d.open = (focusEl, returnTo) => {
+      d.returnTo = returnTo || document.activeElement;
+      if (o.showClass) root.classList.add(o.showClass); else root.hidden = false;
+      const f = typeof focusEl === 'function' ? focusEl() : focusEl;
+      GxUI.focusSafe(f) || GxUI.focusSafe(GxUI.focusables(root)[0]);
+    };
+    d.close = restore => {
+      if (!d.isOpen()) return false;
+      if (o.showClass) root.classList.remove(o.showClass); else root.hidden = true;
+      const r = d.returnTo;
+      d.returnTo = null;
+      if (restore !== false && !GxUI.focusSafe(r) && o.fallbackFocus) GxUI.focusSafe(o.fallbackFocus());
+      return true;
+    };
+    // document 에 걸어 둠: 포커스가 body 로 빠진 경우에도 Tab/Esc 를 잡음
+    document.addEventListener('keydown', e => {
+      if (e.defaultPrevented || !d.isOpen()) return;
+      if (e.key === 'Tab') GxUI.trapTab(root, e);
+      else if (e.key === 'Escape') {
+        e.preventDefault();
+        if (o.onEscape) o.onEscape(e); else d.close();
+      }
+    });
+    document.addEventListener('focusin', e => {
+      if (d.isOpen() && !root.contains(e.target)) GxUI.focusSafe(GxUI.focusables(root)[0]);
+    });
+    return d;
+  },
+  leave(href) {
+    const h = document.documentElement;
+    if (h.classList.contains('gx-leave')) return;
+    if (GxUI.reduced()) { location.href = href; return; }
+    h.classList.add('gx-leave');
+    setTimeout(() => { location.href = href; }, 250);
+  },
+  enter() {
+    const h = document.documentElement;
+    setTimeout(() => h.classList.remove('gx-enter'), 300);
+    // 뒤로 가기로 돌아온 경우(bfcache) 퇴장 덮개를 걷음
+    window.addEventListener('pageshow', e => { if (e.persisted) h.classList.remove('gx-leave', 'gx-enter'); });
+  },
+};
+function GxMenu(root, o) {
+  o = o || {};
+  const html = document.documentElement;
+  const sheets = {};
+  root.querySelectorAll('[data-sheet]').forEach(s => { sheets[s.dataset.sheet] = s; });
+  let stack = [], locked = false;
+  const atLockedRoot = () => locked && stack.length <= 1;
+  const m = GxUI.modal(root, {
+    fallbackFocus: o.fallbackFocus,
+    onEscape: () => { if (o.onEscape && o.onEscape()) return; m.back(); },
+  });
+  const baseOpen = m.open, baseClose = m.close;
+  m.current = () => (stack.length ? stack[stack.length - 1].name : '');
+  function showSheet(name) {
+    const s = sheets[name];
+    for (const k in sheets) sheets[k].hidden = k !== name;
+    const title = s.querySelector('.gx-title[id]');
+    if (title) root.setAttribute('aria-labelledby', title.id);
+    html.dataset.menu = name;
+    s.querySelectorAll('[data-back]').forEach(b => { b.hidden = atLockedRoot(); });
+    if (o.onShow) o.onShow(name, s);
+  }
+  function sheetFocus(name) {
+    const s = sheets[name], list = GxUI.focusables(s);
+    return [o.focusFor && o.focusFor(name, s), s.querySelector('.gx-menu-list [aria-current="true"]'),
+      list.find(b => !b.hasAttribute('data-back')), list[0]].find(x => x && GxUI.shown(x));
+  }
+  m.open = (name, opt) => {
+    opt = opt || {};
+    if (!sheets[name]) return;
+    if (m.isOpen()) { m.push(name); return; }
+    locked = !!opt.locked;
+    stack = [{ name, from: null }];
+    // 커서 ▶ 는 목록 첫 항목에서 시작
+    root.querySelectorAll('.gx-menu-list').forEach(l => l.querySelectorAll('.gx-btn').forEach((b, i) => {
+      if (i === 0) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+    }));
+    showSheet(name);
+    baseOpen(() => sheetFocus(name), opt.returnTo);
+    if (o.button) o.button.setAttribute('aria-expanded', 'true');
+    GxUI.sfx('menu-open');
+  };
+  m.push = name => {
+    if (!sheets[name]) return;
+    stack.push({ name, from: document.activeElement });
+    showSheet(name);
+    GxUI.focusSafe(sheetFocus(name));
+    GxUI.sfx('ui-ok');
+  };
+  m.back = () => {
+    if (stack.length > 1) {
+      const top = stack.pop();
+      showSheet(m.current());
+      GxUI.focusSafe(top.from) || GxUI.focusSafe(sheetFocus(m.current()));
+      GxUI.sfx('ui-back');
+    } else if (!locked) m.close();
+  };
+  m.close = opt => {
+    opt = opt || {};
+    if (!m.isOpen()) return false;
+    stack = []; locked = false;
+    html.dataset.menu = '';
+    baseClose(opt.restore);
+    if (o.button) o.button.setAttribute('aria-expanded', 'false');
+    if (!opt.silent) GxUI.sfx('menu-close');
+    if (o.onClose) o.onClose();
+    return true;
+  };
+  html.dataset.menu = '';
+  root.addEventListener('click', e => {
+    if (e.target === root) { if (!atLockedRoot()) m.close(); return; }
+    if (e.target.closest('[data-back]')) m.back();
+  });
+  root.addEventListener('focusin', e => {
+    const b = e.target.closest && e.target.closest('.gx-menu-list .gx-btn');
+    if (!b) return;
+    b.parentNode.querySelectorAll('.gx-btn').forEach(x => {
+      if (x === b) x.setAttribute('aria-current', 'true'); else x.removeAttribute('aria-current');
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented || !m.isOpen() || e.altKey || e.ctrlKey || e.metaKey) return;
+    const s = sheets[m.current()];
+    if (!s) return;
+    const k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowUp' || k === 'Home' || k === 'End') {
+      e.preventDefault();
+      if (GxUI.moveStop(s, k === 'ArrowDown' ? 1 : k === 'ArrowUp' ? -1 : k === 'Home' ? 'first' : 'last')) GxUI.sfx('ui-move');
+    } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
+      const g = e.target.closest && e.target.closest('[role="group"]');
+      if (g && s.contains(g)) {
+        e.preventDefault();
+        if (GxUI.moveInGroup(g, e.target, k === 'ArrowRight' ? 1 : -1)) GxUI.sfx('ui-move');
+      }
+    }
+  });
+  return m;
+}
+// ===== [공유] 메뉴 도우미 끝 =====
+
+// ===== 프로필 (K1): 쓰기는 허브에서만. 읽기는 공유 loadProfile() (name '' = 각 언어의 기본 이름) =====
+let profile = loadProfile();
+const profileName = p => p.name || t('player');
+// loadProfile 과 같은 규칙으로 정리해서 저장 (제어문자 제거, 앞뒤 공백 제거, 최대 12자)
+function saveProfile(p) {
+  const name = Array.from(String(p.name || '').replace(/[\u0000-\u001f\u007f]/g, '').trim()).slice(0, 12).join('').trim();
+  profile = { name: name === '플레이어' ? '' : name, avatar: p.avatar, color: p.color };
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch (e) {}
+}
+function renderProfileChip() {
+  const name = profileName(profile);
+  renderAvatar($('profileChipAvatar'), profile.avatar, profile.color);
+  $('profileChipName').textContent = name;
+  $('profileChip').setAttribute('aria-label', t('profile') + ': ' + name);
+}
+
+// 시트 안의 편집 중 값 (저장 전까지 profile 은 그대로)
+let draft = null;
+const avCells = [...document.querySelectorAll('#avatarGrid .av-cell')];
+const avColors = [...document.querySelectorAll('#avatarColors .av-color')];
+// 라디오 그룹: aria-checked + 로빙 tabindex (선택된 칸만 Tab 으로 들어감)
+function syncRadios(list, isOn) {
+  list.forEach(b => { const on = isOn(b); b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+}
+function renderDraft() {
+  renderAvatar($('avatarPreview'), draft.avatar, draft.color);
+  avCells.forEach(b => renderAvatar(b, +b.dataset.avatar, draft.color));
+  syncRadios(avCells, b => +b.dataset.avatar === draft.avatar);
+  syncRadios(avColors, b => b.dataset.color === draft.color);
+}
+function pickAvatar(i) { draft.avatar = i; renderDraft(); Sfx.play('ui-move'); }
+function pickColor(c) { draft.color = c; renderDraft(); Sfx.play('ui-move'); }
+$('avatarGrid').addEventListener('click', e => { const b = e.target.closest('.av-cell'); if (b) pickAvatar(+b.dataset.avatar); });
+$('avatarColors').addEventListener('click', e => { const b = e.target.closest('.av-color'); if (b) pickColor(b.dataset.color); });
+// 화살표 키: ←↑ 이전, →↓ 다음 (끝에서 반대쪽으로), Home/End. 이동하면 바로 선택 + 포커스
+function radioKeys(list, pick, val) {
+  return e => {
+    const i = list.indexOf(e.target.closest('[role="radio"]'));
+    if (i < 0) return;
+    let j = -1;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i + list.length - 1) % list.length;
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % list.length;
+    else if (e.key === 'Home') j = 0;
+    else if (e.key === 'End') j = list.length - 1;
+    if (j < 0) return;
+    e.preventDefault();
+    pick(val(list[j]));
+    list[j].focus();
+  };
+}
+$('avatarGrid').addEventListener('keydown', radioKeys(avCells, pickAvatar, b => +b.dataset.avatar));
+$('avatarColors').addEventListener('keydown', radioKeys(avColors, pickColor, b => b.dataset.color));
+
+function openProfile() {
+  draft = { name: profile.name, avatar: profile.avatar, color: profile.color };
+  $('profileName').value = (profile.name || '').trim();
+  renderDraft();
+  openSheet('profile', $('profileName'));
+}
+function commitProfile() {
+  saveProfile({ name: $('profileName').value, avatar: draft.avatar, color: draft.color });
+  renderProfileChip();
+  closeSheet(false, true);
+  GxUI.focusSafe($('profileChip'));
+  Sfx.play('ui-ok');
+}
+$('profileChip').addEventListener('click', openProfile);
+$('profileSave').addEventListener('click', commitProfile);
+$('profileCancel').addEventListener('click', () => closeSheet(true));
+$('profileName').addEventListener('keydown', e => {
+  // stopPropagation: 시트가 닫힌 뒤 같은 Enter 가 문서 키 처리(게임 시작)로 번지지 않게
+  if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); e.stopPropagation(); commitProfile(); }
+});
+
+// ===== 시트(설정·프로필): 공유 GxUI.modal 이 Tab 가두기·Esc·닫으면 연 버튼으로 포커스 복귀를 맡음.
+// 여기서는 한 번에 하나만 열기, 연 버튼의 aria-expanded, 소리만 =====
+const sheets = {
+  settings: { btn: $('settingsBtn'), m: GxUI.modal($('gxSettings'), { onEscape: () => closeSheet() }) },
+  profile: { btn: $('profileChip'), m: GxUI.modal($('gxProfile'), { onEscape: () => closeSheet(true) }) }, // Esc = 취소
+};
+let openName = '';
+function openSheet(name, focusEl) {
+  if (openName) closeSheet(false, true);
+  const s = sheets[name];
+  openName = name;
+  s.m.open(focusEl, s.btn);
+  s.btn.setAttribute('aria-expanded', 'true');
+  Sfx.play('menu-open');
+}
+// back=true 는 취소/뒤로 소리. quiet=true 는 소리·포커스 복귀 없이 (다른 시트로 바로 넘어갈 때)
+function closeSheet(back, quiet) {
+  if (!openName) return;
+  const s = sheets[openName];
+  openName = '';
+  s.m.close(!quiet);
+  s.btn.setAttribute('aria-expanded', 'false');
+  if (!quiet) Sfx.play(back ? 'ui-back' : 'menu-close');
+}
+// 바탕(어두운 막) 클릭 = 닫기 (프로필은 취소)
+$('gxSettings').addEventListener('click', e => { if (e.target === e.currentTarget) closeSheet(); });
+$('gxProfile').addEventListener('click', e => { if (e.target === e.currentTarget) closeSheet(true); });
+$('settingsBtn').addEventListener('click', () => openSheet('settings'));
+$('settingsClose').addEventListener('click', () => closeSheet());
+
+// ===== 소리 버튼 (오른쪽 위 #soundBtn, 설정 시트 #soundToggle). aria-pressed 동기화는 Sfx 가 함 =====
+$('soundBtn').addEventListener('click', () => Sfx.toggle());
+$('soundToggle').addEventListener('click', () => Sfx.toggle());
+
+// ===== 화면: 타이틀 → 게임 선택 =====
+const scrTitle = $('scrTitle'), scrSelect = $('scrSelect');
+const slots = [...document.querySelectorAll('#slots a.slot')];
+let cur = 0, launching = false;
+
+function showTitle() {
+  scrSelect.hidden = true;
+  scrTitle.hidden = false;
+  try { sessionStorage.setItem('games-title-seen', '1'); } catch (e) {}
+}
+function showSelect(fromTitle) {
+  if (!scrTitle.hidden) Sfx.play(fromTitle ? 'start' : 'ui-ok');
+  scrTitle.hidden = true;
+  scrSelect.hidden = false;
+  if (fromTitle) slots[cur].focus({ preventScroll: true });
+}
+
+// 선택 커서: aria-current 하나 + 로빙 tabindex + 정보 바(이름·설명) 갱신
+function setCursor(i, focus) {
+  i = (i + slots.length) % slots.length;
+  const moved = i !== cur;
+  cur = i;
+  slots.forEach((s, k) => {
+    if (k === i) s.setAttribute('aria-current', 'true'); else s.removeAttribute('aria-current');
+    s.tabIndex = k === i ? 0 : -1;
+  });
+  const s = slots[i];
+  $('selName').dataset.i18n = s.querySelector('.name').dataset.i18n;
+  $('selDesc').dataset.i18n = s.querySelector('.desc').dataset.i18n;
+  $('selName').textContent = t($('selName').dataset.i18n);
+  $('selDesc').textContent = t($('selDesc').dataset.i18n);
+  if (focus && document.activeElement !== s) s.focus({ preventScroll: true });
+  if (moved) Sfx.play('ui-move');
+}
+// 결정: 소리 → GxUI.leave (블록 와이프 html.gx-leave → 250ms 뒤 이동, reduced-motion 이면 바로)
+function launch(i) {
+  if (launching) return;
+  launching = true;
+  setCursor(i);
+  Sfx.play('ui-ok');
+  GxUI.leave(slots[i].getAttribute('href'));
+}
+
+// 포인터: 마우스는 올리면 커서 이동·클릭하면 바로 시작, 터치는 첫 탭=선택·선택된 칸 탭=시작
+let lastPointer = 'mouse';
+document.addEventListener('pointerdown', e => { lastPointer = e.pointerType || 'mouse'; }, true);
+slots.forEach((s, i) => {
+  s.addEventListener('pointerover', e => { if (e.pointerType === 'mouse' && !launching) setCursor(i); });
+  s.addEventListener('focus', () => setCursor(i));
+  s.addEventListener('click', e => {
+    // Ctrl/⌘/Shift/가운데 클릭(새 탭 열기)은 브라우저 기본 동작 그대로
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    if (e.detail > 0 && lastPointer !== 'mouse' && lastPointer !== 'pen' && i !== cur) { setCursor(i); return; }
+    launch(i);
+  });
+});
+// 타이틀: 화면 어디든 클릭/탭하면 선택 화면으로 (#pressStart 포함)
+scrTitle.addEventListener('click', () => showSelect(true));
+
+// ===== 키보드 =====
+const MOD_KEYS = /^(Shift|Control|Alt|AltGraph|Meta|OS|CapsLock|NumLock|ScrollLock|Fn|FnLock|Hyper|Super|Tab|Dead|Process|Unidentified|ContextMenu|Escape)$|^F\d+$/;
+document.addEventListener('keydown', e => {
+  // 시트가 열려 있으면 시트(GxUI.modal)가 Esc·Tab 을 처리 → 화면 키는 무시
+  if (openName || e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.isComposing || launching) return;
+  // 오른쪽·왼쪽 위 버튼에 포커스가 있을 때 Enter/Space 는 그 버튼이 처리
+  const inCorner = e.target.closest && e.target.closest('.corner');
+  if (inCorner && (e.key === 'Enter' || e.key === ' ')) return;
+
+  if (!scrTitle.hidden) {
+    if (MOD_KEYS.test(e.key)) return;
+    e.preventDefault();
+    showSelect(true);
+    return;
+  }
+  switch (e.key) {
+    case 'ArrowLeft': case 'ArrowUp': e.preventDefault(); setCursor(cur - 1, true); break;
+    case 'ArrowRight': case 'ArrowDown': e.preventDefault(); setCursor(cur + 1, true); break;
+    case 'Home': e.preventDefault(); setCursor(0, true); break;
+    case 'End': e.preventDefault(); setCursor(slots.length - 1, true); break;
+    case 'Enter': case ' ':
+      if (e.repeat) return;
+      e.preventDefault(); launch(cur); break;
+    case 'Escape':
+      e.preventDefault(); Sfx.play('ui-back'); showTitle(); break;
+  }
+});
+
+// ===== 다른 탭에서 바꾸면 따라감 (배치·배경색·프로필; 소리·UI 테마는 공유 블록이 처리) =====
 window.addEventListener('storage', e => {
   if (e.key === 'games-layout' && (e.newValue === 'mobile' || e.newValue === 'pc')) {
     applyLayout(e.newValue);
@@ -635,86 +1995,23 @@ window.addEventListener('storage', e => {
     hubBg = HUB_BG_RE.test(v) ? v.toLowerCase() : '';
     syncHubBg();
   }
-});
-syncLayoutSeg();
-
-// 허브 배경색: 상태는 hubBg ('' = 테마 기본), 문서 반영은 head 의 applyPageBg, 저장은 허브 전용 키 games-hub-bg
-const bgBtn = document.getElementById('hubBgBtn');
-const bgPop = document.getElementById('hubBgPop');
-const bgSwatches = document.getElementById('hubBgSwatches');
-const bgInput = document.getElementById('hubBgInput');
-let hubBg = '';
-try { const v = localStorage.getItem('games-hub-bg'); if (v && HUB_BG_RE.test(v)) hubBg = v.toLowerCase(); } catch (e) {}
-
-// hubBg 를 문서와 UI(.on / aria-pressed / 초기화 버튼)에 반영
-function syncHubBg() {
-  applyPageBg(hubBg);
-  let matched = false;
-  bgSwatches.querySelectorAll('.swatch').forEach(b => {
-    const on = (b.dataset.color || '').toLowerCase() === hubBg;
-    if (on) matched = true;
-    b.classList.toggle('on', on);
-    b.setAttribute('aria-pressed', on ? 'true' : 'false');
-  });
-  document.getElementById('hubBgCustom').classList.toggle('on', !matched);
-  if (!matched) bgInput.value = hubBg;
-  document.getElementById('hubBgReset').disabled = !hubBg;
-}
-// save=false 는 색 고르는 중 미리보기 (저장은 change 때)
-function setHubBg(v, save = true) {
-  v = (v || '').toLowerCase();
-  if (v && !HUB_BG_RE.test(v)) return;
-  hubBg = v;
-  syncHubBg();
-  if (!save) return;
-  try { if (v) localStorage.setItem('games-hub-bg', v); else localStorage.removeItem('games-hub-bg'); } catch (e) {}
-}
-bgSwatches.addEventListener('click', e => {
-  const b = e.target.closest('.swatch');
-  if (b) setHubBg(b.dataset.color);
-});
-bgInput.addEventListener('input', e => setHubBg(e.target.value, false));
-bgInput.addEventListener('change', e => setHubBg(e.target.value));
-document.getElementById('hubBgReset').addEventListener('click', () => {
-  setHubBg('');
-  bgSwatches.querySelector('.swatch').focus(); // disabled 가 된 초기화 버튼에서 포커스가 사라지지 않게
+  if (e.key === 'games-profile' || e.key === null) {
+    profile = loadProfile();
+    renderProfileChip();
+  }
 });
 
-// 팝오버 열기/닫기: hidden + aria-expanded. 바깥 클릭·Esc 로 닫음
-function openBgPop() {
-  bgPop.hidden = false;
-  bgBtn.setAttribute('aria-expanded', 'true');
-  (bgSwatches.querySelector('.swatch[aria-pressed="true"]') ||
-   (document.getElementById('hubBgCustom').classList.contains('on') ? bgInput : null) ||
-   bgSwatches.querySelector('.swatch')).focus();
-}
-function closeBgPop(refocus) {
-  if (bgPop.hidden) return;
-  bgPop.hidden = true;
-  bgBtn.setAttribute('aria-expanded', 'false');
-  if (refocus) bgBtn.focus();
-}
-bgBtn.addEventListener('click', () => { if (bgPop.hidden) openBgPop(); else closeBgPop(true); });
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && !bgPop.hidden) { e.preventDefault(); closeBgPop(true); }
-});
-// 바깥 클릭: 다른 컨트롤을 누른 경우엔 그쪽 포커스를 뺏지 않고, 팝오버 안에 포커스가 있었을 때만 버튼으로 돌려줌
-document.addEventListener('pointerdown', e => {
-  if (bgPop.hidden || bgPop.contains(e.target) || bgBtn.contains(e.target)) return;
-  const inside = bgPop.contains(document.activeElement);
-  closeBgPop(false);
-  // 포커스 이동(mousedown 기본 동작)이 끝난 뒤, 포커스 갈 곳 없는 바탕을 눌렀을 때만
-  if (inside) setTimeout(() => {
-    if (!document.activeElement || document.activeElement === document.body) bgBtn.focus({ preventScroll: true });
-  }, 0);
-});
-// 키보드로 Tab 해서 팝오버 밖으로 나가면 닫음
-bgPop.addEventListener('focusout', e => {
-  if (e.relatedTarget && !bgPop.contains(e.relatedTarget) && e.relatedTarget !== bgBtn) closeBgPop(false);
-});
-syncHubBg();
-
+// ===== 시작 =====
 applyLang();
+setCursor(0);
+{
+  let seen = false;
+  try { seen = sessionStorage.getItem('games-title-seen') === '1'; } catch (e) {}
+  if (!seen && location.hash !== '#select') showTitle();
+}
+// 게임에서 돌아올 때(head 에서 붙인 gx-enter) 와이프를 걷고, bfcache 복귀 때 gx-leave 덮개도 걷음
+GxUI.enter();
+window.addEventListener('pageshow', e => { if (e.persisted) launching = false; });
 </script>
 </body>
 </html>
